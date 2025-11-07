@@ -9,6 +9,7 @@ import { TUser } from "@/lib/type-data";
 import {
   PasswordUpdateSchema,
   ProfileUpdateSchema,
+  RoleUpdateSchema,
   UsernameUpdateSchema,
 } from "@/lib/schema-validation";
 import {
@@ -32,10 +33,20 @@ import { toast } from "sonner";
 import {
   updateAccount,
   updatePassword,
+  updateRole,
   updateUsername,
 } from "@/lib/server/actions/action-user";
 import { signOut } from "next-auth/react";
 import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { ROLE } from "@/lib/constant";
+import { useRouter } from "next/navigation";
 
 interface IAccountForm {
   data: TUser;
@@ -337,4 +348,81 @@ function AccountResetUsername() {
   );
 }
 
-export { AccountForm, AccountResetPassword, AccountResetUsername };
+interface IAccountRoleUpdate {
+  data: TUser;
+}
+
+function AccountRoleUpdate({ data }: IAccountRoleUpdate) {
+  const router = useRouter();
+
+  const form = useForm<z.infer<typeof RoleUpdateSchema>>({
+    resolver: zodResolver(RoleUpdateSchema),
+    defaultValues: {
+      idUser: data.idUser,
+      role: data.role,
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = async (values: z.infer<typeof RoleUpdateSchema>) => {
+    const result = await updateRole(values);
+
+    if (result.ok) {
+      form.reset();
+      toast.success(result.message);
+      router.refresh();
+    } else {
+      toast.error(result.message);
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Role User</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value.toString()}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Role User" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {ROLE.map((item, index) => (
+                      <SelectItem key={index} value={item.value}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="w-full"
+        >
+          {form.formState.isSubmitting ? "Loading..." : "Update"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+export {
+  AccountForm,
+  AccountResetPassword,
+  AccountResetUsername,
+  AccountRoleUpdate,
+};

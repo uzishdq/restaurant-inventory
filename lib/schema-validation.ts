@@ -44,6 +44,8 @@ const validatedPhoneSchema = z
     message: "Phone number must start with the digit 0.",
   });
 
+export const enumRole = ["ADMIN", "HEADKITCHEN", "MANAGER"] as const;
+
 /* -------- AUTH --------  */
 export const LoginSchema = z.object({
   username: username,
@@ -80,3 +82,8 @@ export const PasswordUpdateSchema = z
     message: "Passwords do not match",
     path: ["newConfirmPassword"],
   });
+
+export const RoleUpdateSchema = z.object({
+  idUser: z.uuid("Invalid ID format."),
+  role: z.enum(enumRole),
+});

@@ -40,4 +40,74 @@ export const LABEL = {
 };
 
 // TAGS VALIDATION
-export const tagsUserRevalidate = ["get-account"];
+export const tagsUserRevalidate = ["get-account", "get-users"];
+
+//ENUM SELECT
+export const ROLE = [
+  {
+    name: "Admin",
+    value: "ADMIN",
+  },
+  {
+    name: "Head Kitchen",
+    value: "HEADKITCHEN",
+  },
+  {
+    name: "Manager",
+    value: "MANAGER",
+  },
+];
+
+// DATE FILTER
+export const YEARS = ["2022", "2023", "2024", "2025", "2026", "2027"];
+
+export const MONTHS = [
+  {
+    title: "Januari",
+    value: "01",
+  },
+  {
+    title: "Februari",
+    value: "02",
+  },
+  {
+    title: "Maret",
+    value: "03",
+  },
+  {
+    title: "April",
+    value: "04",
+  },
+  {
+    title: "Mei",
+    value: "05",
+  },
+  {
+    title: "Juni",
+    value: "06",
+  },
+  {
+    title: "Juli",
+    value: "07",
+  },
+  {
+    title: "Agustus",
+    value: "08",
+  },
+  {
+    title: "September",
+    value: "09",
+  },
+  {
+    title: "Oktober",
+    value: "10",
+  },
+  {
+    title: "November",
+    value: "11",
+  },
+  {
+    title: "Desember",
+    value: "12",
+  },
+];

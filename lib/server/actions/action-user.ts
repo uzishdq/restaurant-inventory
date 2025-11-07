@@ -5,13 +5,14 @@ import { eq } from "drizzle-orm";
 import {
   PasswordUpdateSchema,
   ProfileUpdateSchema,
+  RoleUpdateSchema,
   UsernameUpdateSchema,
 } from "@/lib/schema-validation";
-import { LABEL, tagsUserRevalidate } from "@/lib/constant";
+import { LABEL, ROUTES, tagsUserRevalidate } from "@/lib/constant";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { userTable } from "@/lib/db/schema";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import bcrypt from "bcryptjs";
 
 export const updateAccount = async (
@@ -49,9 +50,10 @@ export const updateAccount = async (
       };
     }
 
-    const tagsToRevalidate = Array.from(new Set([...tagsUserRevalidate]));
+    // const tagsToRevalidate = Array.from(new Set([...tagsUserRevalidate]));
+    // tagsToRevalidate.forEach((tag) => revalidateTag(tag, "max"));
 
-    tagsToRevalidate.forEach((tag) => revalidateTag(tag, "max"));
+    revalidatePath(ROUTES.AUTH.ACCOUNT);
 
     return {
       ok: true,
@@ -212,6 +214,54 @@ export const updatePassword = async (
     }
   } catch (error) {
     console.error("error update password : ", error);
+    return {
+      ok: false,
+      message: LABEL.ERROR.SERVER,
+    };
+  }
+};
+
+export const updateRole = async (values: z.infer<typeof RoleUpdateSchema>) => {
+  try {
+    const validateValues = RoleUpdateSchema.safeParse(values);
+
+    if (!validateValues.success) {
+      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+    }
+
+    const session = await auth();
+
+    if (!session?.user.id || session?.user.role !== "ADMIN") {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
+    const [result] = await db
+      .update(userTable)
+      .set({ role: validateValues.data.role })
+      .where(eq(userTable.idUser, validateValues.data.idUser))
+      .returning();
+
+    if (!result) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.UPDATE,
+      };
+    }
+
+    // const tagsToRevalidate = Array.from(new Set([...tagsUserRevalidate]));
+    // await Promise.all(tagsToRevalidate.map((tag) => revalidateTag(tag, "max")));
+
+    revalidatePath(ROUTES.AUTH.MASTER.USERS);
+
+    return {
+      ok: true,
+      message: LABEL.INPUT.SUCCESS.UPDATE,
+    };
+  } catch (error) {
+    console.error("error update role : ", error);
     return {
       ok: false,
       message: LABEL.ERROR.SERVER,

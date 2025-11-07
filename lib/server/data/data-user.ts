@@ -4,7 +4,7 @@ import * as z from "zod";
 import { IdSchema, LoginSchema } from "@/lib/schema-validation";
 import { db } from "@/lib/db";
 import { userTable } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { TUser } from "@/lib/type-data";
 import { unstable_cache } from "next/cache";
@@ -79,5 +79,36 @@ export const getAccount = unstable_cache(
   ["get-account"],
   {
     tags: ["get-account"],
+  }
+);
+
+export const getUsers = unstable_cache(
+  async () => {
+    try {
+      const result = await db
+        .select({
+          idUser: userTable.idUser,
+          nameUser: userTable.nameUser,
+          username: userTable.username,
+          phoneNumber: userTable.phoneNumber,
+          role: userTable.role,
+          createdAt: userTable.createdAt,
+        })
+        .from(userTable)
+        .orderBy(asc(userTable.createdAt));
+
+      if (result.length > 0) {
+        return { ok: true, data: result as TUser[] };
+      } else {
+        return { ok: true, data: [] as TUser[] };
+      }
+    } catch (error) {
+      console.error("error user data : ", error);
+      return { ok: false, data: null };
+    }
+  },
+  ["get-users"],
+  {
+    tags: ["get-users"],
   }
 );
