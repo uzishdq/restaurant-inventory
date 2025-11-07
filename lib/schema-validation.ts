@@ -1,20 +1,82 @@
 import z from "zod";
 
-export const username = z
+const allowedRegex = /^[a-zA-Z0-9.,/ \-']+$/;
+
+const username = z
   .string()
-  .min(5, "Username must be at least 5 characters long.")
-  .max(50, "Username must not exceed 50 characters.")
+  .min(5, "must be at least 5 characters long.")
+  .max(50, "must not exceed 50 characters.")
   .refine((username) => !/\s/.test(username), {
-    message: "tidak boleh menggandung spasi",
+    message: "can’t contain spaces.",
   });
 
-export const password = z
+const password = z
   .string()
-  .min(6, "Password must be at least 6 characters long.")
-  .max(50, "Password must not exceed 50 characters.");
+  .min(6, "must be at least 6 characters long.")
+  .max(50, "must not exceed 50 characters.");
+
+export const IdSchema = z.object({
+  id: z.uuid("Invalid ID format."),
+});
+
+const validatedStringSchema = (min = 5, max = 50) =>
+  z
+    .string()
+    .min(min, `must be at least ${min} characters long.`)
+    .max(max, `must not exceed ${max} characters.`)
+    .regex(
+      allowedRegex,
+      "Use only letters, numbers, spaces, dots, commas, or slashes."
+    );
+
+const validatedPhoneSchema = z
+  .string()
+  .min(10, {
+    message: "Phone number must be at least 10 digits long.",
+  })
+  .max(15, {
+    message: "Phone number must not exceed 15 digits.",
+  })
+  .regex(/^[0-9]+$/, {
+    message: "Phone number can contain digits only.",
+  })
+  .refine((value) => value.startsWith("0"), {
+    message: "Phone number must start with the digit 0.",
+  });
 
 /* -------- AUTH --------  */
 export const LoginSchema = z.object({
   username: username,
   password: password,
 });
+
+/* -------- ACCOUNT --------  */
+export const ProfileUpdateSchema = z.object({
+  name: validatedStringSchema(5, 50),
+  phoneNumber: validatedPhoneSchema,
+});
+
+export const UsernameUpdateSchema = z
+  .object({
+    oldUsername: username,
+    newUsername: username,
+  })
+  .refine((data) => data.oldUsername !== data.newUsername, {
+    message: "New username must be different from the current username",
+    path: ["newUsername"],
+  });
+
+export const PasswordUpdateSchema = z
+  .object({
+    oldPassword: password,
+    newPassword: password,
+    newConfirmPassword: password,
+  })
+  .refine((data) => data.oldPassword !== data.newPassword, {
+    message: "New password must be different from the current password",
+    path: ["newPassword"],
+  })
+  .refine((data) => data.newPassword === data.newConfirmPassword, {
+    message: "Passwords do not match",
+    path: ["newConfirmPassword"],
+  });

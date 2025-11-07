@@ -19,6 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       // Saat login pertama, simpan role ke token
       if (user) {
+        token.sub = user.id;
         token.role = user.role;
       }
       return token;
@@ -27,6 +28,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       // Inject role ke session
       if (token && typeof token.role === "string") {
+        session.user.id = token.sub!;
         session.user.role = token.role;
       }
       return session;

@@ -16,10 +16,11 @@ import {
   BellDot,
   CircleUser,
   EllipsisVertical,
-  LogOut,
   WalletCards,
 } from "lucide-react";
 import { ButtonSignOut } from "../auth/button-signout";
+import Link from "next/link";
+import { ROUTES } from "@/lib/constant";
 
 export function NavUser({
   user,
@@ -57,9 +58,11 @@ export function NavUser({
             sideOffset={4}
           >
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUser />
-                Account
+              <DropdownMenuItem asChild>
+                <Link href={ROUTES.AUTH.ACCOUNT}>
+                  <CircleUser />
+                  Account
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <WalletCards />
