@@ -1,0 +1,660 @@
+{
+  "id": "5594979a-83d4-42e8-b700-9a57d686b39c",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.category": {
+      "name": "category",
+      "schema": "",
+      "columns": {
+        "id_category": {
+          "name": "id_category",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name_category": {
+          "name": "name_category",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "category_name_category_unique": {
+          "name": "category_name_category_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name_category"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.detail_transaction": {
+      "name": "detail_transaction",
+      "schema": "",
+      "columns": {
+        "id_detail_transaction": {
+          "name": "id_detail_transaction",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "transaction_id": {
+          "name": "transaction_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "supplier_id": {
+          "name": "supplier_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity_detail_transaction": {
+          "name": "quantity_detail_transaction",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_detail_transaction": {
+          "name": "status_detail_transaction",
+          "type": "status_detail_transaction",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'PENDING'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "detail_transaction_transaction_id_transaction_id_transaction_fk": {
+          "name": "detail_transaction_transaction_id_transaction_id_transaction_fk",
+          "tableFrom": "detail_transaction",
+          "tableTo": "transaction",
+          "columnsFrom": [
+            "transaction_id"
+          ],
+          "columnsTo": [
+            "id_transaction"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "detail_transaction_item_id_item_id_item_fk": {
+          "name": "detail_transaction_item_id_item_id_item_fk",
+          "tableFrom": "detail_transaction",
+          "tableTo": "item",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id_item"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "detail_transaction_supplier_id_supplier_id_supplier_fk": {
+          "name": "detail_transaction_supplier_id_supplier_id_supplier_fk",
+          "tableFrom": "detail_transaction",
+          "tableTo": "supplier",
+          "columnsFrom": [
+            "supplier_id"
+          ],
+          "columnsTo": [
+            "id_supplier"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.item_movement": {
+      "name": "item_movement",
+      "schema": "",
+      "columns": {
+        "id_movement": {
+          "name": "id_movement",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "transaction_id": {
+          "name": "transaction_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type_movement": {
+          "name": "type_movement",
+          "type": "type_movement",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'IN'"
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity_movement": {
+          "name": "quantity_movement",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date_exp": {
+          "name": "date_exp",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "item_movement_transaction_id_transaction_id_transaction_fk": {
+          "name": "item_movement_transaction_id_transaction_id_transaction_fk",
+          "tableFrom": "item_movement",
+          "tableTo": "transaction",
+          "columnsFrom": [
+            "transaction_id"
+          ],
+          "columnsTo": [
+            "id_transaction"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "item_movement_item_id_item_id_item_fk": {
+          "name": "item_movement_item_id_item_id_item_fk",
+          "tableFrom": "item_movement",
+          "tableTo": "item",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id_item"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.item": {
+      "name": "item",
+      "schema": "",
+      "columns": {
+        "id_item": {
+          "name": "id_item",
+          "type": "varchar(20)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name_item": {
+          "name": "name_item",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit_id": {
+          "name": "unit_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stock_quantity": {
+          "name": "stock_quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "min_stock": {
+          "name": "min_stock",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "item_unit_id_unit_id_unit_fk": {
+          "name": "item_unit_id_unit_id_unit_fk",
+          "tableFrom": "item",
+          "tableTo": "unit",
+          "columnsFrom": [
+            "unit_id"
+          ],
+          "columnsTo": [
+            "id_unit"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "item_category_id_category_id_category_fk": {
+          "name": "item_category_id_category_id_category_fk",
+          "tableFrom": "item",
+          "tableTo": "category",
+          "columnsFrom": [
+            "category_id"
+          ],
+          "columnsTo": [
+            "id_category"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "item_name_item_unique": {
+          "name": "item_name_item_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name_item"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.notifications": {
+      "name": "notifications",
+      "schema": "",
+      "columns": {
+        "id_notifications": {
+          "name": "id_notifications",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "tanggal_notification": {
+          "name": "tanggal_notification",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "telepon_notification": {
+          "name": "telepon_notification",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "message_notification": {
+          "name": "message_notification",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_notification": {
+          "name": "status_notification",
+          "type": "status_notification",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'PENDING'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.supplier": {
+      "name": "supplier",
+      "schema": "",
+      "columns": {
+        "id_supplier": {
+          "name": "id_supplier",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "store_name": {
+          "name": "store_name",
+          "type": "varchar(225)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name_supplier": {
+          "name": "name_supplier",
+          "type": "varchar(225)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "address_supplier": {
+          "name": "address_supplier",
+          "type": "varchar(225)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone_supplier": {
+          "name": "phone_supplier",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "supplier_phone_supplier_unique": {
+          "name": "supplier_phone_supplier_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone_supplier"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.transaction": {
+      "name": "transaction",
+      "schema": "",
+      "columns": {
+        "id_transaction": {
+          "name": "id_transaction",
+          "type": "varchar(20)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "type_transaction": {
+          "name": "type_transaction",
+          "type": "type_transaction",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'IN'"
+        },
+        "date_transaction": {
+          "name": "date_transaction",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_transaction": {
+          "name": "status_transaction",
+          "type": "status_transaction",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'PENDING'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "transaction_user_id_user_id_user_fk": {
+          "name": "transaction_user_id_user_id_user_fk",
+          "tableFrom": "transaction",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id_user"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.unit": {
+      "name": "unit",
+      "schema": "",
+      "columns": {
+        "id_unit": {
+          "name": "id_unit",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name_unit": {
+          "name": "name_unit",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unit_name_unit_unique": {
+          "name": "unit_name_unit_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name_unit"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "id_user": {
+          "name": "id_user",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name_user": {
+          "name": "name_user",
+          "type": "varchar(225)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "username": {
+          "name": "username",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role_user": {
+          "name": "role_user",
+          "type": "user_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'HEADKITCHEN'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_username_unique": {
+          "name": "user_username_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "username"
+          ]
+        },
+        "user_phone_number_unique": {
+          "name": "user_phone_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone_number"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.status_detail_transaction": {
+      "name": "status_detail_transaction",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "ACCEPTED",
+        "CANCELLED"
+      ]
+    },
+    "public.status_notification": {
+      "name": "status_notification",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "SENT",
+        "FAILED"
+      ]
+    },
+    "public.status_transaction": {
+      "name": "status_transaction",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "ORDERED",
+        "RECEIVED",
+        "CANCELLED"
+      ]
+    },
+    "public.type_movement": {
+      "name": "type_movement",
+      "schema": "public",
+      "values": [
+        "IN",
+        "OUT"
+      ]
+    },
+    "public.type_transaction": {
+      "name": "type_transaction",
+      "schema": "public",
+      "values": [
+        "IN",
+        "OUT"
+      ]
+    },
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": [
+        "ADMIN",
+        "HEADKITCHEN",
+        "MANAGER"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
