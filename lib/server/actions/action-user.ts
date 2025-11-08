@@ -1,19 +1,108 @@
 "use server";
 
 import * as z from "zod";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import {
+  CreateAccountSchema,
   PasswordUpdateSchema,
   ProfileUpdateSchema,
   RoleUpdateSchema,
   UsernameUpdateSchema,
 } from "@/lib/schema-validation";
-import { LABEL, ROUTES, tagsUserRevalidate } from "@/lib/constant";
+import { LABEL, tagsUserRevalidate } from "@/lib/constant";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { userTable } from "@/lib/db/schema";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag } from "next/cache";
 import bcrypt from "bcryptjs";
+
+export const createAccount = async (
+  values: z.infer<typeof CreateAccountSchema>
+) => {
+  try {
+    const validateValues = CreateAccountSchema.safeParse(values);
+
+    if (!validateValues.success) {
+      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+    }
+
+    const session = await auth();
+
+    if (!session?.user.id) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
+    const [isExisting] = await db
+      .select({
+        username: userTable.username,
+        phoneNumber: userTable.phoneNumber,
+      })
+      .from(userTable)
+      .where(
+        or(
+          eq(userTable.username, validateValues.data.username),
+          eq(userTable.phoneNumber, validateValues.data.phoneNumber)
+        )
+      )
+      .limit(1);
+
+    if (isExisting) {
+      if (isExisting.username === validateValues.data.username) {
+        return {
+          ok: false,
+          message: "Username is already taken. Please choose another one.",
+        };
+      }
+      if (isExisting.phoneNumber === validateValues.data.phoneNumber) {
+        return {
+          ok: false,
+          message: "Phone number is already registered.",
+        };
+      }
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash("gangnikmat", 10);
+
+    const [result] = await db
+      .insert(userTable)
+      .values({
+        nameUser: validateValues.data.name,
+        username: validateValues.data.username,
+        password: hashedPassword,
+        phoneNumber: validateValues.data.phoneNumber,
+        role: validateValues.data.role,
+      })
+      .returning();
+
+    //nanti tambah notifikasi ke new user
+    if (!result) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.SAVED,
+      };
+    }
+
+    const tagsToRevalidate = Array.from(new Set(tagsUserRevalidate));
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
+
+    return {
+      ok: true,
+      message: LABEL.INPUT.SUCCESS.SAVED,
+    };
+  } catch (error) {
+    console.error("error create account : ", error);
+    return {
+      ok: false,
+      message: LABEL.ERROR.SERVER,
+    };
+  }
+};
 
 export const updateAccount = async (
   values: z.infer<typeof ProfileUpdateSchema>
@@ -50,10 +139,10 @@ export const updateAccount = async (
       };
     }
 
-    // const tagsToRevalidate = Array.from(new Set([...tagsUserRevalidate]));
-    // tagsToRevalidate.forEach((tag) => revalidateTag(tag, "max"));
-
-    revalidatePath(ROUTES.AUTH.ACCOUNT);
+    const tagsToRevalidate = Array.from(new Set(tagsUserRevalidate));
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
 
     return {
       ok: true,
@@ -124,7 +213,7 @@ export const updateUsername = async (
 
     const tagsToRevalidate = Array.from(new Set([...tagsUserRevalidate]));
 
-    tagsToRevalidate.forEach((tag) => revalidateTag(tag, "max"));
+    tagsToRevalidate.forEach((tag) => revalidateTag(tag, { expire: 0 }));
 
     return {
       ok: true,
@@ -202,6 +291,11 @@ export const updatePassword = async (
       .returning();
 
     if (result.length > 0) {
+      const tagsToRevalidate = Array.from(new Set(tagsUserRevalidate));
+      await Promise.all(
+        tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      );
+
       return {
         ok: true,
         message: "Password reset successfully.",
@@ -251,10 +345,10 @@ export const updateRole = async (values: z.infer<typeof RoleUpdateSchema>) => {
       };
     }
 
-    // const tagsToRevalidate = Array.from(new Set([...tagsUserRevalidate]));
-    // await Promise.all(tagsToRevalidate.map((tag) => revalidateTag(tag, "max")));
-
-    revalidatePath(ROUTES.AUTH.MASTER.USERS);
+    const tagsToRevalidate = Array.from(new Set([...tagsUserRevalidate]));
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
 
     return {
       ok: true,

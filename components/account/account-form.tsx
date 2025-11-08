@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 
 import { TUser } from "@/lib/type-data";
 import {
+  CreateAccountSchema,
   PasswordUpdateSchema,
   ProfileUpdateSchema,
   RoleUpdateSchema,
@@ -31,6 +32,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import {
+  createAccount,
   updateAccount,
   updatePassword,
   updateRole,
@@ -46,14 +48,14 @@ import {
   SelectValue,
 } from "../ui/select";
 import { ROLE } from "@/lib/constant";
-import { useRouter } from "next/navigation";
+import FormDialog from "../ui/form-dialog";
 
 interface IAccountForm {
   data: TUser;
 }
 
 function AccountForm({ data }: IAccountForm) {
-  const [isPending, startTranssition] = React.useTransition();
+  const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof ProfileUpdateSchema>>({
     resolver: zodResolver(ProfileUpdateSchema),
@@ -65,9 +67,10 @@ function AccountForm({ data }: IAccountForm) {
   });
 
   const onSubmit = (values: z.infer<typeof ProfileUpdateSchema>) => {
-    startTranssition(() => {
+    startTransition(() => {
       updateAccount(values).then((data) => {
         if (data.ok) {
+          form.reset();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -150,9 +153,126 @@ function AccountForm({ data }: IAccountForm) {
   );
 }
 
+function CreateAccountForm() {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof CreateAccountSchema>>({
+    resolver: zodResolver(CreateAccountSchema),
+    defaultValues: {
+      name: "",
+      username: "",
+      phoneNumber: "",
+      role: "HEADKITCHEN",
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = (values: z.infer<typeof CreateAccountSchema>) => {
+    startTransition(() => {
+      createAccount(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+  return (
+    <FormDialog
+      buttonLabel="Create User"
+      title="Create New User"
+      className="h-fit"
+    >
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="number" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Role</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Role User" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {ROLE.map((item, index) => (
+                        <SelectItem key={index} value={item.value}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? "Loading..." : "Create"}
+          </Button>
+        </form>
+      </Form>
+    </FormDialog>
+  );
+}
+
 function AccountResetPassword() {
   const [showPasswords, setShowPasswords] = React.useState<boolean>(false);
-  const [isPending, startTranssition] = React.useTransition();
+  const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof PasswordUpdateSchema>>({
     resolver: zodResolver(PasswordUpdateSchema),
@@ -165,7 +285,7 @@ function AccountResetPassword() {
   });
 
   const onSubmit = (values: z.infer<typeof PasswordUpdateSchema>) => {
-    startTranssition(() => {
+    startTransition(() => {
       updatePassword(values).then((data) => {
         if (data.ok) {
           form.reset();
@@ -269,7 +389,7 @@ function AccountResetPassword() {
 }
 
 function AccountResetUsername() {
-  const [isPending, startTranssition] = React.useTransition();
+  const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof UsernameUpdateSchema>>({
     resolver: zodResolver(UsernameUpdateSchema),
@@ -281,7 +401,7 @@ function AccountResetUsername() {
   });
 
   const onSubmit = (values: z.infer<typeof UsernameUpdateSchema>) => {
-    startTranssition(() => {
+    startTransition(() => {
       updateUsername(values).then((data) => {
         if (data.ok) {
           form.reset();
@@ -353,7 +473,7 @@ interface IAccountRoleUpdate {
 }
 
 function AccountRoleUpdate({ data }: IAccountRoleUpdate) {
-  const router = useRouter();
+  const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof RoleUpdateSchema>>({
     resolver: zodResolver(RoleUpdateSchema),
@@ -365,15 +485,15 @@ function AccountRoleUpdate({ data }: IAccountRoleUpdate) {
   });
 
   const onSubmit = async (values: z.infer<typeof RoleUpdateSchema>) => {
-    const result = await updateRole(values);
-
-    if (result.ok) {
-      form.reset();
-      toast.success(result.message);
-      router.refresh();
-    } else {
-      toast.error(result.message);
-    }
+    startTransition(() => {
+      updateRole(values).then((data) => {
+        if (data.ok) {
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
   };
 
   return (
@@ -408,12 +528,8 @@ function AccountRoleUpdate({ data }: IAccountRoleUpdate) {
             )}
           />
         </div>
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting}
-          className="w-full"
-        >
-          {form.formState.isSubmitting ? "Loading..." : "Update"}
+        <Button type="submit" disabled={isPending} className="w-full">
+          {isPending ? "Loading..." : "Update"}
         </Button>
       </form>
     </Form>
@@ -425,4 +541,5 @@ export {
   AccountResetPassword,
   AccountResetUsername,
   AccountRoleUpdate,
+  CreateAccountForm,
 };

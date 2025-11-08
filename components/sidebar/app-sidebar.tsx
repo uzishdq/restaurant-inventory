@@ -41,15 +41,15 @@ export function AppSidebar({
         items: [
           {
             title: "Category",
-            url: "#",
+            url: ROUTES.AUTH.MASTER.CATEGORY,
           },
           {
             title: "Unit",
-            url: "#",
+            url: ROUTES.AUTH.MASTER.UNIT,
           },
           {
             title: "Items",
-            url: "#",
+            url: ROUTES.AUTH.MASTER.ITEMS,
           },
           {
             title: "User",
@@ -57,7 +57,7 @@ export function AppSidebar({
           },
           {
             title: "Supplier",
-            url: "#",
+            url: ROUTES.AUTH.MASTER.SUPPLIER,
           },
         ],
       },

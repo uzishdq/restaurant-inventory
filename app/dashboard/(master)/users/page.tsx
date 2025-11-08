@@ -1,3 +1,4 @@
+import { CreateAccountForm } from "@/components/account/account-form";
 import { columnUsers } from "@/components/columns/column-user";
 import TableDateWrapper from "@/components/table/table-wrapper";
 import {
@@ -34,15 +35,17 @@ export default async function UserPage() {
         </CardHeader>
       </Card>
       <TableDateWrapper
-        header="Data Anggota Koperasi"
-        description="Data yang terdaftar sebagai anggota dalam koperasi karyawan yayasan al ghifari"
+        header="Users"
+        description="User accounts and profile information for the restaurant management platform"
         searchBy="nameUser"
         labelSearch="name"
         isFilterDate={true}
         filterDate="created_at"
         data={users.data}
         columns={columnUsers}
-      />
+      >
+        <CreateAccountForm />
+      </TableDateWrapper>
     </div>
   );
 }

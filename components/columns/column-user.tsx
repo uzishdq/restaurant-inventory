@@ -28,9 +28,7 @@ export const columnUsers: ColumnDef<TUser>[] = [
     accessorKey: "username",
     header: "Username",
     enableHiding: false,
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("username")}</div>
-    ),
+    cell: ({ row }) => <div>{row.getValue("username")}</div>,
   },
   {
     accessorKey: "nameUser",

@@ -6,6 +6,10 @@ export const ROUTES = {
     DASHBOARD: "/dashboard",
     MASTER: {
       USERS: "/dashboard/users",
+      SUPPLIER: "/dashboard/supplier",
+      ITEMS: "/dashboard/items",
+      UNIT: "/dashboard/unit",
+      CATEGORY: "/dashboard/category",
     },
     ACCOUNT: "/dashboard/account",
   },

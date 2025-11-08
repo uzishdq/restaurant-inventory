@@ -6,6 +6,10 @@ const username = z
   .string()
   .min(5, "must be at least 5 characters long.")
   .max(50, "must not exceed 50 characters.")
+  .regex(
+    allowedRegex,
+    "Use only letters, numbers, spaces, dots, commas, or slashes."
+  )
   .refine((username) => !/\s/.test(username), {
     message: "can’t contain spaces.",
   });
@@ -53,6 +57,13 @@ export const LoginSchema = z.object({
 });
 
 /* -------- ACCOUNT --------  */
+export const CreateAccountSchema = z.object({
+  name: validatedStringSchema(5, 50),
+  username: username,
+  phoneNumber: validatedPhoneSchema,
+  role: z.enum(enumRole),
+});
+
 export const ProfileUpdateSchema = z.object({
   name: validatedStringSchema(5, 50),
   phoneNumber: validatedPhoneSchema,
