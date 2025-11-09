@@ -81,11 +81,11 @@ function CreateCategoryForm() {
   );
 }
 
-interface IUpdateCategoryFor {
+interface IUpdateCategoryForm {
   data: TCategory;
 }
 
-function UpdateCategoryForm({ data }: IUpdateCategoryFor) {
+function UpdateCategoryForm({ data }: IUpdateCategoryForm) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof UpdateCategorySchema>>({

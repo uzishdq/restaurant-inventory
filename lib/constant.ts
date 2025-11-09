@@ -48,6 +48,7 @@ export const tagsUserRevalidate = ["get-account", "get-users"];
 export const tagsUnitRevalidate = ["get-units"];
 export const tagsCategoryRevalidate = ["get-category"];
 export const tagsItemRevalidate = ["get-items"];
+export const tagsSupplierRevalidate = ["get-suppliers"];
 
 //ENUM SELECT
 export const ROLE = [

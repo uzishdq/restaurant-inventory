@@ -27,7 +27,9 @@ export const columnUnit: ColumnDef<TUnit>[] = [
     accessorKey: "nameUnit",
     header: "Name",
     enableHiding: false,
-    cell: ({ row }) => <div>{row.getValue("nameUnit")}</div>,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nameUnit")}</div>
+    ),
   },
   {
     id: "actions",

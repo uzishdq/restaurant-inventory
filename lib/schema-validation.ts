@@ -114,6 +114,22 @@ export const RoleUpdateSchema = z.object({
   role: z.enum(enumRole),
 });
 
+/* -------- SUPPLIER --------  */
+export const CreateSupplierSchema = z.object({
+  store_name: validatedStringSchema(5, 50),
+  nameSupplier: validatedStringSchema(5, 50),
+  addressSupplier: validatedStringSchema(5, 100),
+  phoneSupplier: validatedPhoneSchema,
+});
+
+export const UpdateSupplierSchema = z.object({
+  idSupplier: z.uuid("Invalid ID format.").min(5),
+  store_name: validatedStringSchema(5, 50),
+  nameSupplier: validatedStringSchema(5, 50),
+  addressSupplier: validatedStringSchema(5, 100),
+  phoneSupplier: validatedPhoneSchema,
+});
+
 /* -------- UNIT --------  */
 export const CreateUnitSchema = z.object({
   nameUnit: validatedStringSchema(2, 10),

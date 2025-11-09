@@ -11,7 +11,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { MoreHorizontal, Pencil } from "lucide-react";
-import { TCategory } from "@/lib/type-data";
+import { TSupplier } from "@/lib/type-data";
 import {
   Dialog,
   DialogContent,
@@ -20,15 +20,39 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { UpdateCategoryForm } from "../category/category-form";
+import { UpdateSupplierForm } from "../supplier/supplier-form";
 
-export const columnCategory: ColumnDef<TCategory>[] = [
+export const columnSupplier: ColumnDef<TSupplier>[] = [
   {
-    accessorKey: "nameCategory",
+    accessorKey: "nameSupplier",
     header: "Name",
     enableHiding: false,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("nameCategory")}</div>
+      <div className="capitalize">{row.getValue("nameSupplier")}</div>
+    ),
+  },
+  {
+    accessorKey: "store_name",
+    header: "Store",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("store_name")}</div>
+    ),
+  },
+  {
+    accessorKey: "addressSupplier",
+    header: "Address",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("addressSupplier")}</div>
+    ),
+  },
+  {
+    accessorKey: "phoneSupplier",
+    header: "Phone",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("phoneSupplier")}</div>
     ),
   },
   {
@@ -61,7 +85,7 @@ export const columnCategory: ColumnDef<TCategory>[] = [
 ];
 
 type TDialog = {
-  value: TCategory;
+  value: TSupplier;
 };
 
 function DialogEdit({ value }: TDialog) {
@@ -75,13 +99,12 @@ function DialogEdit({ value }: TDialog) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Category</DialogTitle>
+          <DialogTitle>Edit Supplier</DialogTitle>
           <DialogDescription>
-            Update the category name, then click <strong>Update</strong> to
-            confirm.
+            Update supplier data, then click <strong>Update</strong> to confirm.
           </DialogDescription>
         </DialogHeader>
-        <UpdateCategoryForm data={value} />
+        <UpdateSupplierForm data={value} />
       </DialogContent>
     </Dialog>
   );
