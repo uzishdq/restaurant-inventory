@@ -26,10 +26,13 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { Settings2 } from "lucide-react";
+import { MoreHorizontal, Settings2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -38,33 +41,100 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import DateTableFilter from "./date-table-filter";
+import { TCategory, TItem, TUnit } from "@/lib/type-data";
+import { CreateItemForm, UpdateItemForm } from "./item-form";
+import { formatDateWIB } from "@/lib/utils";
 
-interface TableDateWrapperProps<T> {
-  header: string;
-  description: string;
-  searchBy: string;
-  labelSearch: string;
-  isFilterDate: boolean;
-  filterDate: string;
-  children?: React.ReactNode;
-  data: T[];
-  columns: ColumnDef<T>[];
+interface TableDateWrapperProps {
+  data: TItem[];
+  unit: TUnit[];
+  category: TCategory[];
 }
 
-export default function TableDateWrapper<T>({
-  header,
-  description,
-  searchBy,
-  labelSearch,
-  isFilterDate,
-  filterDate,
-  children,
+export default function ItemTable({
   data,
-  columns,
-}: TableDateWrapperProps<T>) {
+  unit,
+  category,
+}: TableDateWrapperProps) {
+  const columnItem: ColumnDef<TItem>[] = [
+    {
+      accessorKey: "nameItem",
+      header: "Name",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("nameItem")}</div>
+      ),
+    },
+    {
+      accessorKey: "nameCategory",
+      header: "Category",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("nameCategory")}</div>
+      ),
+    },
+    {
+      accessorKey: "stockQuantity",
+      header: "Stock",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <div className="capitalize">
+          {row.original.stockQuantity} / {row.original.nameUnit}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "minStock",
+      header: "Min Stock",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("minStock")}</div>
+      ),
+    },
+    {
+      accessorKey: "updatedAt",
+      header: "Last Update",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <div className="capitalize">
+          {formatDateWIB(row.getValue("updatedAt"))}
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const dataRows = row.original;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open Menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel className="text-center">
+                Actions
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <UpdateItemForm
+                  data={dataRows}
+                  units={unit}
+                  categorys={category}
+                />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
   const memoData = React.useMemo(() => data, [data]);
-  const memoColumns = React.useMemo(() => columns, [columns]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -81,7 +151,7 @@ export default function TableDateWrapper<T>({
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: memoData,
-    columns: memoColumns,
+    columns: columnItem,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -103,31 +173,29 @@ export default function TableDateWrapper<T>({
   return (
     <Card className="xl:col-span-2">
       <CardHeader className="flex flex-row items-center">
-        <div className="grid gap-2">
-          <CardTitle className="text-xl">{header}</CardTitle>
+        <div className="grid gap-1">
+          <CardTitle className="text-xl">Item</CardTitle>
           <CardDescription className="text-base">
-            {description}.
+            Represents raw materials or ingredients used in the restaurant’s
+            operations and inventory tracking.
           </CardDescription>
         </div>
-        {children}
+        <CreateItemForm unit={unit} category={category} />
       </CardHeader>
       <CardContent>
         <div className="w-full">
           <div className="flex flex-col items-center gap-2 py-4 md:flex-row">
             <Input
-              placeholder={`Search ${labelSearch}`}
+              placeholder="Search Name Item"
               value={
-                (table.getColumn(searchBy)?.getFilterValue() as string) ?? ""
+                (table.getColumn("nameItem")?.getFilterValue() as string) ?? ""
               }
               onChange={(event) =>
-                table.getColumn(searchBy)?.setFilterValue(event.target.value)
+                table.getColumn("nameItem")?.setFilterValue(event.target.value)
               }
               className="w-full"
             />
             <div className="flex w-full items-center gap-2">
-              {isFilterDate && (
-                <DateTableFilter table={table} filterDate={filterDate} />
-              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="ml-auto">
@@ -196,7 +264,7 @@ export default function TableDateWrapper<T>({
                 ) : (
                   <TableRow>
                     <TableCell
-                      colSpan={columns.length}
+                      colSpan={table.getAllColumns().length}
                       className="h-24 text-center"
                     >
                       No Results

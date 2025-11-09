@@ -45,6 +45,9 @@ export const LABEL = {
 
 // TAGS VALIDATION
 export const tagsUserRevalidate = ["get-account", "get-users"];
+export const tagsUnitRevalidate = ["get-units"];
+export const tagsCategoryRevalidate = ["get-category"];
+export const tagsItemRevalidate = ["get-items"];
 
 //ENUM SELECT
 export const ROLE = [

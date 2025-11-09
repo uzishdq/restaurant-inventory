@@ -67,11 +67,11 @@ export function AppSidebar({
         icon: ArrowRightLeft,
         items: [
           {
-            title: "Genesis",
+            title: "Barang Masuk",
             url: "#",
           },
           {
-            title: "Explorer",
+            title: "Barang Keluar",
             url: "#",
           },
           {

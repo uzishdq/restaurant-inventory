@@ -1,0 +1,134 @@
+"use client";
+
+import React from "react";
+import { Control, Controller, FieldError } from "react-hook-form";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
+import { Button } from "./button";
+import { Check, ChevronsUpDown } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "./command";
+import { cn } from "@/lib/utils";
+import { Label } from "./label";
+
+interface ICustomSelect {
+  name: string;
+  label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
+  error?: FieldError;
+  required?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: Record<string, any>[];
+  valueKey: string; // key untuk id (misal: "idUnit", "idCategory")
+  labelKey: string; // key untuk label (misal: "nameUnit", "nameCategory")
+  placeholder?: string;
+}
+
+const ValueSelect = ({
+  value,
+  onChange,
+  data,
+  valueKey,
+  labelKey,
+  placeholder = "Select an option...",
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: Record<string, any>[];
+  valueKey: string;
+  labelKey: string;
+  placeholder?: string;
+}) => {
+  const [open, setOpen] = React.useState(false);
+
+  const selectedItem = data.find((item) => item[valueKey] === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="justify-between w-full"
+        >
+          {selectedItem ? selectedItem[labelKey] : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0" align="start">
+        <Command>
+          <CommandInput placeholder={`Search ${labelKey}...`} />
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              {data.map((item) => (
+                <CommandItem
+                  key={item[valueKey]}
+                  value={item[labelKey]}
+                  onSelect={() => {
+                    onChange(item[valueKey]);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === item[valueKey] ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {item[labelKey]}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+export default function CustomSelect({
+  name,
+  label,
+  control,
+  error,
+  required = false,
+  data,
+  valueKey,
+  labelKey,
+  placeholder,
+}: ICustomSelect) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={name}>
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
+      <Controller
+        name={name}
+        control={control}
+        rules={{
+          required: required ? `Please select ${label.toLowerCase()}` : false,
+        }}
+        render={({ field }) => (
+          <ValueSelect
+            value={field.value}
+            onChange={field.onChange}
+            data={data}
+            valueKey={valueKey}
+            labelKey={labelKey}
+            placeholder={placeholder}
+          />
+        )}
+      />
+      {error && <p className="text-sm text-red-500">{error.message}</p>}
+    </div>
+  );
+}

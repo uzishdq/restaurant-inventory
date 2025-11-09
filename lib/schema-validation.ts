@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { number } from "zod";
 
 const allowedRegex = /^[a-zA-Z0-9.,/ \-']+$/;
 
@@ -48,6 +48,21 @@ const validatedPhoneSchema = z
     message: "Phone number must start with the digit 0.",
   });
 
+const validatedStock = (min = 0, max = 60) =>
+  z.number().refine(
+    (n) => {
+      const allowZero = min === 0;
+      return (n >= min && n <= max) || (allowZero && n === 0);
+    },
+    {
+      message: `Must be at least ${min} - ${max}`,
+    }
+  );
+
+const itemIdSchema = z.string().regex(/^BB-\d{4}$/, {
+  message: "Invalid ID format.",
+});
+
 export const enumRole = ["ADMIN", "HEADKITCHEN", "MANAGER"] as const;
 
 /* -------- AUTH --------  */
@@ -95,6 +110,42 @@ export const PasswordUpdateSchema = z
   });
 
 export const RoleUpdateSchema = z.object({
-  idUser: z.uuid("Invalid ID format."),
+  idUser: z.uuid("Invalid ID format.").min(5),
   role: z.enum(enumRole),
+});
+
+/* -------- UNIT --------  */
+export const CreateUnitSchema = z.object({
+  nameUnit: validatedStringSchema(2, 10),
+});
+
+export const UpdateUnitSchema = z.object({
+  idUnit: z.uuid("Invalid ID format.").min(5),
+  nameUnit: validatedStringSchema(2, 10),
+});
+
+/* -------- CATEGORY --------  */
+export const CreateCategorySchema = z.object({
+  nameCategory: validatedStringSchema(5, 10),
+});
+
+export const UpdateCategorySchema = z.object({
+  idCategory: z.uuid("Invalid ID format.").min(5),
+  nameCategory: validatedStringSchema(5, 10),
+});
+
+/* -------- ITEM --------  */
+export const CreateItemSchema = z.object({
+  nameItem: validatedStringSchema(5, 100),
+  unitId: z.uuid("Invalid ID format.").min(5),
+  categoryId: z.uuid("Invalid ID format.").min(5),
+  minStock: validatedStock(),
+});
+
+export const UpdateItemSchema = z.object({
+  idItem: itemIdSchema,
+  nameItem: validatedStringSchema(5, 100),
+  unitId: z.uuid("Invalid ID format.").min(5),
+  categoryId: z.uuid("Invalid ID format.").min(5),
+  minStock: validatedStock(),
 });

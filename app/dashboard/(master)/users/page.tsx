@@ -36,7 +36,7 @@ export default async function UserPage() {
       </Card>
       <TableDateWrapper
         header="Users"
-        description="User accounts and profile information for the restaurant management platform"
+        description="User accounts and profile information for the inventory management platform"
         searchBy="nameUser"
         labelSearch="name"
         isFilterDate={true}
