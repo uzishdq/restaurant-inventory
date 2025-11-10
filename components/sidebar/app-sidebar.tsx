@@ -67,11 +67,11 @@ export function AppSidebar({
         icon: ArrowRightLeft,
         items: [
           {
-            title: "Stock In",
+            title: "Incoming Item",
             url: ROUTES.AUTH.TRANSACTION.STOCK_IN,
           },
           {
-            title: "Stock Out",
+            title: "Outgoing Item",
             url: ROUTES.AUTH.TRANSACTION.STOCK_OUT,
           },
         ],

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Control, Controller, FieldError } from "react-hook-form";
+import { Control, Controller } from "react-hook-form";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -21,7 +21,6 @@ interface ICustomSelect {
   label: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
-  error?: FieldError;
   required?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>[];
@@ -31,6 +30,7 @@ interface ICustomSelect {
 }
 
 const ValueSelect = ({
+  label,
   value,
   onChange,
   data,
@@ -38,6 +38,7 @@ const ValueSelect = ({
   labelKey,
   placeholder = "Select an option...",
 }: {
+  label: string;
   value: string;
   onChange: (value: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,7 +58,7 @@ const ValueSelect = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between w-full"
+          className="justify-between w-full font-normal"
         >
           {selectedItem ? selectedItem[labelKey] : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -65,7 +66,7 @@ const ValueSelect = ({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>
-          <CommandInput placeholder={`Search ${labelKey}...`} />
+          <CommandInput placeholder={`Search ${label}...`} />
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandList>
             <CommandGroup>
@@ -99,7 +100,6 @@ export default function CustomSelect({
   name,
   label,
   control,
-  error,
   required = false,
   data,
   valueKey,
@@ -117,18 +117,23 @@ export default function CustomSelect({
         rules={{
           required: required ? `Please select ${label.toLowerCase()}` : false,
         }}
-        render={({ field }) => (
-          <ValueSelect
-            value={field.value}
-            onChange={field.onChange}
-            data={data}
-            valueKey={valueKey}
-            labelKey={labelKey}
-            placeholder={placeholder}
-          />
+        render={({ field, fieldState: { error } }) => (
+          <>
+            <ValueSelect
+              label={label.toLocaleLowerCase()}
+              value={field.value}
+              onChange={field.onChange}
+              data={data}
+              valueKey={valueKey}
+              labelKey={labelKey}
+              placeholder={placeholder}
+            />
+            {error && (
+              <p className="text-destructive text-sm">{error.message}</p>
+            )}
+          </>
         )}
       />
-      {error && <p className="text-sm text-red-500">{error.message}</p>}
     </div>
   );
 }

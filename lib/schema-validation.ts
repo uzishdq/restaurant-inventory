@@ -63,11 +63,23 @@ const itemIdSchema = z.string().regex(/^BB-\d{4}$/, {
   message: "Invalid ID format.",
 });
 
+const transactionIdSchema = z.string().regex(/^TRX-(IN|OUT)-\d{4}$/, {
+  message: "Invalid transaction ID format.",
+});
+
 export const DeleteUUIDSchema = z.object({
   id: z.uuid("Invalid ID format.").min(5),
 });
 
+/* -------- ENUM --------  */
 export const enumRole = ["ADMIN", "HEADKITCHEN", "MANAGER"] as const;
+export const enumTypeTransaction = ["IN", "OUT"] as const;
+export const enumStatusTransaction = [
+  "PENDING",
+  "ORDERED",
+  "RECEIVED",
+  "CANCELLED",
+] as const;
 
 /* -------- AUTH --------  */
 export const LoginSchema = z.object({
@@ -172,4 +184,18 @@ export const UpdateItemSchema = z.object({
 
 export const DeleteItemSchema = z.object({
   idItem: itemIdSchema,
+});
+
+/* -------- TRANSACTION --------  */
+const transactionDetailSchema = z.object({
+  itemId: itemIdSchema,
+  supplierId: z.uuid("Invalid ID format.").min(5),
+  quantityDetailTransaction: validatedStock(1, 500),
+});
+
+export const CreateTransactionSchema = z.object({
+  typeTransaction: z.enum(enumTypeTransaction),
+  detail: z
+    .array(transactionDetailSchema)
+    .min(1, "At least one transaction detail is required."),
 });

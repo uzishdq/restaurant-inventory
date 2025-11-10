@@ -1,5 +1,13 @@
 //ENUM
 export type roleType = "ADMIN" | "HEADKITCHEN" | "MANAGER";
+export type typeTransactionType = "IN" | "OUT";
+
+//tambahkan APRROVED untuk setelah cek received ke tabel movement;
+export type statusTransactionType =
+  | "PENDING"
+  | "ORDERED"
+  | "RECEIVED"
+  | "CANCELLED";
 
 //TYPE
 export type TUser = {
@@ -17,6 +25,11 @@ export type TSupplier = {
   nameSupplier: string;
   addressSupplier: string;
   phoneSupplier: string;
+};
+
+export type TSupplierTrx = {
+  idSupplier: string;
+  store_name: string;
 };
 
 export type TUnit = {
@@ -40,4 +53,19 @@ export type TItem = {
   minStock: number;
   createdAt: Date;
   updatedAt: Date | null;
+};
+
+export type TItemTrx = {
+  idItem: string;
+  nameItem: string;
+};
+
+export type TTransaction = {
+  idTransaction: string;
+  typeTransaction: typeTransactionType;
+  dateTransaction: string;
+  userId: string;
+  nameUser: string;
+  statusTransaction: statusTransactionType;
+  totalItems: number;
 };

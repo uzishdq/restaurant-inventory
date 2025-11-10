@@ -30,3 +30,21 @@ export function formatDateWIB(value?: Date | string | null): string {
 
   return `${formatted} WIB`;
 }
+
+export function formatDateToIndo(value: Date | string) {
+  const date = value instanceof Date ? value : new Date(value);
+
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}
+
+export function chunkArray<T>(array: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    chunks.push(array.slice(i, i + size));
+  }
+  return chunks;
+}

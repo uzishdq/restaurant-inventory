@@ -2,11 +2,7 @@ import { Badge } from "@/components/ui/badge";
 
 interface BadgeCustomProps {
   value: string;
-  category:
-    | "role"
-    | "statusAnggota"
-    | "statusPendaftaranSimpanan"
-    | "jenisSimpanan";
+  category: "role" | "statusAnggota" | "typeTransaction" | "statusTransaction";
 }
 
 const statusStyleMap: Record<
@@ -28,16 +24,15 @@ const statusStyleMap: Record<
     ACTIVE: { variant: "default" },
     NOTACTIVE: { variant: "destructive" },
   },
-  statusPendaftaranSimpanan: {
-    OPEN: { variant: "default" },
-    CLOSE: { variant: "secondary" },
+  typeTransaction: {
+    IN: { variant: "default" },
+    OUT: { variant: "destructive" },
   },
-  jenisSimpanan: {
-    WAJIB: { className: "bg-blue-100 text-blue-800" },
-    SUKAMANA: { className: "bg-green-100 text-green-800" },
-    LEBARAN: { className: "bg-yellow-100 text-yellow-800" },
-    QURBAN: { className: "bg-red-100 text-red-800" },
-    UBAR: { className: "bg-purple-100 text-purple-800" },
+  statusTransaction: {
+    PENDING: { className: "bg-blue-100 text-blue-800" },
+    ORDERED: { className: "bg-yellow-100 text-yellow-800" },
+    RECEIVED: { className: "bg-green-100 text-green-800" },
+    CANCELLED: { className: "bg-red-100 text-red-800" },
   },
 };
 

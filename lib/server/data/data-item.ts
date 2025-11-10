@@ -2,16 +2,17 @@
 
 import { db } from "@/lib/db";
 import { categoryTable, itemTable, unitTable } from "@/lib/db/schema";
-import { TItem } from "@/lib/type-data";
+import { TItem, TItemTrx } from "@/lib/type-data";
 import { asc, count, eq, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export async function generateItemID() {
   const [result] = await db
     .select({ maxNo: sql<string>`max(${itemTable.idItem})` })
-    .from(itemTable);
+    .from(itemTable)
+    .limit(1);
 
-  const maxID = result.maxNo || "BB-0001";
+  const maxID = result.maxNo || "BB-0000";
   const currentNumber = parseInt(maxID.split("-")[1], 10);
   const nextNumber = currentNumber + 1;
   const nextID = `BB-${nextNumber.toString().padStart(4, "0")}`;
@@ -56,6 +57,33 @@ export const getItems = unstable_cache(
   ["get-items"],
   {
     tags: ["get-items"],
+  }
+);
+
+export const getItemsTrx = unstable_cache(
+  async () => {
+    try {
+      const result = await db
+        .select({
+          idItem: itemTable.idItem,
+          nameItem: itemTable.nameItem,
+        })
+        .from(itemTable)
+        .orderBy(asc(itemTable.createdAt));
+
+      if (result.length > 0) {
+        return { ok: true, data: result as TItemTrx[] };
+      } else {
+        return { ok: true, data: [] as TItemTrx[] };
+      }
+    } catch (error) {
+      console.error("error item data trx: ", error);
+      return { ok: false, data: null };
+    }
+  },
+  ["get-items-trx"],
+  {
+    tags: ["get-items-trx"],
   }
 );
 
