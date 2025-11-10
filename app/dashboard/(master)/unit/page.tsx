@@ -1,12 +1,6 @@
 import { columnUnit } from "@/components/columns/column-unit";
+import SectionCard from "@/components/section/section-card";
 import TableDateWrapper from "@/components/table/table-wrapper";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import RenderError from "@/components/ui/render-error";
 import { CreateUnitForm } from "@/components/unit/unit-form";
 import { LABEL } from "@/lib/constant";
@@ -22,17 +16,7 @@ export default async function UnitPage() {
 
   return (
     <div className=" space-y-4">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Units</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {units.data.length}
-          </CardTitle>
-          <CardAction>
-            <Boxes className="h-5 w-5 text-muted-foreground" />
-          </CardAction>
-        </CardHeader>
-      </Card>
+      <SectionCard title="Total Units" value={units.data.length} Icon={Boxes} />
       <TableDateWrapper
         header="Units"
         description="A list of measurement units used to define how items are counted or measured, such as pcs, kg, or liters"

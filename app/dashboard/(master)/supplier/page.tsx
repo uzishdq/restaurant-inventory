@@ -1,13 +1,7 @@
 import { columnSupplier } from "@/components/columns/column-supplier";
+import SectionCard from "@/components/section/section-card";
 import { CreateSupplierForm } from "@/components/supplier/supplier-form";
 import TableDateWrapper from "@/components/table/table-wrapper";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import RenderError from "@/components/ui/render-error";
 import { LABEL } from "@/lib/constant";
 import { getSuppliers } from "@/lib/server/data/data-supplier";
@@ -22,17 +16,11 @@ export default async function SupplierPage() {
 
   return (
     <div className=" space-y-4">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Supplier</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {suppliers.data.length}
-          </CardTitle>
-          <CardAction>
-            <Store className="h-5 w-5 text-muted-foreground" />
-          </CardAction>
-        </CardHeader>
-      </Card>
+      <SectionCard
+        title="Total Supplier"
+        value={suppliers.data.length}
+        Icon={Store}
+      />
       <TableDateWrapper
         header="Supplier"
         description="Contains information about vendors or suppliers who provide ingredients and materials for the restaurant"

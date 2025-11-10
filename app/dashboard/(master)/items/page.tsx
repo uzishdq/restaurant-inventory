@@ -1,11 +1,5 @@
 import ItemTable from "@/components/item/item-table";
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import SectionCard from "@/components/section/section-card";
 import RenderError from "@/components/ui/render-error";
 import { LABEL } from "@/lib/constant";
 import { getCategory } from "@/lib/server/data/data-category";
@@ -26,17 +20,11 @@ export default async function ItemsPage() {
 
   return (
     <div className=" space-y-4">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardDescription>Total Items</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {items.data.length}
-          </CardTitle>
-          <CardAction>
-            <Package className="h-5 w-5 text-muted-foreground" />
-          </CardAction>
-        </CardHeader>
-      </Card>
+      <SectionCard
+        title="Total Items"
+        value={items.data.length}
+        Icon={Package}
+      />
       <ItemTable
         data={items.data}
         unit={units.data}
