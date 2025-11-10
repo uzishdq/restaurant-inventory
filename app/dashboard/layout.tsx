@@ -3,6 +3,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SiteHeader } from "@/components/sidebar/site-header";
 import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { ROUTES } from "@/lib/constant";
 
 export const metadata: Metadata = {
   title: "Gang Nikmat Inventory",
@@ -15,6 +17,10 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const session = await auth();
+
+  if (!session || new Date(session.expires) < new Date()) {
+    redirect(ROUTES.PUBLIC.LOGIN);
+  }
 
   return (
     <SidebarProvider

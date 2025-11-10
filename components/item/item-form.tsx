@@ -4,7 +4,11 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { CreateItemSchema, UpdateItemSchema } from "@/lib/schema-validation";
+import {
+  CreateItemSchema,
+  DeleteItemSchema,
+  UpdateItemSchema,
+} from "@/lib/schema-validation";
 import FormDialog from "../ui/form-dialog";
 import {
   Form,
@@ -19,7 +23,11 @@ import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { TCategory, TItem, TUnit } from "@/lib/type-data";
 import CustomSelect from "../ui/custom-select";
-import { createItem, updateItem } from "@/lib/server/actions/action-item";
+import {
+  createItem,
+  deleteItem,
+  updateItem,
+} from "@/lib/server/actions/action-item";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +36,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface ICreateItemForm {
   unit: TUnit[];
@@ -251,4 +259,81 @@ function UpdateItemForm({ data, categorys, units }: IUpdateItemForm) {
   );
 }
 
-export { CreateItemForm, UpdateItemForm };
+interface IDeleteItemForm {
+  data: TItem;
+}
+
+function DeleteItemForm({ data }: IDeleteItemForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof DeleteItemSchema>>({
+    resolver: zodResolver(DeleteItemSchema),
+    defaultValues: {
+      idItem: data.idItem,
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = (values: z.infer<typeof DeleteItemSchema>) => {
+    startTransition(() => {
+      deleteItem(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button size="icon" variant="destructive" className="w-full">
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Delete Item</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to <strong>Delete</strong> this item? This
+            action cannot be undone
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <FormItem>
+                <FormLabel>Name Item</FormLabel>
+                <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+                  {data.nameItem}
+                </div>
+              </FormItem>
+            </div>
+            <div className="space-y-2">
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+                  {data.nameCategory}
+                </div>
+              </FormItem>
+            </div>
+            <Button
+              type="submit"
+              className="w-full"
+              variant="destructive"
+              disabled={isPending}
+            >
+              {isPending ? "Loading..." : "Detele"}
+            </Button>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export { CreateItemForm, UpdateItemForm, DeleteItemForm };

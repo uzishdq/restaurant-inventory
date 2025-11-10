@@ -4,7 +4,11 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { CreateUnitSchema, UpdateUnitSchema } from "@/lib/schema-validation";
+import {
+  CreateUnitSchema,
+  DeleteUUIDSchema,
+  UpdateUnitSchema,
+} from "@/lib/schema-validation";
 import FormDialog from "../ui/form-dialog";
 import {
   Form,
@@ -16,9 +20,14 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { createUnit, updateUnit } from "@/lib/server/actions/action-unit";
+import {
+  createUnit,
+  deleteUnit,
+  updateUnit,
+} from "@/lib/server/actions/action-unit";
 import { toast } from "sonner";
 import { TUnit } from "@/lib/type-data";
+import { DialogFooter } from "../ui/dialog";
 
 function CreateUnitForm() {
   const [isPending, startTransition] = React.useTransition();
@@ -35,8 +44,8 @@ function CreateUnitForm() {
     startTransition(() => {
       createUnit(values).then((data) => {
         if (data.ok) {
-          form.reset();
           toast.success(data.message);
+          form.reset();
         } else {
           toast.error(data.message);
         }
@@ -66,9 +75,11 @@ function CreateUnitForm() {
               )}
             />
           </div>
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Loading..." : "Create"}
-          </Button>
+          <DialogFooter>
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Loading..." : "Create"}
+            </Button>
+          </DialogFooter>
         </form>
       </Form>
     </FormDialog>
@@ -103,6 +114,7 @@ function UpdateUnitForm({ data }: IUpdateUnitForm) {
       });
     });
   };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -129,4 +141,52 @@ function UpdateUnitForm({ data }: IUpdateUnitForm) {
   );
 }
 
-export { CreateUnitForm, UpdateUnitForm };
+function DeleteUnitForm({ data }: IUpdateUnitForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof DeleteUUIDSchema>>({
+    resolver: zodResolver(DeleteUUIDSchema),
+    defaultValues: {
+      id: data.idUnit,
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = (values: z.infer<typeof DeleteUUIDSchema>) => {
+    startTransition(() => {
+      deleteUnit(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Name Unit</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.nameUnit}
+            </div>
+          </FormItem>
+        </div>
+        <Button
+          type="submit"
+          className="w-full"
+          variant="destructive"
+          disabled={isPending}
+        >
+          {isPending ? "Loading..." : "Delete"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+export { CreateUnitForm, UpdateUnitForm, DeleteUnitForm };

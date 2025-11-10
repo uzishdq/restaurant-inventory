@@ -33,6 +33,9 @@ export const LABEL = {
       DELETE: "Couldn’t delete data.",
     },
   },
+  SUCCESS: {
+    REVALIDATE: "Data is now fresh and updated.",
+  },
   ERROR: {
     INVALID_FIELD: "Invalid input. Please check your data.",
     DESCRIPTION: "We’re having some connection issues. Try again shortly.",

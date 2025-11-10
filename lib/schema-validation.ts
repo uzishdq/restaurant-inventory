@@ -1,4 +1,4 @@
-import z, { number } from "zod";
+import z from "zod";
 
 const allowedRegex = /^[a-zA-Z0-9.,/ \-']+$/;
 
@@ -61,6 +61,10 @@ const validatedStock = (min = 0, max = 60) =>
 
 const itemIdSchema = z.string().regex(/^BB-\d{4}$/, {
   message: "Invalid ID format.",
+});
+
+export const DeleteUUIDSchema = z.object({
+  id: z.uuid("Invalid ID format.").min(5),
 });
 
 export const enumRole = ["ADMIN", "HEADKITCHEN", "MANAGER"] as const;
@@ -164,4 +168,8 @@ export const UpdateItemSchema = z.object({
   unitId: z.uuid("Invalid ID format.").min(5),
   categoryId: z.uuid("Invalid ID format.").min(5),
   minStock: validatedStock(),
+});
+
+export const DeleteItemSchema = z.object({
+  idItem: itemIdSchema,
 });

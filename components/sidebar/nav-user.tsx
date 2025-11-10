@@ -12,15 +12,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  BellDot,
-  CircleUser,
-  EllipsisVertical,
-  WalletCards,
-} from "lucide-react";
+import { BellDot, CircleUser, EllipsisVertical } from "lucide-react";
 import { ButtonSignOut } from "../auth/button-signout";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constant";
+import { RevalidateButton } from "./revalidate-button";
 
 export function NavUser({
   user,
@@ -66,10 +62,7 @@ export function NavUser({
                   Account
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <WalletCards />
-                Billing
-              </DropdownMenuItem>
+              <RevalidateButton />
               <DropdownMenuItem>
                 <BellDot />
                 Notifications

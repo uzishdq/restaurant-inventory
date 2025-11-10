@@ -42,7 +42,7 @@ import {
   TableRow,
 } from "../ui/table";
 import { TCategory, TItem, TUnit } from "@/lib/type-data";
-import { CreateItemForm, UpdateItemForm } from "./item-form";
+import { CreateItemForm, DeleteItemForm, UpdateItemForm } from "./item-form";
 import { formatDateWIB } from "@/lib/utils";
 
 interface TableDateWrapperProps {
@@ -57,6 +57,14 @@ export default function ItemTable({
   category,
 }: TableDateWrapperProps) {
   const columnItem: ColumnDef<TItem>[] = [
+    {
+      accessorKey: "idItem",
+      header: "No Item",
+      enableHiding: false,
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("idItem")}</div>
+      ),
+    },
     {
       accessorKey: "nameItem",
       header: "Name",
@@ -115,7 +123,7 @@ export default function ItemTable({
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="space-y-1">
               <DropdownMenuLabel className="text-center">
                 Actions
               </DropdownMenuLabel>
@@ -126,6 +134,9 @@ export default function ItemTable({
                   units={unit}
                   categorys={category}
                 />
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <DeleteItemForm data={dataRows} />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

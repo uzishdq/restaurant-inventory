@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { MoreHorizontal, Pencil } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { TUnit } from "@/lib/type-data";
 import {
   Dialog,
@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { UpdateUnitForm } from "../unit/unit-form";
+import { DeleteUnitForm, UpdateUnitForm } from "../unit/unit-form";
 
 export const columnUnit: ColumnDef<TUnit>[] = [
   {
@@ -45,13 +45,16 @@ export const columnUnit: ColumnDef<TUnit>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="space-y-1">
             <DropdownMenuLabel className="text-center">
               Actions
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <DialogEdit value={dataRows} />
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+              <DialogDelete value={dataRows} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -81,6 +84,29 @@ function DialogEdit({ value }: TDialog) {
           </DialogDescription>
         </DialogHeader>
         <UpdateUnitForm data={value} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DialogDelete({ value }: TDialog) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button size="icon" variant="destructive" className="w-full">
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Delete Unit</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to <strong>Delete</strong> this unit? This
+            action cannot be undone
+          </DialogDescription>
+        </DialogHeader>
+        <DeleteUnitForm data={value} />
       </DialogContent>
     </Dialog>
   );

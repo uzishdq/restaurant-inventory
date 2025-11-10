@@ -3,6 +3,7 @@
 import * as z from "zod";
 import {
   CreateSupplierSchema,
+  DeleteUUIDSchema,
   UpdateSupplierSchema,
 } from "@/lib/schema-validation";
 import { LABEL, tagsSupplierRevalidate } from "@/lib/constant";
@@ -109,6 +110,63 @@ export const updateSupplier = async (
     };
   } catch (error) {
     console.error("error update supplier : ", error);
+    return {
+      ok: false,
+      message: LABEL.ERROR.SERVER,
+    };
+  }
+};
+
+export const deleteSupplier = async (
+  values: z.infer<typeof DeleteUUIDSchema>
+) => {
+  try {
+    const validateValues = DeleteUUIDSchema.safeParse(values);
+
+    if (!validateValues.success) {
+      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+    }
+
+    const session = await auth();
+
+    if (!session?.user.id) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
+    if (!session.user.role || session.user.role !== "ADMIN") {
+      return {
+        ok: false,
+        message: LABEL.ERROR.UNAUTHORIZED,
+      };
+    }
+
+    const [result] = await db
+      .delete(supplierTable)
+      .where(eq(supplierTable.idSupplier, validateValues.data.id))
+      .returning();
+
+    if (!result) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.DELETE,
+      };
+    }
+
+    const tagsToRevalidate = Array.from(new Set(tagsSupplierRevalidate));
+
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
+
+    return {
+      ok: true,
+      message: LABEL.INPUT.SUCCESS.DELETE,
+    };
+  } catch (error) {
+    console.error("error delete supplier : ", error);
     return {
       ok: false,
       message: LABEL.ERROR.SERVER,
