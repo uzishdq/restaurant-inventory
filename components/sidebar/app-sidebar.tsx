@@ -67,16 +67,12 @@ export function AppSidebar({
         icon: ArrowRightLeft,
         items: [
           {
-            title: "Barang Masuk",
-            url: "#",
+            title: "Stock In",
+            url: ROUTES.AUTH.TRANSACTION.STOCK_IN,
           },
           {
-            title: "Barang Keluar",
-            url: "#",
-          },
-          {
-            title: "Quantum",
-            url: "#",
+            title: "Stock Out",
+            url: ROUTES.AUTH.TRANSACTION.STOCK_OUT,
           },
         ],
       },

@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { categoryTable, itemTable, unitTable } from "@/lib/db/schema";
 import { TItem } from "@/lib/type-data";
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, count, eq, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export async function generateItemID() {
@@ -56,5 +56,22 @@ export const getItems = unstable_cache(
   ["get-items"],
   {
     tags: ["get-items"],
+  }
+);
+
+export const getCountItem = unstable_cache(
+  async () => {
+    try {
+      const [result] = await db.select({ total: count() }).from(itemTable);
+
+      return { ok: true, data: result.total ?? 0 };
+    } catch (error) {
+      console.error("error count item : ", error);
+      return { ok: false, data: 0 };
+    }
+  },
+  ["get-count-item"],
+  {
+    tags: ["get-count-item"],
   }
 );

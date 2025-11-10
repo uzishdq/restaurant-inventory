@@ -11,6 +11,10 @@ export const ROUTES = {
       UNIT: "/dashboard/unit",
       CATEGORY: "/dashboard/category",
     },
+    TRANSACTION: {
+      STOCK_IN: "/dashboard/stock-in",
+      STOCK_OUT: "/dashboard/stock-out",
+    },
     ACCOUNT: "/dashboard/account",
   },
 };
@@ -50,8 +54,8 @@ export const LABEL = {
 export const tagsUserRevalidate = ["get-account", "get-users"];
 export const tagsUnitRevalidate = ["get-units"];
 export const tagsCategoryRevalidate = ["get-category"];
-export const tagsItemRevalidate = ["get-items"];
-export const tagsSupplierRevalidate = ["get-suppliers"];
+export const tagsItemRevalidate = ["get-items", "get-count-item"];
+export const tagsSupplierRevalidate = ["get-suppliers", "get-count-supplier"];
 
 //ENUM SELECT
 export const ROLE = [
