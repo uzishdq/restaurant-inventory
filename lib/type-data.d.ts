@@ -8,6 +8,12 @@ export type statusTransactionType =
   | "ORDERED"
   | "RECEIVED"
   | "CANCELLED";
+export type statusDetailTransactionType = "PENDING" | "ACCEPTED" | "CANCELLED";
+
+export type columnProps = {
+  unit: TUnit[];
+  category: TCategory[];
+};
 
 //TYPE
 export type TUser = {
@@ -68,4 +74,15 @@ export type TTransaction = {
   nameUser: string;
   statusTransaction: statusTransactionType;
   totalItems: number;
+};
+
+export type TDetailTransaction = {
+  idDetailTransaction: string;
+  idTransaction: string;
+  itemId: string;
+  nameItem: string;
+  supplierId: string;
+  store_name: string;
+  quantityDetailTransaction: number;
+  statusDetailTransaction: statusDetailTransactionType;
 };

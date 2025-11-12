@@ -13,7 +13,10 @@ export const ROUTES = {
     },
     TRANSACTION: {
       CREATE: "/dashboard/create-transaction",
-      STOCK_IN: "/dashboard/incoming-item",
+      STOCK_IN: {
+        INDEX: "/dashboard/incoming-item",
+        EDIT_IN: (id: string) => `/dashboard/incoming-item/edit/${id}`,
+      },
       STOCK_OUT: "/dashboard/outgoing-item",
     },
     ACCOUNT: "/dashboard/account",
@@ -42,6 +45,7 @@ export const LABEL = {
     REVALIDATE: "Data is now fresh and updated.",
   },
   ERROR: {
+    404: "Page Not Found",
     INVALID_FIELD: "Invalid input. Please check your data.",
     DESCRIPTION: "We’re having some connection issues. Try again shortly.",
     SERVER: "Something went wrong on our server. Please try again later.",
@@ -65,7 +69,10 @@ export const tagsSupplierRevalidate = [
   "get-count-supplier",
   "get-suppliers-trx",
 ];
-export const tagsTransactionRevalidate = ["get-transactions"];
+export const tagsTransactionRevalidate = [
+  "get-transactions",
+  "get-detail-transactions",
+];
 
 //ENUM SELECT
 export const ROLE = [

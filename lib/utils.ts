@@ -5,18 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function generateKode(prefix: string, lastId?: string) {
-  if (!lastId) return `${prefix}-0001`;
-  const counter = parseInt(lastId.split("-")[1]) || 0;
-  return `${prefix}-${String(counter + 1).padStart(4, "0")}`;
-}
-
 export function formatDateWIB(value?: Date | string | null): string {
   if (!value) return "—";
 
   const date = value instanceof Date ? value : new Date(value);
 
-  // formatter untuk tanggal Indonesia, timezone WIB (Asia/Jakarta)
   const formatter = new Intl.DateTimeFormat("id-ID", {
     timeZone: "Asia/Jakarta",
     day: "2-digit",

@@ -1,4 +1,4 @@
-import ItemTable from "@/components/item/item-table";
+import ItemTableWrapper from "@/components/item/item-table-wrapper";
 import SectionCard from "@/components/section/section-card";
 import RenderError from "@/components/ui/render-error";
 import { LABEL } from "@/lib/constant";
@@ -25,10 +25,10 @@ export default async function ItemsPage() {
         value={items.data.length}
         Icon={Package}
       />
-      <ItemTable
+      <ItemTableWrapper
         data={items.data}
-        unit={units.data}
-        category={categorys.data}
+        units={units.data}
+        categorys={categorys.data}
       />
     </div>
   );

@@ -10,8 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { TTransaction } from "@/lib/type-data";
+import { List, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { TDetailTransaction, TTransaction } from "@/lib/type-data";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,9 @@ import {
 } from "../ui/dialog";
 import { BadgeCustom } from "./badge-custom";
 import { formatDateToIndo } from "@/lib/utils";
+import Link from "next/link";
+import { ROUTES } from "@/lib/constant";
+import { DeleteTransactionForm } from "../transaction/transaction-form";
 
 export const columnTransaction: ColumnDef<TTransaction>[] = [
   {
@@ -30,6 +33,14 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("idTransaction")}</div>
+    ),
+  },
+  {
+    accessorKey: "nameUser",
+    header: "Created By",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nameUser")}</div>
     ),
   },
   {
@@ -62,14 +73,6 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
     ),
   },
   {
-    accessorKey: "nameUser",
-    header: "By",
-    enableHiding: false,
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("nameUser")}</div>
-    ),
-  },
-  {
     accessorKey: "statusTransaction",
     header: "Status",
     enableHiding: false,
@@ -78,6 +81,104 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
         value={row.getValue("statusTransaction")}
         category="statusTransaction"
       />
+    ),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const dataRows = row.original;
+      const isPending = dataRows.statusTransaction === "PENDING";
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open Menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="space-y-1">
+            <DropdownMenuLabel className="text-center">
+              Actions
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+              <Button asChild size="icon" variant="ghost" className="w-full">
+                <Link
+                  href={ROUTES.AUTH.TRANSACTION.STOCK_IN.EDIT_IN(
+                    dataRows.idTransaction
+                  )}
+                >
+                  <List className="mr-2 h-4 w-4" />
+                  Detail Transaction
+                </Link>
+              </Button>
+            </DropdownMenuItem>
+            {isPending && (
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <DialogDelete value={dataRows} />
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
+
+type TDialog = {
+  value: TTransaction;
+};
+
+function DialogDelete({ value }: TDialog) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button size="icon" variant="destructive" className="w-full">
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Delete Transaction</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to <strong>Delete</strong> this transaction?
+            This action cannot be undone
+          </DialogDescription>
+        </DialogHeader>
+        <DeleteTransactionForm data={value} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export const columnDetailTransaction: ColumnDef<TDetailTransaction>[] = [
+  {
+    accessorKey: "nameItem",
+    header: "Item",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nameItem")}</div>
+    ),
+  },
+  {
+    accessorKey: "quantityDetailTransaction",
+    header: "Qyt",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.getValue("quantityDetailTransaction")}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "store_name",
+    header: "Store",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("store_name")}</div>
     ),
   },
   {
@@ -100,10 +201,19 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              <DialogEdit value={dataRows} />
+              <Button asChild size="icon" variant="ghost" className="w-full">
+                <Link
+                  href={ROUTES.AUTH.TRANSACTION.STOCK_IN.EDIT_IN(
+                    dataRows.idTransaction
+                  )}
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit
+                </Link>
+              </Button>
             </DropdownMenuItem>
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              <DialogDelete value={dataRows} />
+              haii
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -111,53 +221,3 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
     },
   },
 ];
-
-type TDialog = {
-  value: TTransaction;
-};
-
-function DialogEdit({ value }: TDialog) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" className="w-full">
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Edit Category</DialogTitle>
-          <DialogDescription>
-            Update the category name, then click <strong>Update</strong> to
-            confirm.
-          </DialogDescription>
-        </DialogHeader>
-        hai
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function DialogDelete({ value }: TDialog) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="destructive" className="w-full">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Delete Category</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to <strong>Delete</strong> this category? This
-            action cannot be undone
-          </DialogDescription>
-        </DialogHeader>
-        hai
-      </DialogContent>
-    </Dialog>
-  );
-}

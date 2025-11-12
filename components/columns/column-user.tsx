@@ -22,6 +22,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { AccountRoleUpdate } from "../account/account-form";
+import { formatDateToIndo } from "@/lib/utils";
 
 export const columnUsers: ColumnDef<TUser>[] = [
   {
@@ -51,7 +52,9 @@ export const columnUsers: ColumnDef<TUser>[] = [
     header: "Added On",
     enableHiding: false,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("createdAt")}</div>
+      <div className="capitalize">
+        {formatDateToIndo(row.getValue("createdAt"))}
+      </div>
     ),
   },
   {

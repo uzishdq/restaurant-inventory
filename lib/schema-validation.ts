@@ -63,7 +63,7 @@ const itemIdSchema = z.string().regex(/^BB-\d{4}$/, {
   message: "Invalid ID format.",
 });
 
-const transactionIdSchema = z.string().regex(/^TRX-(IN|OUT)-\d{4}$/, {
+export const transactionIdSchema = z.string().regex(/^TRX-(IN|OUT)-\d{4}$/, {
   message: "Invalid transaction ID format.",
 });
 
@@ -198,4 +198,8 @@ export const CreateTransactionSchema = z.object({
   detail: z
     .array(transactionDetailSchema)
     .min(1, "At least one transaction detail is required."),
+});
+
+export const DeleteTransactionSchema = z.object({
+  idTransaction: transactionIdSchema,
 });

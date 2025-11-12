@@ -4,7 +4,10 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 
-import { CreateTransactionSchema } from "@/lib/schema-validation";
+import {
+  CreateTransactionSchema,
+  DeleteTransactionSchema,
+} from "@/lib/schema-validation";
 import {
   Form,
   FormControl,
@@ -31,9 +34,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { TItemTrx, TSupplierTrx } from "@/lib/type-data";
+import { TItemTrx, TSupplierTrx, TTransaction } from "@/lib/type-data";
 import CustomSelect from "../ui/custom-select";
-import { createTransaction } from "@/lib/server/actions/action-transaction";
+import {
+  createTransaction,
+  deleteTransaction,
+} from "@/lib/server/actions/action-transaction";
 
 interface ICreateTransactionForm {
   items: TItemTrx[];
@@ -200,6 +206,7 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
 
               <Button
                 type="button"
+                className="w-full"
                 variant="secondary"
                 onClick={() =>
                   append({
@@ -212,7 +219,8 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                 + Add Item
               </Button>
             </div>
-            <Button type="submit" className="w-full" disabled={isPending}>
+
+            <Button type="submit" className="w-full mt-2" disabled={isPending}>
               {isPending ? "Loading..." : "Create"}
             </Button>
           </form>
@@ -222,4 +230,72 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
   );
 }
 
-export { CreateTransactionForm };
+interface IDeleteTransactionForm {
+  data: TTransaction;
+}
+
+function DeleteTransactionForm({ data }: IDeleteTransactionForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof DeleteTransactionSchema>>({
+    resolver: zodResolver(DeleteTransactionSchema),
+    defaultValues: {
+      idTransaction: data.idTransaction,
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = (values: z.infer<typeof DeleteTransactionSchema>) => {
+    startTransition(() => {
+      deleteTransaction(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Transaction</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.idTransaction}
+            </div>
+          </FormItem>
+        </div>
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Created By</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.nameUser}
+            </div>
+          </FormItem>
+        </div>
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Total Item</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.totalItems}
+            </div>
+          </FormItem>
+        </div>
+        <Button
+          type="submit"
+          variant="destructive"
+          className="w-full mt-2"
+          disabled={isPending}
+        >
+          {isPending ? "Loading..." : "Delete"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+export { CreateTransactionForm, DeleteTransactionForm };

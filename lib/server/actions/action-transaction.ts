@@ -1,13 +1,17 @@
 "use server";
 import * as z from "zod";
 import { LABEL, tagsTransactionRevalidate } from "@/lib/constant";
-import { CreateTransactionSchema } from "@/lib/schema-validation";
+import {
+  CreateTransactionSchema,
+  DeleteTransactionSchema,
+} from "@/lib/schema-validation";
 import { auth } from "@/lib/auth";
 import { generateTransactionID } from "../data/data-transaction";
 import { db } from "@/lib/db";
 import { detailTransactionTable, transactionTable } from "@/lib/db/schema";
 import { chunkArray } from "@/lib/utils";
 import { revalidateTag } from "next/cache";
+import { eq } from "drizzle-orm";
 
 export const createTransaction = async (
   values: z.infer<typeof CreateTransactionSchema>
@@ -82,6 +86,64 @@ export const createTransaction = async (
     };
   } catch (error) {
     console.error("error create transaction : ", error);
+    return {
+      ok: false,
+      message: LABEL.ERROR.SERVER,
+    };
+  }
+};
+
+export const deleteTransaction = async (
+  values: z.infer<typeof DeleteTransactionSchema>
+) => {
+  try {
+    const validateValues = DeleteTransactionSchema.safeParse(values);
+
+    if (!validateValues.success) {
+      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+    }
+
+    const session = await auth();
+
+    if (!session?.user.id) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
+    if (session?.user.role !== "ADMIN") {
+      return {
+        ok: false,
+        message: LABEL.ERROR.UNAUTHORIZED,
+      };
+    }
+
+    const [result] = await db
+      .delete(transactionTable)
+      .where(
+        eq(transactionTable.idTransaction, validateValues.data.idTransaction)
+      )
+      .returning();
+
+    if (!result) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.DELETE,
+      };
+    }
+
+    const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
+
+    return {
+      ok: true,
+      message: LABEL.INPUT.SUCCESS.DELETE,
+    };
+  } catch (error) {
+    console.error("error delete transaction : ", error);
     return {
       ok: false,
       message: LABEL.ERROR.SERVER,

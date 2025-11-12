@@ -68,7 +68,7 @@ export function AppSidebar({
         items: [
           {
             title: "Incoming Item",
-            url: ROUTES.AUTH.TRANSACTION.STOCK_IN,
+            url: ROUTES.AUTH.TRANSACTION.STOCK_IN.INDEX,
           },
           {
             title: "Outgoing Item",
