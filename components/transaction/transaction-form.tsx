@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import {
+  AddTransactionDetailSchema,
   CreateTransactionTestSchema,
   DeleteTransactionDetailSchema,
   DeleteTransactionSchema,
@@ -45,6 +46,7 @@ import {
 } from "@/lib/type-data";
 import CustomSelect from "../ui/custom-select";
 import {
+  addDetailTransaction,
   createTransaction,
   deleteDetailTransaction,
   deleteTransaction,
@@ -119,7 +121,7 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
         <CardTitle className="text-xl">Create Transaction</CardTitle>
         <CardDescription className="text-base">
           Create a new transaction by choosing the type (Stock In or Stock Out)
-          and adding at least one product detail below.
+          and adding at least one item detail below.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -157,65 +159,6 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
             {/* DETAIL TRANSACTION */}
             <div className="space-y-4">
               <FormLabel>Transaction Details</FormLabel>
-              {/* {fields.map((field, index) => (
-                <Card key={field.id} className="p-4">
-                  <CardHeader className="p-0 font-medium text-gray-700">
-                    Item #{index + 1}
-                  </CardHeader>
-                  <CardContent className="grid p-0 grid-cols-1 gap-4 md:grid-cols-3">
-                    <CustomSelect
-                      name={`detail.${index}.itemId`}
-                      label="Item"
-                      control={form.control}
-                      data={items}
-                      valueKey="idItem"
-                      labelKey="nameItem"
-                      required
-                    />
-                    <CustomSelect
-                      name={`detail.${index}.supplierId`}
-                      label="Store"
-                      control={form.control}
-                      data={supplier}
-                      valueKey="idSupplier"
-                      labelKey="store_name"
-                      required
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`detail.${index}.quantityDetailTransaction`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Quantity</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              value={isNaN(field.value) ? "" : field.value}
-                              onChange={(e) =>
-                                field.onChange(e.target.valueAsNumber)
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-
-                  <div className="flex justify-end">
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleRemove(index)}
-                      disabled={fields.length === 1}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </Card>
-              ))} */}
 
               {fields.map((field, index) => {
                 const selectedItem = items.find(
@@ -305,25 +248,33 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
 
               {/* Error global untuk detail array */}
               {form.formState.errors.detail && (
-                <p className="text-sm text-red-500">
+                <p className="text-destructive text-sm">
                   {form.formState.errors.detail.message?.toString()}
                 </p>
               )}
+              {fields.length <= 20 && (
+                <Button
+                  type="button"
+                  className="w-full"
+                  variant="secondary"
+                  onClick={() => {
+                    if (fields.length >= 20) {
+                      form.setError("detail", {
+                        message: "Maximum 20 items allowed.",
+                      });
+                      return;
+                    }
 
-              <Button
-                type="button"
-                className="w-full"
-                variant="secondary"
-                onClick={() =>
-                  append({
-                    itemId: "",
-                    supplierId: "",
-                    quantityDetailTransaction: 0,
-                  })
-                }
-              >
-                + Add Item
-              </Button>
+                    append({
+                      itemId: "",
+                      supplierId: "",
+                      quantityDetailTransaction: 0,
+                    });
+                  }}
+                >
+                  + Add Item
+                </Button>
+              )}
             </div>
 
             <Button type="submit" className="w-full mt-2" disabled={isPending}>
@@ -333,6 +284,194 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
         </Form>
       </CardContent>
     </Card>
+  );
+}
+
+interface IAddDetailTransactionForm {
+  onSuccess?: () => void;
+  data: TDetailTransaction;
+  items: TItemTrx[];
+  supplier: TSupplierTrx[];
+}
+
+function AddDetailTransactionForm({
+  onSuccess,
+  data,
+  items,
+  supplier,
+}: IAddDetailTransactionForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof AddTransactionDetailSchema>>({
+    resolver: zodResolver(AddTransactionDetailSchema),
+    defaultValues: {
+      idTransaction: data.idTransaction,
+      detail: [
+        {
+          itemId: "",
+          supplierId: "",
+          quantityDetailTransaction: 0,
+        },
+      ],
+    },
+    mode: "onChange",
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "detail",
+  });
+
+  const watchedDetails = useWatch({ control: form.control, name: "detail" });
+
+  const onSubmit = (values: z.infer<typeof AddTransactionDetailSchema>) => {
+    startTransition(() => {
+      addDetailTransaction(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          onSuccess?.();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+
+  const handleRemove = (index: number) => {
+    if (fields.length > 1) {
+      remove(index);
+    } else {
+      form.setError("detail", {
+        type: "manual",
+        message: "At least one transaction detail is required.",
+      });
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* DETAIL TRANSACTION */}
+        <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
+          <FormLabel>Transaction Details</FormLabel>
+
+          {fields.map((field, index) => {
+            const selectedItem = items.find(
+              (it) => it.idItem === watchedDetails?.[index]?.itemId
+            );
+
+            return (
+              <Card key={field.id}>
+                <CardHeader className="font-medium text-gray-700">
+                  Item #{index + 1}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <CustomSelect
+                    name={`detail.${index}.itemId`}
+                    label="Item"
+                    control={form.control}
+                    data={items}
+                    valueKey="idItem"
+                    labelKey="nameItem"
+                    required
+                  />
+
+                  <CustomSelect
+                    name={`detail.${index}.supplierId`}
+                    label="Store"
+                    control={form.control}
+                    data={supplier}
+                    valueKey="idSupplier"
+                    labelKey="store_name"
+                    required
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`detail.${index}.quantityDetailTransaction`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Quantity</FormLabel>
+                        <div className="flex items-center gap-2">
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={isNaN(field.value) ? "" : field.value}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
+                              placeholder="Enter quantity"
+                            />
+                          </FormControl>
+                          {selectedItem && (
+                            <span className="capitalize text-sm min-w-10">
+                              {selectedItem.nameUnit}
+                            </span>
+                          )}
+                        </div>
+                        <FormMessage />
+                        {selectedItem && (
+                          <FormDescription>
+                            Current Stock: {selectedItem.qty}
+                          </FormDescription>
+                        )}
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleRemove(index)}
+                      disabled={fields.length === 1}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+
+          {/* Error global untuk detail array */}
+          {form.formState.errors.detail && (
+            <p className="text-sm text-red-500">
+              {form.formState.errors.detail.message?.toString()}
+            </p>
+          )}
+
+          <Button
+            type="button"
+            className="w-full"
+            variant="secondary"
+            onClick={() => {
+              if (fields.length >= 20) {
+                form.setError("detail", {
+                  message: "Maximum 20 items allowed.",
+                });
+                return;
+              }
+
+              append({
+                itemId: "",
+                supplierId: "",
+                quantityDetailTransaction: 0,
+              });
+            }}
+          >
+            + Add Item
+          </Button>
+        </div>
+
+        <Button type="submit" className="w-full mt-2" disabled={isPending}>
+          {isPending ? "Loading..." : "Save"}
+        </Button>
+      </form>
+    </Form>
   );
 }
 
@@ -569,6 +708,7 @@ function DeleteDetailTransactionForm({
 export {
   CreateTransactionForm,
   DeleteTransactionForm,
+  AddDetailTransactionForm,
   UpdateDetailTransactionForm,
   DeleteDetailTransactionForm,
 };

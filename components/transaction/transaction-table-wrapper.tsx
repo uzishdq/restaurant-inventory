@@ -3,6 +3,8 @@ import React, { useMemo } from "react";
 import { columnDetailTransaction } from "../columns/column-transaction";
 import { TDetailTransaction, TItemTrx, TSupplierTrx } from "@/lib/type-data";
 import TableDateWrapper from "../table/table-wrapper";
+import FormDialog from "../ui/form-dialog";
+import { AddDetailTransactionForm } from "./transaction-form";
 
 interface ITransactionTableWrapper {
   data: TDetailTransaction[];
@@ -29,6 +31,14 @@ export default function TransactionTableWrapper({
       filterDate=""
       data={data}
       columns={columns}
-    />
+    >
+      <FormDialog type="create" title="Add Product">
+        <AddDetailTransactionForm
+          data={data[0]}
+          items={items}
+          supplier={suppliers}
+        />
+      </FormDialog>
+    </TableDateWrapper>
   );
 }

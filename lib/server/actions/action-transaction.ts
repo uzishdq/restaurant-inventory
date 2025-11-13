@@ -2,6 +2,7 @@
 import * as z from "zod";
 import { LABEL, tagsTransactionRevalidate } from "@/lib/constant";
 import {
+  AddTransactionDetailSchema,
   CreateTransactionTestSchema,
   DeleteTransactionDetailSchema,
   DeleteTransactionSchema,
@@ -136,8 +137,6 @@ export const createTransaction = async (values: unknown) => {
       };
     }
 
-    console.log(payload);
-
     const result = await db.transaction(async (tx) => {
       const [createTransaction] = await tx
         .insert(transactionTable)
@@ -234,6 +233,82 @@ export const deleteTransaction = async (
     };
   } catch (error) {
     console.error("error delete transaction : ", error);
+    return {
+      ok: false,
+      message: LABEL.ERROR.SERVER,
+    };
+  }
+};
+
+export const addDetailTransaction = async (
+  values: z.infer<typeof AddTransactionDetailSchema>
+) => {
+  try {
+    const validateValues = AddTransactionDetailSchema.safeParse(values);
+
+    if (!validateValues.success) {
+      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+    }
+
+    const session = await auth();
+
+    if (!session?.user.id) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
+    if (session?.user.role !== "ADMIN") {
+      return {
+        ok: false,
+        message: LABEL.ERROR.UNAUTHORIZED,
+      };
+    }
+
+    const { idTransaction, detail } = validateValues.data;
+
+    //     const payload = detail.map((item) => ({
+    //   ...item,
+    //   transactionId: idTransaction,
+    // }));
+
+    const payload = detail.map(({ supplierId, ...rest }) => ({
+      ...rest,
+      transactionId: idTransaction,
+      supplierId: supplierId as string,
+    }));
+
+    if (payload.length < 0) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.SAVED,
+      };
+    }
+
+    const [result] = await db
+      .insert(detailTransactionTable)
+      .values(payload)
+      .returning();
+
+    if (!result) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.SAVED,
+      };
+    }
+
+    const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
+
+    return {
+      ok: true,
+      message: LABEL.INPUT.SUCCESS.SAVED,
+    };
+  } catch (error) {
+    console.error("error add detail transaction : ", error);
     return {
       ok: false,
       message: LABEL.ERROR.SERVER,

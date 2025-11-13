@@ -247,6 +247,13 @@ export const DeleteTransactionSchema = z.object({
   idTransaction: transactionIdSchema,
 });
 
+export const AddTransactionDetailSchema = z.object({
+  idTransaction: transactionIdSchema,
+  detail: z
+    .array(transactionDetailSchema)
+    .min(1, "At least one transaction detail is required."),
+});
+
 export const UpdateTransactionDetailSchema = z.object({
   idDetailTransaction: z.uuid("Invalid ID format.").min(5),
   itemId: itemIdSchema,
