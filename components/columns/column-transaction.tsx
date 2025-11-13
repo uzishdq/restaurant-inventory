@@ -23,6 +23,7 @@ import { formatDateToIndo } from "@/lib/utils";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constant";
 import {
+  DeleteDetailTransactionForm,
   DeleteTransactionForm,
   UpdateDetailTransactionForm,
 } from "../transaction/transaction-form";
@@ -163,7 +164,7 @@ export const columnDetailTransaction = ({
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
-        {row.getValue("quantityDetailTransaction")}
+        {row.original.quantityDetailTransaction} / {row.original.nameUnit}
       </div>
     ),
   },
@@ -213,7 +214,7 @@ export const columnDetailTransaction = ({
               />
             </DropdownMenuItem>
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              haii
+              <DetailDialogDelete value={dataRows} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -240,6 +241,18 @@ function DetailDialogEdit({ value, items, suppliers }: TDetailDialog) {
         items={items}
         suppliers={suppliers}
       />
+    </FormDialog>
+  );
+}
+
+function DetailDialogDelete({ value }: { value: TDetailTransaction }) {
+  return (
+    <FormDialog
+      type="delete"
+      title="Delete Detail Transaction"
+      description="Are you sure you want to Delete this item? This action cannot be undone"
+    >
+      <DeleteDetailTransactionForm data={value} />
     </FormDialog>
   );
 }

@@ -250,6 +250,10 @@ export const DeleteTransactionSchema = z.object({
 export const UpdateTransactionDetailSchema = z.object({
   idDetailTransaction: z.uuid("Invalid ID format.").min(5),
   itemId: itemIdSchema,
-  supplierId: z.string().optional(),
+  supplierId: z.uuid("Invalid ID format.").min(5),
   quantityDetailTransaction: validatedStock(1, 500),
+});
+
+export const DeleteTransactionDetailSchema = z.object({
+  idDetailTransaction: z.uuid("Invalid ID format.").min(5),
 });

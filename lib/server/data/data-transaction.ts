@@ -6,6 +6,7 @@ import {
   itemTable,
   supplierTable,
   transactionTable,
+  unitTable,
   userTable,
 } from "@/lib/db/schema";
 import { transactionIdSchema } from "@/lib/schema-validation";
@@ -100,6 +101,7 @@ export const getDetailTransactions = unstable_cache(
           idTransaction: detailTransactionTable.transactionId,
           itemId: itemTable.idItem,
           nameItem: itemTable.nameItem,
+          nameUnit: unitTable.nameUnit,
           supplierId: supplierTable.idSupplier,
           store_name: supplierTable.store_name,
           quantityDetailTransaction:
@@ -112,6 +114,7 @@ export const getDetailTransactions = unstable_cache(
           itemTable,
           eq(itemTable.idItem, detailTransactionTable.itemId)
         )
+        .leftJoin(unitTable, eq(unitTable.idUnit, itemTable.unitId))
         .leftJoin(
           supplierTable,
           eq(supplierTable.idSupplier, detailTransactionTable.supplierId)

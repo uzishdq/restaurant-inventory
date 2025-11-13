@@ -6,6 +6,7 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import {
   CreateTransactionTestSchema,
+  DeleteTransactionDetailSchema,
   DeleteTransactionSchema,
   UpdateTransactionDetailSchema,
 } from "@/lib/schema-validation";
@@ -45,7 +46,9 @@ import {
 import CustomSelect from "../ui/custom-select";
 import {
   createTransaction,
+  deleteDetailTransaction,
   deleteTransaction,
+  updateDetailTransaction,
 } from "@/lib/server/actions/action-transaction";
 import { cn } from "@/lib/utils";
 
@@ -424,16 +427,15 @@ function UpdateDetailTransactionForm({
 
   const onSubmit = (values: z.infer<typeof UpdateTransactionDetailSchema>) => {
     startTransition(() => {
-      // updateItem(values).then((data) => {
-      //   if (data.ok) {
-      //     form.reset();
-      //     toast.success(data.message);
-      //   } else {
-      //     toast.error(data.message);
-      //   }
-      // });
-      onSuccess?.();
-      console.log(values);
+      updateDetailTransaction(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          onSuccess?.();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
     });
   };
 
@@ -484,8 +486,82 @@ function UpdateDetailTransactionForm({
   );
 }
 
+interface IDeleteDetailTransactionForm {
+  onSuccess?: () => void;
+  data: TDetailTransaction;
+}
+
+function DeleteDetailTransactionForm({
+  onSuccess,
+  data,
+}: IDeleteDetailTransactionForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof DeleteTransactionDetailSchema>>({
+    resolver: zodResolver(DeleteTransactionDetailSchema),
+    defaultValues: {
+      idDetailTransaction: data.idDetailTransaction,
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = (values: z.infer<typeof DeleteTransactionDetailSchema>) => {
+    startTransition(() => {
+      deleteDetailTransaction(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          onSuccess?.();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Item</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.nameItem}
+            </div>
+          </FormItem>
+        </div>
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Store</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.store_name}
+            </div>
+          </FormItem>
+        </div>
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Qyt</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.quantityDetailTransaction} / {data.nameUnit}
+            </div>
+          </FormItem>
+        </div>
+        <Button
+          type="submit"
+          variant="destructive"
+          className="w-full"
+          disabled={isPending}
+        >
+          {isPending ? "Loading..." : "Delete"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
 export {
   CreateTransactionForm,
   DeleteTransactionForm,
   UpdateDetailTransactionForm,
+  DeleteDetailTransactionForm,
 };

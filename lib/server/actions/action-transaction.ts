@@ -3,7 +3,9 @@ import * as z from "zod";
 import { LABEL, tagsTransactionRevalidate } from "@/lib/constant";
 import {
   CreateTransactionTestSchema,
+  DeleteTransactionDetailSchema,
   DeleteTransactionSchema,
+  UpdateTransactionDetailSchema,
 } from "@/lib/schema-validation";
 import { auth } from "@/lib/auth";
 import { generateTransactionID } from "../data/data-transaction";
@@ -232,6 +234,134 @@ export const deleteTransaction = async (
     };
   } catch (error) {
     console.error("error delete transaction : ", error);
+    return {
+      ok: false,
+      message: LABEL.ERROR.SERVER,
+    };
+  }
+};
+
+export const updateDetailTransaction = async (
+  values: z.infer<typeof UpdateTransactionDetailSchema>
+) => {
+  try {
+    const validateValues = UpdateTransactionDetailSchema.safeParse(values);
+
+    if (!validateValues.success) {
+      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+    }
+
+    const session = await auth();
+
+    if (!session?.user.id) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
+    if (session?.user.role !== "ADMIN") {
+      return {
+        ok: false,
+        message: LABEL.ERROR.UNAUTHORIZED,
+      };
+    }
+
+    const [result] = await db
+      .update(detailTransactionTable)
+      .set({
+        itemId: validateValues.data.itemId,
+        supplierId: validateValues.data.supplierId,
+        quantityDetailTransaction:
+          validateValues.data.quantityDetailTransaction,
+      })
+      .where(
+        eq(
+          detailTransactionTable.idDetailTransaction,
+          validateValues.data.idDetailTransaction
+        )
+      )
+      .returning();
+
+    if (!result) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.UPDATE,
+      };
+    }
+
+    const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
+
+    return {
+      ok: true,
+      message: LABEL.INPUT.SUCCESS.UPDATE,
+    };
+  } catch (error) {
+    console.error("error update detail transaction : ", error);
+    return {
+      ok: false,
+      message: LABEL.ERROR.SERVER,
+    };
+  }
+};
+
+export const deleteDetailTransaction = async (
+  values: z.infer<typeof DeleteTransactionDetailSchema>
+) => {
+  try {
+    const validateValues = DeleteTransactionDetailSchema.safeParse(values);
+
+    if (!validateValues.success) {
+      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+    }
+
+    const session = await auth();
+
+    if (!session?.user.id) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
+    if (session?.user.role !== "ADMIN") {
+      return {
+        ok: false,
+        message: LABEL.ERROR.UNAUTHORIZED,
+      };
+    }
+
+    const [result] = await db
+      .delete(detailTransactionTable)
+      .where(
+        eq(
+          detailTransactionTable.idDetailTransaction,
+          validateValues.data.idDetailTransaction
+        )
+      )
+      .returning();
+
+    if (!result) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.DELETE,
+      };
+    }
+
+    const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
+
+    return {
+      ok: true,
+      message: LABEL.INPUT.SUCCESS.DELETE,
+    };
+  } catch (error) {
+    console.error("error delete detail transaction : ", error);
     return {
       ok: false,
       message: LABEL.ERROR.SERVER,

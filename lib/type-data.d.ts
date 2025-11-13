@@ -87,6 +87,7 @@ export type TDetailTransaction = {
   idTransaction: string;
   itemId: string;
   nameItem: string;
+  nameUnit: string;
   supplierId: string;
   store_name: string;
   quantityDetailTransaction: number;
