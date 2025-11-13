@@ -9,7 +9,6 @@ import {
   DeleteUUIDSchema,
   UpdateCategorySchema,
 } from "@/lib/schema-validation";
-import FormDialog from "../ui/form-dialog";
 import {
   Form,
   FormControl,
@@ -28,7 +27,7 @@ import {
 } from "@/lib/server/actions/action-category";
 import { TCategory } from "@/lib/type-data";
 
-function CreateCategoryForm() {
+function CreateCategoryForm({ onSuccess }: { onSuccess?: () => void }) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof CreateCategorySchema>>({
@@ -44,6 +43,7 @@ function CreateCategoryForm() {
       createCategory(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -52,42 +52,37 @@ function CreateCategoryForm() {
     });
   };
   return (
-    <FormDialog
-      buttonLabel="Create Category"
-      title="Create New Category"
-      className="h-fit"
-    >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="nameCategory"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name Category</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Loading..." : "Create"}
-          </Button>
-        </form>
-      </Form>
-    </FormDialog>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="nameCategory"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name Category</FormLabel>
+                <FormControl>
+                  <Input {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? "Loading..." : "Create"}
+        </Button>
+      </form>
+    </Form>
   );
 }
 
 interface IUpdateCategoryForm {
+  onSuccess?: () => void;
   data: TCategory;
 }
 
-function UpdateCategoryForm({ data }: IUpdateCategoryForm) {
+function UpdateCategoryForm({ onSuccess, data }: IUpdateCategoryForm) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof UpdateCategorySchema>>({
@@ -104,6 +99,7 @@ function UpdateCategoryForm({ data }: IUpdateCategoryForm) {
       updateCategory(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -138,7 +134,7 @@ function UpdateCategoryForm({ data }: IUpdateCategoryForm) {
   );
 }
 
-function DeleteCategoryForm({ data }: IUpdateCategoryForm) {
+function DeleteCategoryForm({ onSuccess, data }: IUpdateCategoryForm) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof DeleteUUIDSchema>>({
@@ -154,6 +150,7 @@ function DeleteCategoryForm({ data }: IUpdateCategoryForm) {
       deleteCategory(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);

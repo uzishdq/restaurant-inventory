@@ -246,3 +246,10 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
 export const DeleteTransactionSchema = z.object({
   idTransaction: transactionIdSchema,
 });
+
+export const UpdateTransactionDetailSchema = z.object({
+  idDetailTransaction: z.uuid("Invalid ID format.").min(5),
+  itemId: itemIdSchema,
+  supplierId: z.string().optional(),
+  quantityDetailTransaction: validatedStock(1, 500),
+});

@@ -5,9 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import {
-  CreateTransactionSchema,
   CreateTransactionTestSchema,
   DeleteTransactionSchema,
+  UpdateTransactionDetailSchema,
 } from "@/lib/schema-validation";
 import {
   Form,
@@ -36,7 +36,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { TItemTrx, TSupplierTrx, TTransaction } from "@/lib/type-data";
+import {
+  TDetailTransaction,
+  TItemTrx,
+  TSupplierTrx,
+  TTransaction,
+} from "@/lib/type-data";
 import CustomSelect from "../ui/custom-select";
 import {
   createTransaction,
@@ -322,10 +327,11 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
 }
 
 interface IDeleteTransactionForm {
+  onSuccess?: () => void;
   data: TTransaction;
 }
 
-function DeleteTransactionForm({ data }: IDeleteTransactionForm) {
+function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof DeleteTransactionSchema>>({
@@ -341,6 +347,7 @@ function DeleteTransactionForm({ data }: IDeleteTransactionForm) {
       deleteTransaction(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -389,4 +396,96 @@ function DeleteTransactionForm({ data }: IDeleteTransactionForm) {
   );
 }
 
-export { CreateTransactionForm, DeleteTransactionForm };
+interface IUpdateDetailTransactionForm {
+  onSuccess?: () => void;
+  data: TDetailTransaction;
+  items: TItemTrx[];
+  suppliers: TSupplierTrx[];
+}
+
+function UpdateDetailTransactionForm({
+  onSuccess,
+  data,
+  items,
+  suppliers,
+}: IUpdateDetailTransactionForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof UpdateTransactionDetailSchema>>({
+    resolver: zodResolver(UpdateTransactionDetailSchema),
+    defaultValues: {
+      idDetailTransaction: data.idDetailTransaction,
+      itemId: data.itemId,
+      supplierId: data.supplierId,
+      quantityDetailTransaction: data.quantityDetailTransaction,
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = (values: z.infer<typeof UpdateTransactionDetailSchema>) => {
+    startTransition(() => {
+      // updateItem(values).then((data) => {
+      //   if (data.ok) {
+      //     form.reset();
+      //     toast.success(data.message);
+      //   } else {
+      //     toast.error(data.message);
+      //   }
+      // });
+      onSuccess?.();
+      console.log(values);
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <CustomSelect
+          name="itemId"
+          label="Item"
+          control={form.control}
+          data={items}
+          valueKey="idItem"
+          labelKey="nameItem"
+          required
+        />
+        <CustomSelect
+          name="supplierId"
+          label="Store"
+          control={form.control}
+          data={suppliers}
+          valueKey="idSupplier"
+          labelKey="store_name"
+          required
+        />
+        <FormField
+          control={form.control}
+          name="quantityDetailTransaction"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Quantity</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  {...field}
+                  value={isNaN(field.value) ? "" : field.value}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? "Loading..." : "Update"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+export {
+  CreateTransactionForm,
+  DeleteTransactionForm,
+  UpdateDetailTransactionForm,
+};

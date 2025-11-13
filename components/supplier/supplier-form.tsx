@@ -9,7 +9,6 @@ import {
   DeleteUUIDSchema,
   UpdateSupplierSchema,
 } from "@/lib/schema-validation";
-import FormDialog from "../ui/form-dialog";
 import {
   Form,
   FormControl,
@@ -29,7 +28,7 @@ import {
   updateSupplier,
 } from "@/lib/server/actions/action-supplier";
 
-function CreateSupplierForm() {
+function CreateSupplierForm({ onSuccess }: { onSuccess?: () => void }) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof CreateSupplierSchema>>({
@@ -48,6 +47,7 @@ function CreateSupplierForm() {
       createSupplier(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -56,87 +56,82 @@ function CreateSupplierForm() {
     });
   };
   return (
-    <FormDialog
-      buttonLabel="Create Supplier"
-      title="Create New Supplier"
-      className="h-fit"
-    >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="store_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Store</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="addressSupplier"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="nameSupplier"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="phoneSupplier"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Loading..." : "Create"}
-          </Button>
-        </form>
-      </Form>
-    </FormDialog>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="store_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Store</FormLabel>
+                <FormControl>
+                  <Input {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="addressSupplier"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Address</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="nameSupplier"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="phoneSupplier"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number</FormLabel>
+                <FormControl>
+                  <Input {...field} type="number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? "Loading..." : "Create"}
+        </Button>
+      </form>
+    </Form>
   );
 }
 
 interface IUpdateSupplierForm {
+  onSuccess?: () => void;
   data: TSupplier;
 }
 
-function UpdateSupplierForm({ data }: IUpdateSupplierForm) {
+function UpdateSupplierForm({ onSuccess, data }: IUpdateSupplierForm) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof UpdateSupplierSchema>>({
@@ -156,6 +151,7 @@ function UpdateSupplierForm({ data }: IUpdateSupplierForm) {
       updateSupplier(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -235,7 +231,7 @@ function UpdateSupplierForm({ data }: IUpdateSupplierForm) {
   );
 }
 
-function DeleteSupplierForm({ data }: IUpdateSupplierForm) {
+function DeleteSupplierForm({ onSuccess, data }: IUpdateSupplierForm) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof DeleteUUIDSchema>>({
@@ -251,6 +247,7 @@ function DeleteSupplierForm({ data }: IUpdateSupplierForm) {
       deleteSupplier(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);

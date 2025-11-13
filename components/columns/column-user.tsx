@@ -10,19 +10,12 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { MoreHorizontal, Pencil } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { TUser } from "@/lib/type-data";
 import { BadgeCustom } from "./badge-custom";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
 import { AccountRoleUpdate } from "../account/account-form";
 import { formatDateToIndo } from "@/lib/utils";
+import FormDialog from "../ui/form-dialog";
 
 export const columnUsers: ColumnDef<TUser>[] = [
   {
@@ -100,23 +93,12 @@ type TDialog = {
 
 function DialogEdit({ value }: TDialog) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" className="w-full">
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Edit Role User</DialogTitle>
-          <DialogDescription>
-            Update the user’s role, then click <strong>Update</strong> to
-            confirm.
-          </DialogDescription>
-        </DialogHeader>
-        <AccountRoleUpdate data={value} />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      type="edit"
+      title="Edit Role User"
+      description="Update the user’s role, then click Update to confirm."
+    >
+      <AccountRoleUpdate data={value} />
+    </FormDialog>
   );
 }

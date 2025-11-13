@@ -48,7 +48,6 @@ import {
   SelectValue,
 } from "../ui/select";
 import { ROLE } from "@/lib/constant";
-import FormDialog from "../ui/form-dialog";
 
 interface IAccountForm {
   data: TUser;
@@ -153,7 +152,7 @@ function AccountForm({ data }: IAccountForm) {
   );
 }
 
-function CreateAccountForm() {
+function CreateAccountForm({ onSuccess }: { onSuccess?: () => void }) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof CreateAccountSchema>>({
@@ -172,6 +171,7 @@ function CreateAccountForm() {
       createAccount(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -181,93 +181,87 @@ function CreateAccountForm() {
   };
 
   return (
-    <FormDialog
-      buttonLabel="Create User"
-      title="Create New User"
-      className="h-fit"
-    >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="phoneNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number</FormLabel>
+                <FormControl>
+                  <Input {...field} type="number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Role</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value.toString()}
+                >
                   <FormControl>
-                    <Input {...field} type="text" />
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Role User" />
+                    </SelectTrigger>
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="phoneNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Role</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value.toString()}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Role User" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {ROLE.map((item, index) => (
-                        <SelectItem key={index} value={item.value}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Loading..." : "Create"}
-          </Button>
-        </form>
-      </Form>
-    </FormDialog>
+                  <SelectContent>
+                    {ROLE.map((item, index) => (
+                      <SelectItem key={index} value={item.value}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? "Loading..." : "Create"}
+        </Button>
+      </form>
+    </Form>
   );
 }
 
@@ -470,10 +464,11 @@ function AccountResetUsername() {
 }
 
 interface IAccountRoleUpdate {
+  onSuccess?: () => void;
   data: TUser;
 }
 
-function AccountRoleUpdate({ data }: IAccountRoleUpdate) {
+function AccountRoleUpdate({ onSuccess, data }: IAccountRoleUpdate) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof RoleUpdateSchema>>({
@@ -489,6 +484,7 @@ function AccountRoleUpdate({ data }: IAccountRoleUpdate) {
     startTransition(() => {
       updateRole(values).then((data) => {
         if (data.ok) {
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);

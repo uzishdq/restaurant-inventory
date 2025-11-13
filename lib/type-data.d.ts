@@ -15,6 +15,11 @@ export type columnProps = {
   category: TCategory[];
 };
 
+export type columnTrxProps = {
+  items: TItemTrx[];
+  suppliers: TSupplierTrx[];
+};
+
 //TYPE
 export type TUser = {
   idUser: string;

@@ -2,6 +2,7 @@ import { CreateAccountForm } from "@/components/account/account-form";
 import { columnUsers } from "@/components/columns/column-user";
 import SectionCard from "@/components/section/section-card";
 import TableDateWrapper from "@/components/table/table-wrapper";
+import FormDialog from "@/components/ui/form-dialog";
 import RenderError from "@/components/ui/render-error";
 import { LABEL } from "@/lib/constant";
 import { getUsers } from "@/lib/server/data/data-user";
@@ -31,7 +32,9 @@ export default async function UserPage() {
         data={users.data}
         columns={columnUsers}
       >
-        <CreateAccountForm />
+        <FormDialog type="create" title="Create User">
+          <CreateAccountForm />
+        </FormDialog>
       </TableDateWrapper>
     </div>
   );

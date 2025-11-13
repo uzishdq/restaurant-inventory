@@ -10,20 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { TSupplier } from "@/lib/type-data";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
 import {
   DeleteSupplierForm,
   UpdateSupplierForm,
 } from "../supplier/supplier-form";
+import FormDialog from "../ui/form-dialog";
 
 export const columnSupplier: ColumnDef<TSupplier>[] = [
   {
@@ -96,45 +89,24 @@ type TDialog = {
 
 function DialogEdit({ value }: TDialog) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" className="w-full">
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Edit Supplier</DialogTitle>
-          <DialogDescription>
-            Update supplier data, then click <strong>Update</strong> to confirm.
-          </DialogDescription>
-        </DialogHeader>
-        <UpdateSupplierForm data={value} />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      type="edit"
+      title="Edit Supplier"
+      description="Update the supplier data, then click Update to confirm."
+    >
+      <UpdateSupplierForm data={value} />
+    </FormDialog>
   );
 }
 
 function DialogDelete({ value }: TDialog) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="destructive" className="w-full">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Delete Supplier</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to <strong>Delete</strong> this supplier? This
-            action cannot be undone
-          </DialogDescription>
-        </DialogHeader>
-        <DeleteSupplierForm data={value} />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      type="delete"
+      title="Delete Supplier"
+      description="Are you sure you want to Delete this supplier? This action cannot be undone."
+    >
+      <DeleteSupplierForm data={value} />
+    </FormDialog>
   );
 }

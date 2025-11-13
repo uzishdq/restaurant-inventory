@@ -9,7 +9,6 @@ import {
   DeleteUUIDSchema,
   UpdateUnitSchema,
 } from "@/lib/schema-validation";
-import FormDialog from "../ui/form-dialog";
 import {
   Form,
   FormControl,
@@ -29,7 +28,7 @@ import { toast } from "sonner";
 import { TUnit } from "@/lib/type-data";
 import { DialogFooter } from "../ui/dialog";
 
-function CreateUnitForm() {
+function CreateUnitForm({ onSuccess }: { onSuccess?: () => void }) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof CreateUnitSchema>>({
@@ -45,6 +44,7 @@ function CreateUnitForm() {
       createUnit(values).then((data) => {
         if (data.ok) {
           toast.success(data.message);
+          onSuccess?.();
           form.reset();
         } else {
           toast.error(data.message);
@@ -53,44 +53,39 @@ function CreateUnitForm() {
     });
   };
   return (
-    <FormDialog
-      buttonLabel="Create Unit"
-      title="Create New Unit"
-      className="h-fit"
-    >
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="nameUnit"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name Unit</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="text" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <DialogFooter>
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Loading..." : "Create"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </Form>
-    </FormDialog>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="nameUnit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name Unit</FormLabel>
+                <FormControl>
+                  <Input {...field} type="text" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <DialogFooter>
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? "Loading..." : "Create"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
   );
 }
 
 interface IUpdateUnitForm {
+  onSuccess?: () => void;
   data: TUnit;
 }
 
-function UpdateUnitForm({ data }: IUpdateUnitForm) {
+function UpdateUnitForm({ onSuccess, data }: IUpdateUnitForm) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof UpdateUnitSchema>>({
@@ -107,6 +102,7 @@ function UpdateUnitForm({ data }: IUpdateUnitForm) {
       updateUnit(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -141,7 +137,7 @@ function UpdateUnitForm({ data }: IUpdateUnitForm) {
   );
 }
 
-function DeleteUnitForm({ data }: IUpdateUnitForm) {
+function DeleteUnitForm({ onSuccess, data }: IUpdateUnitForm) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof DeleteUUIDSchema>>({
@@ -157,6 +153,7 @@ function DeleteUnitForm({ data }: IUpdateUnitForm) {
       deleteUnit(values).then((data) => {
         if (data.ok) {
           form.reset();
+          onSuccess?.();
           toast.success(data.message);
         } else {
           toast.error(data.message);

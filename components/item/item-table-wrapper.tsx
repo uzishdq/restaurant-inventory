@@ -5,6 +5,7 @@ import React, { useMemo } from "react";
 import { columnItem } from "../columns/column-item";
 import TableDateWrapper from "../table/table-wrapper";
 import { CreateItemForm } from "./item-form";
+import FormDialog from "../ui/form-dialog";
 
 interface ItemTableWrapperProps {
   data: TItem[];
@@ -33,7 +34,9 @@ export default function ItemTableWrapper({
       data={data}
       columns={columns}
     >
-      <CreateItemForm unit={units} category={categorys} />
+      <FormDialog type="create" title="Create Item">
+        <CreateItemForm unit={units} category={categorys} />
+      </FormDialog>
     </TableDateWrapper>
   );
 }

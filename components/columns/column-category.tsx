@@ -10,20 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { TCategory } from "@/lib/type-data";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
 import {
   DeleteCategoryForm,
   UpdateCategoryForm,
 } from "../category/category-form";
+import FormDialog from "../ui/form-dialog";
 
 export const columnCategory: ColumnDef<TCategory>[] = [
   {
@@ -72,46 +65,24 @@ type TDialog = {
 
 function DialogEdit({ value }: TDialog) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" className="w-full">
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Edit Category</DialogTitle>
-          <DialogDescription>
-            Update the category name, then click <strong>Update</strong> to
-            confirm.
-          </DialogDescription>
-        </DialogHeader>
-        <UpdateCategoryForm data={value} />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      type="edit"
+      title="Edit Category"
+      description="Update the category name, then click Update to confirm."
+    >
+      <UpdateCategoryForm data={value} />
+    </FormDialog>
   );
 }
 
 function DialogDelete({ value }: TDialog) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="destructive" className="w-full">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Delete Category</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to <strong>Delete</strong> this category? This
-            action cannot be undone
-          </DialogDescription>
-        </DialogHeader>
-        <DeleteCategoryForm data={value} />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      type="delete"
+      title="Delete Category"
+      description="Are you sure you want to Delete this category? This action cannot be undone."
+    >
+      <DeleteCategoryForm data={value} />
+    </FormDialog>
   );
 }

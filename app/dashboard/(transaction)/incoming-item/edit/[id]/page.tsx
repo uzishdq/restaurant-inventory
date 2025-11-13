@@ -1,11 +1,11 @@
-import { columnDetailTransaction } from "@/components/columns/column-transaction";
-import TableDateWrapper from "@/components/table/table-wrapper";
+import TransactionTableWrapper from "@/components/transaction/transaction-table-wrapper";
 import RenderError from "@/components/ui/render-error";
 import { auth } from "@/lib/auth";
 import { LABEL } from "@/lib/constant";
 import { isTransactionId } from "@/lib/helper";
+import { getItemsTrx } from "@/lib/server/data/data-item";
+import { getSuppliersTrx } from "@/lib/server/data/data-supplier";
 import { getDetailTransactions } from "@/lib/server/data/data-transaction";
-import React from "react";
 
 export default async function EditStockInPage({
   params,
@@ -26,24 +26,30 @@ export default async function EditStockInPage({
     return RenderError(LABEL.ERROR.NOT_LOGIN);
   }
 
-  const [details] = await Promise.all([getDetailTransactions(id)]);
+  const [details, supplier, items] = await Promise.all([
+    getDetailTransactions(id),
+    getSuppliersTrx(),
+    getItemsTrx(),
+  ]);
 
-  if (!details.ok || !details.data) {
+  if (
+    !details.ok ||
+    !details.data ||
+    !supplier.ok ||
+    !supplier.data ||
+    !items.ok ||
+    !items.data
+  ) {
     return RenderError(LABEL.ERROR.DESCRIPTION);
   }
 
   return (
     <div className=" space-y-4">
-      <TableDateWrapper
-        header={`Detail Transaction ${id}`}
-        description="A collection of item categories used to organize products by type, such as vegetables, meat, or spices"
-        searchBy="nameItem"
-        labelSearch="name"
-        isFilterDate={false}
-        filterDate=""
+      <TransactionTableWrapper
         data={details.data}
-        columns={columnDetailTransaction}
-      ></TableDateWrapper>
+        items={items.data}
+        suppliers={supplier.data}
+      />
     </div>
   );
 }

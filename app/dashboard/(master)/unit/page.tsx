@@ -1,6 +1,7 @@
 import { columnUnit } from "@/components/columns/column-unit";
 import SectionCard from "@/components/section/section-card";
 import TableDateWrapper from "@/components/table/table-wrapper";
+import FormDialog from "@/components/ui/form-dialog";
 import RenderError from "@/components/ui/render-error";
 import { CreateUnitForm } from "@/components/unit/unit-form";
 import { LABEL } from "@/lib/constant";
@@ -27,7 +28,9 @@ export default async function UnitPage() {
         data={units.data}
         columns={columnUnit}
       >
-        <CreateUnitForm />
+        <FormDialog type="create" title="Create Unit">
+          <CreateUnitForm />
+        </FormDialog>
       </TableDateWrapper>
     </div>
   );

@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Dialog,
@@ -8,38 +10,99 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type DialogType = "create" | "edit" | "delete";
+
+interface FormChildProps {
+  onSuccess?: () => void;
+}
+
 interface IFormDialog {
-  children: React.ReactNode;
+  type: DialogType;
+  children: React.ReactElement<FormChildProps>;
+  title?: string;
+  description?: string;
   className?: string;
-  buttonLabel: string;
-  title: string;
 }
 
 export default function FormDialog({
+  type,
   children,
-  className,
-  buttonLabel,
   title,
+  description,
+  className,
 }: IFormDialog) {
+  const [open, setOpen] = React.useState(false);
+
+  const handleSuccess = () => setOpen(false);
+
+  const config = React.useMemo(() => {
+    switch (type) {
+      case "create":
+        return {
+          icon: <Plus className="h-4 w-4" />,
+          label: "Add",
+          variant: "default" as const,
+          size: "sm" as const,
+          defaultTitle: "Add Data",
+          defaultDesc: "Fill in the new data, then click Save.",
+        };
+      case "edit":
+        return {
+          icon: <Pencil className="h-4 w-4" />,
+          label: "Edit",
+          variant: "ghost" as const,
+          size: "icon" as const,
+          defaultTitle: "Edit Data",
+          defaultDesc: "Modify the selected data, then click Update.",
+        };
+      case "delete":
+        return {
+          icon: <Trash className="h-4 w-4" />,
+          label: "Delete",
+          variant: "destructive" as const,
+          size: "icon" as const,
+          defaultTitle: "Delete Data",
+          defaultDesc: "This action cannot be undone. Are you sure?",
+        };
+      default:
+        return {
+          icon: null,
+          label: "Open",
+          variant: "default" as const,
+          size: "default" as const,
+          defaultTitle: "Dialog",
+          defaultDesc: "",
+        };
+    }
+  }, [type]);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="ml-auto gap-1">
-          <span className="hidden sm:inline md:inline">{buttonLabel}</span>
-          <Plus className="h-5 w-5" />
+        <Button
+          variant={config.variant}
+          size={config.size}
+          className={cn("ml-auto gap-1", config.size === "icon" && "w-full")}
+        >
+          {config.icon}
+          <span className={config.icon ? "ml-2" : "mr-2"}>{config.label}</span>
         </Button>
       </DialogTrigger>
-      <DialogContent
-        className={cn("overflow-auto sm:max-w-[425px]", className)}
-      >
+
+      <DialogContent className={cn("sm:max-w-[425px]", className)}>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription></DialogDescription>
+          <DialogTitle>{title ?? config.defaultTitle}</DialogTitle>
+          <DialogDescription>
+            {description ?? config.defaultDesc}
+          </DialogDescription>
         </DialogHeader>
-        {children}
+
+        {React.isValidElement(children)
+          ? React.cloneElement(children, { onSuccess: handleSuccess })
+          : children}
       </DialogContent>
     </Dialog>
   );

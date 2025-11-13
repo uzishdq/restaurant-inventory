@@ -2,6 +2,7 @@ import { columnSupplier } from "@/components/columns/column-supplier";
 import SectionCard from "@/components/section/section-card";
 import { CreateSupplierForm } from "@/components/supplier/supplier-form";
 import TableDateWrapper from "@/components/table/table-wrapper";
+import FormDialog from "@/components/ui/form-dialog";
 import RenderError from "@/components/ui/render-error";
 import { LABEL } from "@/lib/constant";
 import { getSuppliers } from "@/lib/server/data/data-supplier";
@@ -31,7 +32,9 @@ export default async function SupplierPage() {
         data={suppliers.data}
         columns={columnSupplier}
       >
-        <CreateSupplierForm />
+        <FormDialog type="create" title="Create Item">
+          <CreateSupplierForm />
+        </FormDialog>
       </TableDateWrapper>
     </div>
   );

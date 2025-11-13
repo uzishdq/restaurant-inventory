@@ -2,6 +2,7 @@ import { CreateCategoryForm } from "@/components/category/category-form";
 import { columnCategory } from "@/components/columns/column-category";
 import SectionCard from "@/components/section/section-card";
 import TableDateWrapper from "@/components/table/table-wrapper";
+import FormDialog from "@/components/ui/form-dialog";
 import RenderError from "@/components/ui/render-error";
 import { LABEL } from "@/lib/constant";
 import { getCategory } from "@/lib/server/data/data-category";
@@ -31,7 +32,9 @@ export default async function CategoryPage() {
         data={category.data}
         columns={columnCategory}
       >
-        <CreateCategoryForm />
+        <FormDialog type="create" title="Create Category">
+          <CreateCategoryForm />
+        </FormDialog>
       </TableDateWrapper>
     </div>
   );

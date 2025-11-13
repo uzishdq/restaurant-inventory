@@ -10,21 +10,23 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { List, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { TDetailTransaction, TTransaction } from "@/lib/type-data";
+import { List, MoreHorizontal } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
+  columnTrxProps,
+  TDetailTransaction,
+  TItemTrx,
+  TSupplierTrx,
+  TTransaction,
+} from "@/lib/type-data";
 import { BadgeCustom } from "./badge-custom";
 import { formatDateToIndo } from "@/lib/utils";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constant";
-import { DeleteTransactionForm } from "../transaction/transaction-form";
+import {
+  DeleteTransactionForm,
+  UpdateDetailTransactionForm,
+} from "../transaction/transaction-form";
+import FormDialog from "../ui/form-dialog";
 
 export const columnTransaction: ColumnDef<TTransaction>[] = [
   {
@@ -133,28 +135,20 @@ type TDialog = {
 
 function DialogDelete({ value }: TDialog) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="destructive" className="w-full">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Delete Transaction</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to <strong>Delete</strong> this transaction?
-            This action cannot be undone
-          </DialogDescription>
-        </DialogHeader>
-        <DeleteTransactionForm data={value} />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      type="delete"
+      title="Delete Transaction"
+      description="Are you sure you want to Delete this transaction? This action cannot be undone"
+    >
+      <DeleteTransactionForm data={value} />
+    </FormDialog>
   );
 }
 
-export const columnDetailTransaction: ColumnDef<TDetailTransaction>[] = [
+export const columnDetailTransaction = ({
+  items,
+  suppliers,
+}: columnTrxProps): ColumnDef<TDetailTransaction>[] => [
   {
     accessorKey: "nameItem",
     header: "Item",
@@ -212,16 +206,11 @@ export const columnDetailTransaction: ColumnDef<TDetailTransaction>[] = [
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              <Button asChild size="icon" variant="ghost" className="w-full">
-                <Link
-                  href={ROUTES.AUTH.TRANSACTION.STOCK_IN.EDIT_IN(
-                    dataRows.idTransaction
-                  )}
-                >
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Edit
-                </Link>
-              </Button>
+              <DetailDialogEdit
+                value={dataRows}
+                items={items}
+                suppliers={suppliers}
+              />
             </DropdownMenuItem>
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               haii
@@ -232,3 +221,25 @@ export const columnDetailTransaction: ColumnDef<TDetailTransaction>[] = [
     },
   },
 ];
+
+type TDetailDialog = {
+  value: TDetailTransaction;
+  items: TItemTrx[];
+  suppliers: TSupplierTrx[];
+};
+
+function DetailDialogEdit({ value, items, suppliers }: TDetailDialog) {
+  return (
+    <FormDialog
+      type="edit"
+      title="Edit Detail Transaction"
+      description="Update detail transaction, then click Update to confirm."
+    >
+      <UpdateDetailTransactionForm
+        data={value}
+        items={items}
+        suppliers={suppliers}
+      />
+    </FormDialog>
+  );
+}

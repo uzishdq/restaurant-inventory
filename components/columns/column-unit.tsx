@@ -10,17 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { TUnit } from "@/lib/type-data";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
 import { DeleteUnitForm, UpdateUnitForm } from "../unit/unit-form";
+import FormDialog from "../ui/form-dialog";
 
 export const columnUnit: ColumnDef<TUnit>[] = [
   {
@@ -69,45 +62,24 @@ type TDialog = {
 
 function DialogEdit({ value }: TDialog) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="ghost" className="w-full">
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Edit Unit</DialogTitle>
-          <DialogDescription>
-            Update the unit name, then click <strong>Update</strong> to confirm.
-          </DialogDescription>
-        </DialogHeader>
-        <UpdateUnitForm data={value} />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      type="edit"
+      title="Edit Unit"
+      description="Update the unit name, then click Uppdate to confirm."
+    >
+      <UpdateUnitForm data={value} />
+    </FormDialog>
   );
 }
 
 function DialogDelete({ value }: TDialog) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" variant="destructive" className="w-full">
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Delete Unit</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to <strong>Delete</strong> this unit? This
-            action cannot be undone
-          </DialogDescription>
-        </DialogHeader>
-        <DeleteUnitForm data={value} />
-      </DialogContent>
-    </Dialog>
+    <FormDialog
+      type="delete"
+      title="Delete Unit"
+      description="Are you sure you want to Delete this unit? This action cannot be undone."
+    >
+      <DeleteUnitForm data={value} />
+    </FormDialog>
   );
 }

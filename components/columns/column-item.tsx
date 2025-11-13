@@ -11,9 +11,10 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { columnProps, TItem } from "@/lib/type-data";
+import { columnProps, TCategory, TItem, TUnit } from "@/lib/type-data";
 import { DeleteItemForm, UpdateItemForm } from "../item/item-form";
 import { formatDateWIB } from "@/lib/utils";
+import FormDialog from "../ui/form-dialog";
 
 export const columnItem = ({
   unit,
@@ -91,14 +92,10 @@ export const columnItem = ({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              <UpdateItemForm
-                data={dataRows}
-                units={unit}
-                categorys={category}
-              />
+              <DialogEdit value={dataRows} unit={unit} category={category} />
             </DropdownMenuItem>
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              <DeleteItemForm data={dataRows} />
+              <DialogDelete value={dataRows} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -106,3 +103,33 @@ export const columnItem = ({
     },
   },
 ];
+
+type TDialog = {
+  value: TItem;
+  unit: TUnit[];
+  category: TCategory[];
+};
+
+function DialogEdit({ value, unit, category }: TDialog) {
+  return (
+    <FormDialog
+      type="edit"
+      title="Edit Item"
+      description="Update the item name, then click Update to confirm."
+    >
+      <UpdateItemForm data={value} units={unit} categorys={category} />
+    </FormDialog>
+  );
+}
+
+function DialogDelete({ value }: { value: TItem }) {
+  return (
+    <FormDialog
+      type="delete"
+      title="Delete Item"
+      description="Are you sure you want to Delete this item? This action cannot be undone."
+    >
+      <DeleteItemForm data={value} />
+    </FormDialog>
+  );
+}
