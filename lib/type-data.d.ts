@@ -69,6 +69,7 @@ export type TItem = {
 export type TItemTrx = {
   idItem: string;
   nameItem: string;
+  nameUnit: string;
   qty: number;
 };
 

@@ -67,9 +67,11 @@ export const getItemsTrx = unstable_cache(
         .select({
           idItem: itemTable.idItem,
           nameItem: itemTable.nameItem,
+          nameUnit: unitTable.nameUnit,
           qty: itemTable.stockQuantity,
         })
         .from(itemTable)
+        .leftJoin(unitTable, eq(unitTable.idUnit, itemTable.unitId))
         .orderBy(asc(itemTable.createdAt));
 
       if (result.length > 0) {

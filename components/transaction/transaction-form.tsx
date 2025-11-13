@@ -259,17 +259,24 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Quantity</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...field}
-                                value={isNaN(field.value) ? "" : field.value}
-                                onChange={(e) =>
-                                  field.onChange(e.target.valueAsNumber)
-                                }
-                                placeholder="Enter quantity"
-                              />
-                            </FormControl>
+                            <div className="flex items-center gap-2">
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  {...field}
+                                  value={isNaN(field.value) ? "" : field.value}
+                                  onChange={(e) =>
+                                    field.onChange(e.target.valueAsNumber)
+                                  }
+                                  placeholder="Enter quantity"
+                                />
+                              </FormControl>
+                              {selectedItem && (
+                                <span className="capitalize text-sm min-w-10">
+                                  {selectedItem.nameUnit}
+                                </span>
+                              )}
+                            </div>
                             <FormMessage />
                             {watchType === "OUT" && selectedItem && (
                               <FormDescription>
