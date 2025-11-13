@@ -2,15 +2,17 @@
 import React from "react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import {
   CreateTransactionSchema,
+  CreateTransactionTestSchema,
   DeleteTransactionSchema,
 } from "@/lib/schema-validation";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -40,6 +42,7 @@ import {
   createTransaction,
   deleteTransaction,
 } from "@/lib/server/actions/action-transaction";
+import { cn } from "@/lib/utils";
 
 interface ICreateTransactionForm {
   items: TItemTrx[];
@@ -49,8 +52,10 @@ interface ICreateTransactionForm {
 function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
   const [isPending, startTransition] = React.useTransition();
 
-  const form = useForm<z.infer<typeof CreateTransactionSchema>>({
-    resolver: zodResolver(CreateTransactionSchema),
+  const schema = CreateTransactionTestSchema(items);
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
       typeTransaction: "IN",
       detail: [
@@ -69,7 +74,14 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
     name: "detail",
   });
 
-  const onSubmit = (values: z.infer<typeof CreateTransactionSchema>) => {
+  const watchType = useWatch({
+    control: form.control,
+    name: "typeTransaction",
+  });
+
+  const watchedDetails = useWatch({ control: form.control, name: "detail" });
+
+  const onSubmit = (values: z.infer<typeof schema>) => {
     startTransition(() => {
       createTransaction(values).then((data) => {
         if (data.ok) {
@@ -137,7 +149,7 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
             {/* DETAIL TRANSACTION */}
             <div className="space-y-4">
               <FormLabel>Transaction Details</FormLabel>
-              {fields.map((field, index) => (
+              {/* {fields.map((field, index) => (
                 <Card key={field.id} className="p-4">
                   <CardHeader className="p-0 font-medium text-gray-700">
                     Item #{index + 1}
@@ -195,7 +207,86 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                     </Button>
                   </div>
                 </Card>
-              ))}
+              ))} */}
+
+              {fields.map((field, index) => {
+                const selectedItem = items.find(
+                  (it) => it.idItem === watchedDetails?.[index]?.itemId
+                );
+
+                return (
+                  <Card key={field.id} className="p-4">
+                    <CardHeader className="p-0 font-medium text-gray-700">
+                      Item #{index + 1}
+                    </CardHeader>
+                    <CardContent
+                      className={cn(
+                        "grid p-0 grid-cols-1 gap-4",
+                        watchType === "IN" ? "md:grid-cols-3" : "md:grid-cols-2"
+                      )}
+                    >
+                      <CustomSelect
+                        name={`detail.${index}.itemId`}
+                        label="Item"
+                        control={form.control}
+                        data={items}
+                        valueKey="idItem"
+                        labelKey="nameItem"
+                        required
+                      />
+                      {watchType === "IN" && (
+                        <CustomSelect
+                          name={`detail.${index}.supplierId`}
+                          label="Store"
+                          control={form.control}
+                          data={supplier}
+                          valueKey="idSupplier"
+                          labelKey="store_name"
+                          required
+                        />
+                      )}
+                      <FormField
+                        control={form.control}
+                        name={`detail.${index}.quantityDetailTransaction`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Quantity</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                {...field}
+                                value={isNaN(field.value) ? "" : field.value}
+                                onChange={(e) =>
+                                  field.onChange(e.target.valueAsNumber)
+                                }
+                                placeholder="Enter quantity"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                            {watchType === "OUT" && selectedItem && (
+                              <FormDescription>
+                                Current Stock: {selectedItem.qty}
+                              </FormDescription>
+                            )}
+                          </FormItem>
+                        )}
+                      />
+                    </CardContent>
+
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleRemove(index)}
+                        disabled={fields.length === 1}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })}
 
               {/* Error global untuk detail array */}
               {form.formState.errors.detail && (

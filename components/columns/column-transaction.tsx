@@ -182,6 +182,17 @@ export const columnDetailTransaction: ColumnDef<TDetailTransaction>[] = [
     ),
   },
   {
+    accessorKey: "statusDetailTransaction",
+    header: "Status",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <BadgeCustom
+        value={row.getValue("statusDetailTransaction")}
+        category="statusDetailTransaction"
+      />
+    ),
+  },
+  {
     id: "actions",
     header: "Actions",
     enableHiding: false,

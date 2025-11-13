@@ -2,7 +2,11 @@ import { Badge } from "@/components/ui/badge";
 
 interface BadgeCustomProps {
   value: string;
-  category: "role" | "statusAnggota" | "typeTransaction" | "statusTransaction";
+  category:
+    | "role"
+    | "statusDetailTransaction"
+    | "typeTransaction"
+    | "statusTransaction";
 }
 
 const statusStyleMap: Record<
@@ -20,9 +24,10 @@ const statusStyleMap: Record<
     HEADKITCHEN: { variant: "default" },
     MANAGER: { variant: "destructive" },
   },
-  statusAnggota: {
-    ACTIVE: { variant: "default" },
-    NOTACTIVE: { variant: "destructive" },
+  statusDetailTransaction: {
+    PENDING: { variant: "default" },
+    ACCEPTED: { variant: "secondary" },
+    CANCELLED: { variant: "destructive" },
   },
   typeTransaction: {
     IN: { variant: "default" },

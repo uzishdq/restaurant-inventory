@@ -1,4 +1,5 @@
 import z from "zod";
+import { TItemTrx } from "./type-data";
 
 const allowedRegex = /^[a-zA-Z0-9.,/ \-']+$/;
 
@@ -49,7 +50,7 @@ const validatedPhoneSchema = z
   });
 
 const validatedStock = (min = 0, max = 60) =>
-  z.number().refine(
+  z.number("Required").refine(
     (n) => {
       const allowZero = min === 0;
       return (n >= min && n <= max) || (allowZero && n === 0);
@@ -189,7 +190,7 @@ export const DeleteItemSchema = z.object({
 /* -------- TRANSACTION --------  */
 const transactionDetailSchema = z.object({
   itemId: itemIdSchema,
-  supplierId: z.uuid("Invalid ID format.").min(5),
+  supplierId: z.string().optional(),
   quantityDetailTransaction: validatedStock(1, 500),
 });
 
@@ -199,6 +200,48 @@ export const CreateTransactionSchema = z.object({
     .array(transactionDetailSchema)
     .min(1, "At least one transaction detail is required."),
 });
+
+export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
+  z
+    .object({
+      typeTransaction: z.enum(enumTypeTransaction),
+      detail: z
+        .array(transactionDetailSchema)
+        .min(1, "At least one transaction detail is required."),
+    })
+    .superRefine((data, ctx) => {
+      data.detail.forEach((d, i) => {
+        const item = items.find((it) => it.idItem === d.itemId);
+
+        // Supplier wajib hanya jika IN
+        if (data.typeTransaction === "IN") {
+          if (!d.supplierId) {
+            ctx.addIssue({
+              code: "custom",
+              path: ["detail", i, "supplierId"],
+              message: "Store is required for incoming transactions.",
+            });
+          } else if (!/^[0-9a-fA-F-]{36}$/.test(d.supplierId)) {
+            ctx.addIssue({
+              code: "custom",
+              path: ["detail", i, "supplierId"],
+              message: "Invalid supplier ID format.",
+            });
+          }
+        }
+
+        // Validasi stok hanya jika OUT
+        if (data.typeTransaction === "OUT" && item) {
+          if (d.quantityDetailTransaction > item.qty) {
+            ctx.addIssue({
+              code: "custom",
+              path: ["detail", i, "quantityDetailTransaction"],
+              message: `Quantity exceeds available stock (${item.qty}).`,
+            });
+          }
+        }
+      });
+    });
 
 export const DeleteTransactionSchema = z.object({
   idTransaction: transactionIdSchema,

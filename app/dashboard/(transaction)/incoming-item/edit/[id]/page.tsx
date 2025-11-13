@@ -7,7 +7,7 @@ import { isTransactionId } from "@/lib/helper";
 import { getDetailTransactions } from "@/lib/server/data/data-transaction";
 import React from "react";
 
-export default async function EditStockInpage({
+export default async function EditStockInPage({
   params,
 }: {
   params: Promise<{ id: string }>;

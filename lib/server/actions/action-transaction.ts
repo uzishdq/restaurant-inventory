@@ -2,7 +2,7 @@
 import * as z from "zod";
 import { LABEL, tagsTransactionRevalidate } from "@/lib/constant";
 import {
-  CreateTransactionSchema,
+  CreateTransactionTestSchema,
   DeleteTransactionSchema,
 } from "@/lib/schema-validation";
 import { auth } from "@/lib/auth";
@@ -12,18 +12,102 @@ import { detailTransactionTable, transactionTable } from "@/lib/db/schema";
 import { chunkArray } from "@/lib/utils";
 import { revalidateTag } from "next/cache";
 import { eq } from "drizzle-orm";
+import { getItemsTrx } from "../data/data-item";
 
-export const createTransaction = async (
-  values: z.infer<typeof CreateTransactionSchema>
-) => {
+// export const createTransaction = async (
+//   values: z.infer<typeof CreateTransactionSchema>
+// ) => {
+//   try {
+//     const validateValues = CreateTransactionSchema.safeParse(values);
+
+//     if (!validateValues.success) {
+//       return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+//     }
+
+//     const { typeTransaction, detail } = validateValues.data;
+
+//     const session = await auth();
+
+//     if (!session?.user.id) {
+//       return {
+//         ok: false,
+//         message: LABEL.ERROR.NOT_LOGIN,
+//       };
+//     }
+
+//     const customId = await generateTransactionID(typeTransaction);
+
+//     const payload = detail.map((item) => ({
+//       ...item,
+//       transactionId: customId,
+//     }));
+
+//     if (payload.length < 0) {
+//       return {
+//         ok: false,
+//         message: LABEL.INPUT.FAILED.SAVED,
+//       };
+//     }
+
+//     const result = await db.transaction(async (tx) => {
+//       const [createTransaction] = await tx
+//         .insert(transactionTable)
+//         .values({
+//           idTransaction: customId,
+//           typeTransaction: typeTransaction,
+//           userId: session.user.id,
+//         })
+//         .returning();
+
+//       for (const chunk of chunkArray(payload, 50)) {
+//         await tx
+//           .insert(detailTransactionTable)
+//           .values(chunk)
+//           .onConflictDoNothing();
+//       }
+
+//       return createTransaction;
+//     });
+
+//     if (!result) {
+//       return {
+//         ok: false,
+//         message: LABEL.INPUT.FAILED.SAVED,
+//       };
+//     }
+
+//     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
+//     await Promise.all(
+//       tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+//     );
+
+//     return {
+//       ok: true,
+//       message: LABEL.INPUT.SUCCESS.SAVED,
+//     };
+//   } catch (error) {
+//     console.error("error create transaction : ", error);
+//     return {
+//       ok: false,
+//       message: LABEL.ERROR.SERVER,
+//     };
+//   }
+// };
+
+export const createTransaction = async (values: unknown) => {
   try {
-    const validateValues = CreateTransactionSchema.safeParse(values);
+    const [items] = await Promise.all([getItemsTrx()]);
+
+    if (!items.ok || !items.data) {
+      return { ok: false, message: LABEL.ERROR.SERVER };
+    }
+
+    const schema = CreateTransactionTestSchema(items.data);
+    const validateValues = schema.safeParse(values);
 
     if (!validateValues.success) {
       return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
     }
-
-    const { typeTransaction, detail } = validateValues.data;
 
     const session = await auth();
 
@@ -33,6 +117,8 @@ export const createTransaction = async (
         message: LABEL.ERROR.NOT_LOGIN,
       };
     }
+
+    const { typeTransaction, detail } = validateValues.data;
 
     const customId = await generateTransactionID(typeTransaction);
 
@@ -47,6 +133,8 @@ export const createTransaction = async (
         message: LABEL.INPUT.FAILED.SAVED,
       };
     }
+
+    console.log(payload);
 
     const result = await db.transaction(async (tx) => {
       const [createTransaction] = await tx

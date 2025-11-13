@@ -64,6 +64,7 @@ export type TItem = {
 export type TItemTrx = {
   idItem: string;
   nameItem: string;
+  qty: number;
 };
 
 export type TTransaction = {
