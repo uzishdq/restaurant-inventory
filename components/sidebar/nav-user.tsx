@@ -63,9 +63,11 @@ export function NavUser({
                 </Link>
               </DropdownMenuItem>
               <RevalidateButton />
-              <DropdownMenuItem>
-                <BellDot />
-                Notifications
+              <DropdownMenuItem asChild>
+                <Link href={ROUTES.AUTH.NOTIFICATION}>
+                  <BellDot />
+                  Notifications
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

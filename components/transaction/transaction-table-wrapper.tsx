@@ -32,13 +32,15 @@ export default function TransactionTableWrapper({
       data={data}
       columns={columns}
     >
-      <FormDialog type="create" title="Add Product">
-        <AddDetailTransactionForm
-          data={data[0]}
-          items={items}
-          supplier={suppliers}
-        />
-      </FormDialog>
+      {data[0].statusDetailTransaction === "PENDING" && (
+        <FormDialog type="create" title="Add Product">
+          <AddDetailTransactionForm
+            data={data[0]}
+            items={items}
+            supplier={suppliers}
+          />
+        </FormDialog>
+      )}
     </TableDateWrapper>
   );
 }

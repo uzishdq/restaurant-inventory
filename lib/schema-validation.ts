@@ -247,6 +247,11 @@ export const DeleteTransactionSchema = z.object({
   idTransaction: transactionIdSchema,
 });
 
+export const PurchaseRequestSchema = z.object({
+  idTransaction: transactionIdSchema,
+  statusTransaction: z.enum(enumStatusTransaction),
+});
+
 export const AddTransactionDetailSchema = z.object({
   idTransaction: transactionIdSchema,
   detail: z
@@ -263,4 +268,9 @@ export const UpdateTransactionDetailSchema = z.object({
 
 export const DeleteTransactionDetailSchema = z.object({
   idDetailTransaction: z.uuid("Invalid ID format.").min(5),
+});
+
+/* -------- NOTIFICATION --------  */
+export const NotificationSchema = z.object({
+  id: z.uuid("Invalid ID format."),
 });

@@ -20,6 +20,7 @@ export const ROUTES = {
       STOCK_OUT: "/dashboard/outgoing-item",
     },
     ACCOUNT: "/dashboard/account",
+    NOTIFICATION: "/dashboard/notification",
   },
 };
 
@@ -56,7 +57,11 @@ export const LABEL = {
 };
 
 // TAGS VALIDATION
-export const tagsUserRevalidate = ["get-account", "get-users"];
+export const tagsUserRevalidate = [
+  "get-account",
+  "get-users",
+  "get-notification",
+];
 export const tagsUnitRevalidate = ["get-units"];
 export const tagsCategoryRevalidate = ["get-category"];
 export const tagsItemRevalidate = [
@@ -72,6 +77,7 @@ export const tagsSupplierRevalidate = [
 export const tagsTransactionRevalidate = [
   "get-transactions",
   "get-detail-transactions",
+  "get-notification",
 ];
 
 //ENUM SELECT
@@ -98,6 +104,21 @@ export const TYPE_TRANSACTION = [
   {
     name: "Stock Out",
     value: "OUT",
+  },
+];
+
+export const STATUS_TRANSACTION = [
+  {
+    name: "Ordered",
+    value: "ORDERED",
+  },
+  {
+    name: "Receive",
+    value: "RECEIVED",
+  },
+  {
+    name: "Cancelled",
+    value: "CANCELLED",
   },
 ];
 

@@ -9,6 +9,7 @@ import {
   CreateTransactionTestSchema,
   DeleteTransactionDetailSchema,
   DeleteTransactionSchema,
+  PurchaseRequestSchema,
   UpdateTransactionDetailSchema,
 } from "@/lib/schema-validation";
 import {
@@ -30,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { TYPE_TRANSACTION } from "@/lib/constant";
+import { STATUS_TRANSACTION, TYPE_TRANSACTION } from "@/lib/constant";
 import {
   Card,
   CardContent,
@@ -51,6 +52,7 @@ import {
   deleteDetailTransaction,
   deleteTransaction,
   updateDetailTransaction,
+  updatePurchaseRequest,
 } from "@/lib/server/actions/action-transaction";
 import { cn } from "@/lib/utils";
 
@@ -545,6 +547,72 @@ function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
   );
 }
 
+function PurchaseRequestForm({ onSuccess, data }: IDeleteTransactionForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
+    resolver: zodResolver(PurchaseRequestSchema),
+    defaultValues: {
+      idTransaction: data.idTransaction,
+      statusTransaction: "ORDERED",
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = (values: z.infer<typeof PurchaseRequestSchema>) => {
+    startTransition(() => {
+      updatePurchaseRequest(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          onSuccess?.();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="statusTransaction"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status Transaction</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value.toString()}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {STATUS_TRANSACTION.map((item, index) => (
+                      <SelectItem key={index} value={item.value}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" className="w-full mt-2" disabled={isPending}>
+          {isPending ? "Loading..." : "Update"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
 interface IUpdateDetailTransactionForm {
   onSuccess?: () => void;
   data: TDetailTransaction;
@@ -708,6 +776,7 @@ function DeleteDetailTransactionForm({
 export {
   CreateTransactionForm,
   DeleteTransactionForm,
+  PurchaseRequestForm,
   AddDetailTransactionForm,
   UpdateDetailTransactionForm,
   DeleteDetailTransactionForm,

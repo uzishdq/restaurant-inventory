@@ -9,6 +9,7 @@ export type statusTransactionType =
   | "RECEIVED"
   | "CANCELLED";
 export type statusDetailTransactionType = "PENDING" | "ACCEPTED" | "CANCELLED";
+export type statusNotificationType = "PENDING" | "SENT" | "FAILED";
 
 export type columnProps = {
   unit: TUnit[];
@@ -93,4 +94,30 @@ export type TDetailTransaction = {
   store_name: string;
   quantityDetailTransaction: number;
   statusDetailTransaction: statusDetailTransactionType;
+};
+
+export type TInputNotifikasi = {
+  noTelpNotification: string;
+  messageNotification: string;
+};
+
+export type TNotifikasi = {
+  idNotification: string;
+  tanggalNotification: string;
+  noTelpNotification: string | null;
+  messageNotification: string;
+  statusNotification: statusNotificationType;
+};
+
+export type TItemPurcaseNotif = {
+  nameItem: string;
+  nameUnit: string;
+  qty: number;
+};
+
+export type TPurcaseNotif = {
+  store_name: string;
+  nameSupplier: string;
+  phoneSupplier: string;
+  items: TItemPurcaseNotif[];
 };

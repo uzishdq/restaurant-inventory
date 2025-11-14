@@ -25,6 +25,7 @@ import { ROUTES } from "@/lib/constant";
 import {
   DeleteDetailTransactionForm,
   DeleteTransactionForm,
+  PurchaseRequestForm,
   UpdateDetailTransactionForm,
 } from "../transaction/transaction-form";
 import FormDialog from "../ui/form-dialog";
@@ -107,6 +108,15 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+              <DialogPurcase value={dataRows} />
+            </DropdownMenuItem>
+            {isPending && (
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <DialogDelete value={dataRows} />
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <Button asChild size="icon" variant="ghost" className="w-full">
                 <Link
                   href={ROUTES.AUTH.TRANSACTION.STOCK_IN.EDIT_IN(
@@ -118,11 +128,6 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
                 </Link>
               </Button>
             </DropdownMenuItem>
-            {isPending && (
-              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-                <DialogDelete value={dataRows} />
-              </DropdownMenuItem>
-            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -142,6 +147,18 @@ function DialogDelete({ value }: TDialog) {
       description="Are you sure you want to Delete this transaction? This action cannot be undone"
     >
       <DeleteTransactionForm data={value} />
+    </FormDialog>
+  );
+}
+
+function DialogPurcase({ value }: TDialog) {
+  return (
+    <FormDialog
+      type="edit"
+      title="Update Transaction"
+      description="Modify this transaction and update its status based on the current progress—whether the items have been ordered, successfully received, or the request has been cancelled."
+    >
+      <PurchaseRequestForm data={value} />
     </FormDialog>
   );
 }
@@ -213,9 +230,11 @@ export const columnDetailTransaction = ({
                 suppliers={suppliers}
               />
             </DropdownMenuItem>
-            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              <DetailDialogDelete value={dataRows} />
-            </DropdownMenuItem>
+            {dataRows.statusDetailTransaction === "PENDING" && (
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <DetailDialogDelete value={dataRows} />
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );
