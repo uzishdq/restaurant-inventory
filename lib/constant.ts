@@ -98,6 +98,10 @@ export const ROLE = [
 
 export const TYPE_TRANSACTION = [
   {
+    name: "Stock Check",
+    value: "CHECK",
+  },
+  {
     name: "Stock In",
     value: "IN",
   },

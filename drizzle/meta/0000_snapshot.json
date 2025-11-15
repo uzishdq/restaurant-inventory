@@ -1,5 +1,5 @@
 {
-  "id": "5594979a-83d4-42e8-b700-9a57d686b39c",
+  "id": "33c7134e-0013-422b-827d-b126119eb556",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -51,9 +51,9 @@
         },
         "transaction_id": {
           "name": "transaction_id",
-          "type": "varchar(20)",
+          "type": "varchar(225)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "item_id": {
           "name": "item_id",
@@ -65,7 +65,7 @@
           "name": "supplier_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "quantity_detail_transaction": {
           "name": "quantity_detail_transaction",
@@ -73,9 +73,21 @@
           "primaryKey": false,
           "notNull": true
         },
+        "quantity_check": {
+          "name": "quantity_check",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quantity_difference": {
+          "name": "quantity_difference",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "status_detail_transaction": {
           "name": "status_detail_transaction",
-          "type": "status_detail_transaction",
+          "type": "status_transaction",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
@@ -593,20 +605,12 @@
     }
   },
   "enums": {
-    "public.status_detail_transaction": {
-      "name": "status_detail_transaction",
-      "schema": "public",
-      "values": [
-        "PENDING",
-        "ACCEPTED",
-        "CANCELLED"
-      ]
-    },
     "public.status_notification": {
       "name": "status_notification",
       "schema": "public",
       "values": [
         "PENDING",
+        "ONPROGRESS",
         "SENT",
         "FAILED"
       ]
@@ -618,7 +622,8 @@
         "PENDING",
         "ORDERED",
         "RECEIVED",
-        "CANCELLED"
+        "CANCELLED",
+        "COMPLETED"
       ]
     },
     "public.type_movement": {
@@ -626,7 +631,8 @@
       "schema": "public",
       "values": [
         "IN",
-        "OUT"
+        "OUT",
+        "CHECK"
       ]
     },
     "public.type_transaction": {
@@ -634,7 +640,8 @@
       "schema": "public",
       "values": [
         "IN",
-        "OUT"
+        "OUT",
+        "CHECK"
       ]
     },
     "public.user_role": {

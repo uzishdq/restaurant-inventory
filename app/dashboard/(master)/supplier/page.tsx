@@ -32,7 +32,7 @@ export default async function SupplierPage() {
         data={suppliers.data}
         columns={columnSupplier}
       >
-        <FormDialog type="create" title="Create Item">
+        <FormDialog type="create" title="Create Supplier">
           <CreateSupplierForm />
         </FormDialog>
       </TableDateWrapper>

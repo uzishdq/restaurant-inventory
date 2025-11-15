@@ -73,12 +73,17 @@ export const itemTable = pgTable("item", {
 });
 
 //TRANSACTION
-export const typeTransaction = pgEnum("type_transaction", ["IN", "OUT"]);
+export const typeTransaction = pgEnum("type_transaction", [
+  "IN",
+  "OUT",
+  "CHECK",
+]);
 export const statusTransaction = pgEnum("status_transaction", [
   "PENDING",
   "ORDERED",
   "RECEIVED",
   "CANCELLED",
+  "COMPLETED",
 ]);
 
 export const transactionTable = pgTable("transaction", {
@@ -99,12 +104,6 @@ export const transactionTable = pgTable("transaction", {
 });
 
 //DETAIL TRANSACTION
-export const statusDetailTransaction = pgEnum("status_detail_transaction", [
-  "PENDING",
-  "ACCEPTED",
-  "CANCELLED",
-]);
-
 export const detailTransactionTable = pgTable("detail_transaction", {
   idDetailTransaction: uuid("id_detail_transaction")
     .primaryKey()
@@ -121,20 +120,21 @@ export const detailTransactionTable = pgTable("detail_transaction", {
       onUpdate: "cascade",
       onDelete: "cascade",
     }),
-  supplierId: uuid("supplier_id")
-    .notNull()
-    .references(() => supplierTable.idSupplier, {
-      onUpdate: "cascade",
-      onDelete: "cascade",
-    }),
+  supplierId: uuid("supplier_id").references(() => supplierTable.idSupplier, {
+    onUpdate: "cascade",
+    onDelete: "cascade",
+  }),
   quantityDetailTransaction: integer("quantity_detail_transaction").notNull(),
-  statusDetailTransaction: statusDetailTransaction("status_detail_transaction")
+  quantityCheck: integer("quantity_check"),
+  quantityDifference: integer("quantity_difference"),
+  note: varchar("transaction_id", { length: 225 }),
+  statusDetailTransaction: statusTransaction("status_detail_transaction")
     .default("PENDING")
     .notNull(),
 });
 
 //ITEM MOVEMENT
-export const typeMovement = pgEnum("type_movement", ["IN", "OUT"]);
+export const typeMovement = pgEnum("type_movement", ["IN", "OUT", "CHECK"]);
 
 export const itemMovementTable = pgTable("item_movement", {
   idMovement: uuid("id_movement").primaryKey().defaultRandom(),
@@ -162,6 +162,7 @@ export const itemMovementTable = pgTable("item_movement", {
 //NOTIFICATIONS
 export const statusNotificationEnum = pgEnum("status_notification", [
   "PENDING",
+  "ONPROGRESS",
   "SENT",
   "FAILED",
 ]);

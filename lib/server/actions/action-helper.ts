@@ -5,6 +5,7 @@ import {
   tagsCategoryRevalidate,
   tagsItemRevalidate,
   tagsSupplierRevalidate,
+  tagsTransactionRevalidate,
   tagsUnitRevalidate,
   tagsUserRevalidate,
 } from "@/lib/constant";
@@ -19,6 +20,7 @@ export const revalidateData = async () => {
         ...tagsItemRevalidate,
         ...tagsUserRevalidate,
         ...tagsSupplierRevalidate,
+        ...tagsTransactionRevalidate,
       ])
     );
 

@@ -1,8 +1,7 @@
-CREATE TYPE "public"."status_detail_transaction" AS ENUM('PENDING', 'ACCEPTED', 'CANCELLED');--> statement-breakpoint
-CREATE TYPE "public"."status_notification" AS ENUM('PENDING', 'SENT', 'FAILED');--> statement-breakpoint
-CREATE TYPE "public"."status_transaction" AS ENUM('PENDING', 'ORDERED', 'RECEIVED', 'CANCELLED');--> statement-breakpoint
-CREATE TYPE "public"."type_movement" AS ENUM('IN', 'OUT');--> statement-breakpoint
-CREATE TYPE "public"."type_transaction" AS ENUM('IN', 'OUT');--> statement-breakpoint
+CREATE TYPE "public"."status_notification" AS ENUM('PENDING', 'ONPROGRESS', 'SENT', 'FAILED');--> statement-breakpoint
+CREATE TYPE "public"."status_transaction" AS ENUM('PENDING', 'ORDERED', 'RECEIVED', 'CANCELLED', 'COMPLETED');--> statement-breakpoint
+CREATE TYPE "public"."type_movement" AS ENUM('IN', 'OUT', 'CHECK');--> statement-breakpoint
+CREATE TYPE "public"."type_transaction" AS ENUM('IN', 'OUT', 'CHECK');--> statement-breakpoint
 CREATE TYPE "public"."user_role" AS ENUM('ADMIN', 'HEADKITCHEN', 'MANAGER');--> statement-breakpoint
 CREATE TABLE "category" (
 	"id_category" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -12,11 +11,13 @@ CREATE TABLE "category" (
 --> statement-breakpoint
 CREATE TABLE "detail_transaction" (
 	"id_detail_transaction" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"transaction_id" varchar(20) NOT NULL,
+	"transaction_id" varchar(225),
 	"item_id" varchar(20) NOT NULL,
-	"supplier_id" uuid NOT NULL,
+	"supplier_id" uuid,
 	"quantity_detail_transaction" integer NOT NULL,
-	"status_detail_transaction" "status_detail_transaction" DEFAULT 'PENDING' NOT NULL
+	"quantity_check" integer,
+	"quantity_difference" integer,
+	"status_detail_transaction" "status_transaction" DEFAULT 'PENDING' NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "item_movement" (

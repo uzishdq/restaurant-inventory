@@ -74,12 +74,13 @@ export const DeleteUUIDSchema = z.object({
 
 /* -------- ENUM --------  */
 export const enumRole = ["ADMIN", "HEADKITCHEN", "MANAGER"] as const;
-export const enumTypeTransaction = ["IN", "OUT"] as const;
+export const enumTypeTransaction = ["IN", "OUT", "CHECK"] as const;
 export const enumStatusTransaction = [
   "PENDING",
   "ORDERED",
   "RECEIVED",
   "CANCELLED",
+  "COMPLETED",
 ] as const;
 
 /* -------- AUTH --------  */
@@ -191,14 +192,18 @@ export const DeleteItemSchema = z.object({
 const transactionDetailSchema = z.object({
   itemId: itemIdSchema,
   supplierId: z.string().optional(),
-  quantityDetailTransaction: validatedStock(1, 500),
-});
-
-export const CreateTransactionSchema = z.object({
-  typeTransaction: z.enum(enumTypeTransaction),
-  detail: z
-    .array(transactionDetailSchema)
-    .min(1, "At least one transaction detail is required."),
+  quantityDetailTransaction: validatedStock(1, 5000),
+  quantityCheck: validatedStock(-500, 500),
+  quantityDifference: validatedStock(-500, 500),
+  note: z
+    .string()
+    .max(100, "must not exceed 100 characters.")
+    .regex(
+      allowedRegex,
+      "Use only letters, numbers, spaces, dots, commas, or slashes."
+    )
+    .optional()
+    .or(z.literal("")),
 });
 
 export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
@@ -213,6 +218,15 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
       data.detail.forEach((d, i) => {
         const item = items.find((it) => it.idItem === d.itemId);
 
+        if (!item) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["detail", i, "itemId"],
+            message: "Item not found.",
+          });
+          return;
+        }
+
         // Supplier wajib hanya jika IN
         if (data.typeTransaction === "IN") {
           if (!d.supplierId) {
@@ -221,23 +235,46 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
               path: ["detail", i, "supplierId"],
               message: "Store is required for incoming transactions.",
             });
-          } else if (!/^[0-9a-fA-F-]{36}$/.test(d.supplierId)) {
-            ctx.addIssue({
-              code: "custom",
-              path: ["detail", i, "supplierId"],
-              message: "Invalid supplier ID format.",
-            });
           }
         }
 
-        // Validasi stok hanya jika OUT
-        if (data.typeTransaction === "OUT" && item) {
+        // Validasi stok untuk OUT
+        if (data.typeTransaction === "OUT") {
           if (d.quantityDetailTransaction > item.qty) {
             ctx.addIssue({
               code: "custom",
               path: ["detail", i, "quantityDetailTransaction"],
               message: `Quantity exceeds available stock (${item.qty}).`,
             });
+          }
+        }
+
+        // Validasi CHECK
+        if (data.typeTransaction === "CHECK") {
+          if (d.quantityDetailTransaction !== item.qty) {
+            ctx.addIssue({
+              code: "custom",
+              path: ["detail", i, "quantityDetailTransaction"],
+              message: `System stock must be ${item.qty}.`,
+            });
+          }
+
+          if (d.quantityDifference !== d.quantityCheck - item.qty) {
+            ctx.addIssue({
+              code: "custom",
+              path: ["detail", i, "quantityDifference"],
+              message: "Difference does not match check - system.",
+            });
+          }
+
+          if (["CHECK", "OUT"].includes(data.typeTransaction)) {
+            if (!d.note || d.note.trim() === "") {
+              ctx.addIssue({
+                code: "custom",
+                path: ["detail", i, "note"],
+                message: "Note is required for this transactions.",
+              });
+            }
           }
         }
       });

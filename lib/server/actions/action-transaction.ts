@@ -142,32 +142,32 @@ export const createTransaction = async (values: unknown) => {
       };
     }
 
-    const result = await db.transaction(async (tx) => {
-      const [createTransaction] = await tx
-        .insert(transactionTable)
-        .values({
-          idTransaction: customId,
-          typeTransaction: typeTransaction,
-          userId: session.user.id,
-        })
-        .returning();
+    // const result = await db.transaction(async (tx) => {
+    //   const [createTransaction] = await tx
+    //     .insert(transactionTable)
+    //     .values({
+    //       idTransaction: customId,
+    //       typeTransaction: typeTransaction,
+    //       userId: session.user.id,
+    //     })
+    //     .returning();
 
-      for (const chunk of chunkArray(payload, 50)) {
-        await tx
-          .insert(detailTransactionTable)
-          .values(chunk)
-          .onConflictDoNothing();
-      }
+    //   for (const chunk of chunkArray(payload, 50)) {
+    //     await tx
+    //       .insert(detailTransactionTable)
+    //       .values(chunk)
+    //       .onConflictDoNothing();
+    //   }
 
-      return createTransaction;
-    });
+    //   return createTransaction;
+    // });
 
-    if (!result) {
-      return {
-        ok: false,
-        message: LABEL.INPUT.FAILED.SAVED,
-      };
-    }
+    // if (!result) {
+    //   return {
+    //     ok: false,
+    //     message: LABEL.INPUT.FAILED.SAVED,
+    //   };
+    // }
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
@@ -370,9 +370,9 @@ export const updateDetailTransaction = async (
       };
     }
 
-    if (result.statusDetailTransaction === "ACCEPTED") {
-      await updateSupplierNotification(result);
-    }
+    // if (result.statusDetailTransaction === "ACCEPTED") {
+    //   await updateSupplierNotification(result);
+    // }
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
@@ -493,7 +493,7 @@ export const updatePurchaseRequest = async (
       const updateDetailTransaction = await tx
         .update(detailTransactionTable)
         .set({
-          statusDetailTransaction: "ACCEPTED",
+          statusDetailTransaction: validateValues.data.statusTransaction,
         })
         .where(
           eq(
@@ -513,16 +513,16 @@ export const updatePurchaseRequest = async (
       };
     }
 
-    if (validateValues.data.statusTransaction === "ORDERED") {
-      // get supplier base on updated detail transaction -> input notifikasi table
-      const data = result.map((r) => ({
-        itemId: r.itemId,
-        supplierId: r.supplierId,
-        quantityDetailTransaction: r.quantityDetailTransaction,
-      }));
+    // if (validateValues.data.statusTransaction === "ORDERED") {
+    //   // get supplier base on updated detail transaction -> input notifikasi table
+    //   const data = result.map((r) => ({
+    //     itemId: r.itemId,
+    //     supplierId: r.supplierId,
+    //     quantityDetailTransaction: r.quantityDetailTransaction,
+    //   }));
 
-      await supplierNotification(data);
-    }
+    //   await supplierNotification(data);
+    // }
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(

@@ -42,7 +42,7 @@ export const getItems = unstable_cache(
           categoryTable,
           eq(itemTable.categoryId, categoryTable.idCategory)
         )
-        .orderBy(asc(itemTable.createdAt));
+        .orderBy(asc(itemTable.idItem));
 
       if (result.length > 0) {
         return { ok: true, data: result as TItem[] };

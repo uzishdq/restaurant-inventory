@@ -1,6 +1,6 @@
 //ENUM
 export type roleType = "ADMIN" | "HEADKITCHEN" | "MANAGER";
-export type typeTransactionType = "IN" | "OUT";
+export type typeTransactionType = "IN" | "OUT" | "CHECK";
 
 //tambahkan APRROVED untuk setelah cek received ke tabel movement;
 export type statusTransactionType =
