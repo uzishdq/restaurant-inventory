@@ -67,6 +67,10 @@ export function AppSidebar({
         icon: ArrowRightLeft,
         items: [
           {
+            title: "Inventory Check",
+            url: ROUTES.AUTH.TRANSACTION.INVENTORY_CHECK,
+          },
+          {
             title: "Incoming Item",
             url: ROUTES.AUTH.TRANSACTION.STOCK_IN.INDEX,
           },

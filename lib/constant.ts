@@ -18,6 +18,7 @@ export const ROUTES = {
         EDIT_IN: (id: string) => `/dashboard/incoming-item/edit/${id}`,
       },
       STOCK_OUT: "/dashboard/outgoing-item",
+      INVENTORY_CHECK: "/dashboard/inventory-check",
     },
     ACCOUNT: "/dashboard/account",
     NOTIFICATION: "/dashboard/notification",

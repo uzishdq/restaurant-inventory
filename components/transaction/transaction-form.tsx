@@ -505,8 +505,7 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                         </div>
                       )}
                     </CardContent>
-
-                    <div className="flex justify-end mr-4">
+                    <CardDescription className="flex justify-end mr-5">
                       <Button
                         type="button"
                         variant="destructive"
@@ -516,7 +515,7 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                       >
                         Remove
                       </Button>
-                    </div>
+                    </CardDescription>
                   </Card>
                 );
               })}
