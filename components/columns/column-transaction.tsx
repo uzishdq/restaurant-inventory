@@ -173,7 +173,7 @@ function DialogPurcase({ value }: TDialog) {
   );
 }
 
-export const columnDetailTransaction = ({
+export const columnDetailTransactionIn = ({
   items,
   suppliers,
 }: columnTrxProps): ColumnDef<TDetailTransaction>[] => [
@@ -201,6 +201,178 @@ export const columnDetailTransaction = ({
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("store_name")}</div>
+    ),
+  },
+  {
+    accessorKey: "statusDetailTransaction",
+    header: "Status",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <BadgeCustom
+        value={row.getValue("statusDetailTransaction")}
+        category="statusDetailTransaction"
+      />
+    ),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const dataRows = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open Menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="space-y-1">
+            <DropdownMenuLabel className="text-center">
+              Actions
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+              <DetailDialogEdit
+                value={dataRows}
+                items={items}
+                suppliers={suppliers}
+              />
+            </DropdownMenuItem>
+            {dataRows.statusDetailTransaction === "PENDING" && (
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <DetailDialogDelete value={dataRows} />
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
+
+export const columnDetailTransactionOut = ({
+  items,
+  suppliers,
+}: columnTrxProps): ColumnDef<TDetailTransaction>[] => [
+  {
+    accessorKey: "nameItem",
+    header: "Item",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nameItem")}</div>
+    ),
+  },
+  {
+    accessorKey: "quantityDetailTransaction",
+    header: "Qyt",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.original.quantityDetailTransaction} / {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "note",
+    header: "Note",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.getValue("note") ?? "No additional info"}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "statusDetailTransaction",
+    header: "Status",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <BadgeCustom
+        value={row.getValue("statusDetailTransaction")}
+        category="statusDetailTransaction"
+      />
+    ),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const dataRows = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open Menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="space-y-1">
+            <DropdownMenuLabel className="text-center">
+              Actions
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+              <DetailDialogEdit
+                value={dataRows}
+                items={items}
+                suppliers={suppliers}
+              />
+            </DropdownMenuItem>
+            {dataRows.statusDetailTransaction === "PENDING" && (
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <DetailDialogDelete value={dataRows} />
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
+
+export const columnDetailTransactionCheck = ({
+  items,
+  suppliers,
+}: columnTrxProps): ColumnDef<TDetailTransaction>[] => [
+  {
+    accessorKey: "nameItem",
+    header: "Item",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nameItem")}</div>
+    ),
+  },
+  {
+    accessorKey: "quantityDetailTransaction",
+    header: "System Qty",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.original.quantityDetailTransaction} / {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "quantityCheck",
+    header: "Physical Qty",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.original.quantityCheck} / {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "quantityDifference",
+    header: "Difference",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.original.quantityDifference} / {row.original.nameUnit}
+      </div>
     ),
   },
   {

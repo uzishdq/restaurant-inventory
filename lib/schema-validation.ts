@@ -268,15 +268,16 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
               message: "Difference does not match check - system.",
             });
           }
+        }
 
-          if (["CHECK", "OUT"].includes(data.typeTransaction)) {
-            if (!d.note || d.note.trim() === "") {
-              ctx.addIssue({
-                code: "custom",
-                path: ["detail", i, "note"],
-                message: "Note is required for this transactions.",
-              });
-            }
+        //Validasi note
+        if (["CHECK", "OUT"].includes(data.typeTransaction)) {
+          if (!d.note || d.note.trim() === "") {
+            ctx.addIssue({
+              code: "custom",
+              path: ["detail", i, "note"],
+              message: "Note is required for this transactions.",
+            });
           }
         }
       });

@@ -221,14 +221,15 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
 
   const onSubmit = (values: z.infer<typeof schema>) => {
     startTransition(() => {
-      createTransaction(values).then((data) => {
-        if (data.ok) {
-          form.reset();
-          toast.success(data.message);
-        } else {
-          toast.error(data.message);
-        }
-      });
+      // createTransaction(values).then((data) => {
+      //   if (data.ok) {
+      //     form.reset();
+      //     toast.success(data.message);
+      //   } else {
+      //     toast.error(data.message);
+      //   }
+      // });
+      console.log(values);
     });
   };
 
@@ -494,7 +495,7 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                           </div>
                         )}
                       </div>
-                      {isDisable && (
+                      {watchType !== "IN" && (
                         <div className="space-y-2">
                           <FormField
                             control={form.control}
@@ -770,17 +771,15 @@ function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
 
   const onSubmit = (values: z.infer<typeof DeleteTransactionSchema>) => {
     startTransition(() => {
-      // deleteTransaction(values).then((data) => {
-      //   if (data.ok) {
-      //     form.reset();
-      //     onSuccess?.();
-      //     toast.success(data.message);
-      //   } else {
-      //     toast.error(data.message);
-      //   }
-      // });
-
-      console.log(values);
+      deleteTransaction(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          onSuccess?.();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
     });
   };
 

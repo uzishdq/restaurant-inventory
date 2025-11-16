@@ -1,4 +1,4 @@
-import TransactionTableWrapper from "@/components/transaction/transaction-table-wrapper";
+import { TransactionCheckTableWrapper } from "@/components/transaction/transaction-table-wrapper";
 import RenderError from "@/components/ui/render-error";
 import { auth } from "@/lib/auth";
 import { LABEL } from "@/lib/constant";
@@ -45,7 +45,7 @@ export default async function DetailCheckPage({
 
   return (
     <div className=" space-y-4">
-      <TransactionTableWrapper
+      <TransactionCheckTableWrapper
         data={details.data}
         items={items.data}
         suppliers={supplier.data}
