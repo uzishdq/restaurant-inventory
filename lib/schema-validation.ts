@@ -287,17 +287,30 @@ export const DeleteTransactionSchema = z.object({
   idTransaction: transactionIdSchema,
 });
 
-export const PurchaseRequestSchema = z.object({
+export const UpdateTransactionSchema = z.object({
   idTransaction: transactionIdSchema,
+  typeTransaction: z.enum(enumTypeTransaction),
   statusTransaction: z.enum(enumStatusTransaction),
 });
 
-export const AddTransactionDetailSchema = z.object({
-  idTransaction: transactionIdSchema,
-  detail: z
-    .array(transactionDetailSchema)
-    .min(1, "At least one transaction detail is required."),
-});
+export const AddTransactionDetailSchema = z
+  .object({
+    idTransaction: transactionIdSchema,
+    detail: z
+      .array(transactionDetailSchema)
+      .min(1, "At least one transaction detail is required."),
+  })
+  .superRefine((data, ctx) => {
+    data.detail.forEach((d, i) => {
+      if (!d.supplierId) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["detail", i, "supplierId"],
+          message: "Store is required for incoming transactions.",
+        });
+      }
+    });
+  });
 
 export const UpdateTransactionDetailSchema = z.object({
   idDetailTransaction: z.uuid("Invalid ID format.").min(5),

@@ -35,10 +35,21 @@ const statusStyleMap: Record<
     OUT: { variant: "destructive" },
   },
   statusTransaction: {
-    PENDING: { className: "bg-blue-100 text-blue-800" },
-    ORDERED: { className: "bg-yellow-100 text-yellow-800" },
-    RECEIVED: { className: "bg-green-100 text-green-800" },
-    CANCELLED: { className: "bg-red-100 text-red-800" },
+    PENDING: {
+      className: "bg-gray-100 text-gray-800",
+    },
+    ORDERED: {
+      className: "bg-blue-100 text-blue-800",
+    },
+    RECEIVED: {
+      className: "bg-yellow-100 text-yellow-800",
+    },
+    COMPLETED: {
+      className: "bg-green-100 text-green-800",
+    },
+    CANCELLED: {
+      className: "bg-red-100 text-red-800",
+    },
   },
 };
 

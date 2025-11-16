@@ -128,6 +128,10 @@ export const STATUS_TRANSACTION = [
     value: "RECEIVED",
   },
   {
+    name: "Completed",
+    value: "COMPLETED",
+  },
+  {
     name: "Cancelled",
     value: "CANCELLED",
   },
@@ -186,3 +190,12 @@ export const MONTHS = [
     value: "12",
   },
 ];
+
+// Color Select Transaction
+export const statusColor: Record<string, string> = {
+  PENDING: "text-gray-600",
+  ORDERED: "text-blue-600",
+  RECEIVED: "text-yellow-600",
+  COMPLETED: "text-green-600",
+  CANCELLED: "text-red-600",
+};

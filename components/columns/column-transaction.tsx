@@ -25,8 +25,8 @@ import { ROUTES } from "@/lib/constant";
 import {
   DeleteDetailTransactionForm,
   DeleteTransactionForm,
-  PurchaseRequestForm,
   UpdateDetailTransactionForm,
+  UpdateTransactionForm,
 } from "../transaction/transaction-form";
 import FormDialog from "../ui/form-dialog";
 
@@ -107,15 +107,6 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
               Actions
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              <DialogPurcase value={dataRows} />
-            </DropdownMenuItem>
-            {isPending && (
-              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-                <DialogDelete value={dataRows} />
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Button asChild size="icon" variant="ghost" className="w-full">
                 <Link
@@ -138,6 +129,15 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
                 </Link>
               </Button>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+              <DialogEdit value={dataRows} />
+            </DropdownMenuItem>
+            {isPending && (
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <DialogDelete value={dataRows} />
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -161,14 +161,21 @@ function DialogDelete({ value }: TDialog) {
   );
 }
 
-function DialogPurcase({ value }: TDialog) {
+function DialogEdit({ value }: TDialog) {
+  const description =
+    value.typeTransaction === "IN"
+      ? "Update this incoming item transaction by adjusting quantities or updating its status—whether the items have been ordered, received by the kitchen, or cancelled."
+      : value.typeTransaction === "OUT"
+      ? "Update this outgoing item transaction by reviewing requested quantities and adjusting its status based on the kitchen’s usage or approval progress."
+      : "Update this inventory check by reviewing physical counts, correcting discrepancies, and finalizing the audit results for accurate stock records.";
+
   return (
     <FormDialog
       type="edit"
       title="Update Transaction"
-      description="Modify this transaction and update its status based on the current progress—whether the items have been ordered, successfully received, or the request has been cancelled."
+      description={description}
     >
-      <PurchaseRequestForm data={value} />
+      <UpdateTransactionForm data={value} />
     </FormDialog>
   );
 }

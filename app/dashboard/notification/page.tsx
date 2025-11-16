@@ -20,14 +20,20 @@ export default async function NotificationPage() {
 
   return (
     <div className="space-y-4">
-      {notifications.data.map((notif) => (
-        <NotificationCard
-          key={notif.idNotification}
-          date={notif.tanggalNotification}
-          message={notif.messageNotification}
-          status={notif.statusNotification}
-        />
-      ))}
+      {notifications.data.length === 0 ? (
+        <div className="rounded-lg border p-4 text-center text-sm text-muted-foreground">
+          No notifications found.
+        </div>
+      ) : (
+        notifications.data.map((notif) => (
+          <NotificationCard
+            key={notif.idNotification}
+            date={notif.tanggalNotification}
+            message={notif.messageNotification}
+            status={notif.statusNotification}
+          />
+        ))
+      )}
     </div>
   );
 }

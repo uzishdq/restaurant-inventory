@@ -9,8 +9,8 @@ import {
   CreateTransactionTestSchema,
   DeleteTransactionDetailSchema,
   DeleteTransactionSchema,
-  PurchaseRequestSchema,
   UpdateTransactionDetailSchema,
+  UpdateTransactionSchema,
 } from "@/lib/schema-validation";
 import {
   Form,
@@ -31,7 +31,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { STATUS_TRANSACTION, TYPE_TRANSACTION } from "@/lib/constant";
+import {
+  STATUS_TRANSACTION,
+  statusColor,
+  TYPE_TRANSACTION,
+} from "@/lib/constant";
 import {
   Card,
   CardContent,
@@ -52,7 +56,7 @@ import {
   deleteDetailTransaction,
   deleteTransaction,
   updateDetailTransaction,
-  updatePurchaseRequest,
+  updateTransaction,
 } from "@/lib/server/actions/action-transaction";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
@@ -61,6 +65,30 @@ import { Textarea } from "../ui/textarea";
 interface ICreateTransactionForm {
   items: TItemTrx[];
   supplier: TSupplierTrx[];
+}
+
+interface IAddDetailTransactionForm {
+  onSuccess?: () => void;
+  data: TDetailTransaction;
+  items: TItemTrx[];
+  supplier: TSupplierTrx[];
+}
+
+interface IDeleteTransactionForm {
+  onSuccess?: () => void;
+  data: TTransaction;
+}
+
+interface IUpdateDetailTransactionForm {
+  onSuccess?: () => void;
+  data: TDetailTransaction;
+  items: TItemTrx[];
+  suppliers: TSupplierTrx[];
+}
+
+interface IDeleteDetailTransactionForm {
+  onSuccess?: () => void;
+  data: TDetailTransaction;
 }
 
 function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
@@ -221,15 +249,14 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
 
   const onSubmit = (values: z.infer<typeof schema>) => {
     startTransition(() => {
-      // createTransaction(values).then((data) => {
-      //   if (data.ok) {
-      //     form.reset();
-      //     toast.success(data.message);
-      //   } else {
-      //     toast.error(data.message);
-      //   }
-      // });
-      console.log(values);
+      createTransaction(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
     });
   };
 
@@ -559,11 +586,147 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
   );
 }
 
-interface IAddDetailTransactionForm {
-  onSuccess?: () => void;
-  data: TDetailTransaction;
-  items: TItemTrx[];
-  supplier: TSupplierTrx[];
+function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof DeleteTransactionSchema>>({
+    resolver: zodResolver(DeleteTransactionSchema),
+    defaultValues: {
+      idTransaction: data.idTransaction,
+    },
+    mode: "onChange",
+  });
+
+  const onSubmit = (values: z.infer<typeof DeleteTransactionSchema>) => {
+    startTransition(() => {
+      deleteTransaction(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          onSuccess?.();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Transaction</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.idTransaction}
+            </div>
+          </FormItem>
+        </div>
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Created By</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.nameUser}
+            </div>
+          </FormItem>
+        </div>
+        <div className="space-y-2">
+          <FormItem>
+            <FormLabel>Total Item</FormLabel>
+            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+              {data.totalItems}
+            </div>
+          </FormItem>
+        </div>
+        <Button
+          type="submit"
+          variant="destructive"
+          className="w-full mt-2"
+          disabled={isPending}
+        >
+          {isPending ? "Loading..." : "Delete"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+function UpdateTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof UpdateTransactionSchema>>({
+    resolver: zodResolver(UpdateTransactionSchema),
+    defaultValues: {
+      idTransaction: data.idTransaction,
+      typeTransaction: data.typeTransaction,
+      statusTransaction: "CANCELLED",
+    },
+    mode: "onChange",
+  });
+
+  const valueSelect =
+    data.typeTransaction === "IN"
+      ? STATUS_TRANSACTION
+      : STATUS_TRANSACTION.filter((s) =>
+          ["COMPLETED", "CANCELLED"].includes(s.value)
+        );
+
+  const onSubmit = (values: z.infer<typeof UpdateTransactionSchema>) => {
+    startTransition(() => {
+      updateTransaction(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          onSuccess?.();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="statusTransaction"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status Transaction</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value.toString()}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {valueSelect.map((item, index) => (
+                      <SelectItem
+                        key={index}
+                        className={statusColor[item.value]}
+                        value={item.value}
+                      >
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" className="w-full mt-2" disabled={isPending}>
+          {isPending ? "Loading..." : "Update"}
+        </Button>
+      </form>
+    </Form>
+  );
 }
 
 function AddDetailTransactionForm({
@@ -753,149 +916,6 @@ function AddDetailTransactionForm({
   );
 }
 
-interface IDeleteTransactionForm {
-  onSuccess?: () => void;
-  data: TTransaction;
-}
-
-function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
-  const [isPending, startTransition] = React.useTransition();
-
-  const form = useForm<z.infer<typeof DeleteTransactionSchema>>({
-    resolver: zodResolver(DeleteTransactionSchema),
-    defaultValues: {
-      idTransaction: data.idTransaction,
-    },
-    mode: "onChange",
-  });
-
-  const onSubmit = (values: z.infer<typeof DeleteTransactionSchema>) => {
-    startTransition(() => {
-      deleteTransaction(values).then((data) => {
-        if (data.ok) {
-          form.reset();
-          onSuccess?.();
-          toast.success(data.message);
-        } else {
-          toast.error(data.message);
-        }
-      });
-    });
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-2">
-          <FormItem>
-            <FormLabel>Transaction</FormLabel>
-            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
-              {data.idTransaction}
-            </div>
-          </FormItem>
-        </div>
-        <div className="space-y-2">
-          <FormItem>
-            <FormLabel>Created By</FormLabel>
-            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
-              {data.nameUser}
-            </div>
-          </FormItem>
-        </div>
-        <div className="space-y-2">
-          <FormItem>
-            <FormLabel>Total Item</FormLabel>
-            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
-              {data.totalItems}
-            </div>
-          </FormItem>
-        </div>
-        <Button
-          type="submit"
-          variant="destructive"
-          className="w-full mt-2"
-          disabled={isPending}
-        >
-          {isPending ? "Loading..." : "Delete"}
-        </Button>
-      </form>
-    </Form>
-  );
-}
-
-function PurchaseRequestForm({ onSuccess, data }: IDeleteTransactionForm) {
-  const [isPending, startTransition] = React.useTransition();
-
-  const form = useForm<z.infer<typeof PurchaseRequestSchema>>({
-    resolver: zodResolver(PurchaseRequestSchema),
-    defaultValues: {
-      idTransaction: data.idTransaction,
-      statusTransaction: "ORDERED",
-    },
-    mode: "onChange",
-  });
-
-  const onSubmit = (values: z.infer<typeof PurchaseRequestSchema>) => {
-    startTransition(() => {
-      updatePurchaseRequest(values).then((data) => {
-        if (data.ok) {
-          form.reset();
-          onSuccess?.();
-          toast.success(data.message);
-        } else {
-          toast.error(data.message);
-        }
-      });
-    });
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="statusTransaction"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status Transaction</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value.toString()}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {STATUS_TRANSACTION.map((item, index) => (
-                      <SelectItem key={index} value={item.value}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <Button type="submit" className="w-full mt-2" disabled={isPending}>
-          {isPending ? "Loading..." : "Update"}
-        </Button>
-      </form>
-    </Form>
-  );
-}
-
-interface IUpdateDetailTransactionForm {
-  onSuccess?: () => void;
-  data: TDetailTransaction;
-  items: TItemTrx[];
-  suppliers: TSupplierTrx[];
-}
-
 function UpdateDetailTransactionForm({
   onSuccess,
   data,
@@ -976,11 +996,6 @@ function UpdateDetailTransactionForm({
   );
 }
 
-interface IDeleteDetailTransactionForm {
-  onSuccess?: () => void;
-  data: TDetailTransaction;
-}
-
 function DeleteDetailTransactionForm({
   onSuccess,
   data,
@@ -1052,7 +1067,7 @@ function DeleteDetailTransactionForm({
 export {
   CreateTransactionForm,
   DeleteTransactionForm,
-  PurchaseRequestForm,
+  UpdateTransactionForm,
   AddDetailTransactionForm,
   UpdateDetailTransactionForm,
   DeleteDetailTransactionForm,

@@ -27,6 +27,7 @@ export const revalidateData = async () => {
     await Promise.all(
       tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
     );
+
     return {
       ok: true,
       message: LABEL.SUCCESS.REVALIDATE,

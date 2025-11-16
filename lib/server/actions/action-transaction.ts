@@ -6,8 +6,8 @@ import {
   CreateTransactionTestSchema,
   DeleteTransactionDetailSchema,
   DeleteTransactionSchema,
-  PurchaseRequestSchema,
   UpdateTransactionDetailSchema,
+  UpdateTransactionSchema,
 } from "@/lib/schema-validation";
 import { auth } from "@/lib/auth";
 import { generateTransactionID } from "../data/data-transaction";
@@ -102,6 +102,99 @@ export const createTransaction = async (values: unknown) => {
     };
   } catch (error) {
     console.error("error create transaction : ", error);
+    return {
+      ok: false,
+      message: LABEL.ERROR.SERVER,
+    };
+  }
+};
+
+//ubah qyt di table item dan movement jika completed
+export const updateTransaction = async (
+  values: z.infer<typeof UpdateTransactionSchema>
+) => {
+  try {
+    const validateValues = UpdateTransactionSchema.safeParse(values);
+
+    if (!validateValues.success) {
+      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+    }
+
+    const session = await auth();
+
+    if (!session?.user.id) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
+    if (session?.user.role !== "ADMIN") {
+      return {
+        ok: false,
+        message: LABEL.ERROR.UNAUTHORIZED,
+      };
+    }
+
+    const result = await db.transaction(async (tx) => {
+      await tx
+        .update(transactionTable)
+        .set({
+          statusTransaction: validateValues.data.statusTransaction,
+        })
+        .where(
+          eq(transactionTable.idTransaction, validateValues.data.idTransaction)
+        );
+
+      // update db nanti ambil status dari validateValues
+      const updateDetailTransaction = await tx
+        .update(detailTransactionTable)
+        .set({
+          statusDetailTransaction: validateValues.data.statusTransaction,
+        })
+        .where(
+          eq(
+            detailTransactionTable.transactionId,
+            validateValues.data.idTransaction
+          )
+        )
+        .returning();
+
+      return updateDetailTransaction;
+    });
+
+    if (result.length < 0) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.UPDATE,
+      };
+    }
+
+    if (
+      validateValues.data.typeTransaction === "IN" &&
+      validateValues.data.statusTransaction === "ORDERED"
+    ) {
+      // get supplier base on updated detail transaction -> input notifikasi table
+      const data = result.map((r) => ({
+        itemId: r.itemId,
+        supplierId: r.supplierId!,
+        quantityDetailTransaction: r.quantityDetailTransaction,
+      }));
+
+      await supplierNotification(data);
+    }
+
+    const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
+
+    return {
+      ok: true,
+      message: LABEL.INPUT.SUCCESS.UPDATE,
+    };
+  } catch (error) {
+    console.error("error update transaction request : ", error);
     return {
       ok: false,
       message: LABEL.ERROR.SERVER,
@@ -244,6 +337,7 @@ export const addDetailTransaction = async (
   }
 };
 
+// ubah flow sesuai type transaction
 export const updateDetailTransaction = async (
   values: z.infer<typeof UpdateTransactionDetailSchema>
 ) => {
@@ -370,95 +464,6 @@ export const deleteDetailTransaction = async (
     };
   } catch (error) {
     console.error("error delete detail transaction : ", error);
-    return {
-      ok: false,
-      message: LABEL.ERROR.SERVER,
-    };
-  }
-};
-
-export const updatePurchaseRequest = async (
-  values: z.infer<typeof PurchaseRequestSchema>
-) => {
-  try {
-    const validateValues = PurchaseRequestSchema.safeParse(values);
-
-    if (!validateValues.success) {
-      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
-    }
-
-    const session = await auth();
-
-    if (!session?.user.id) {
-      return {
-        ok: false,
-        message: LABEL.ERROR.NOT_LOGIN,
-      };
-    }
-
-    if (session?.user.role !== "ADMIN") {
-      return {
-        ok: false,
-        message: LABEL.ERROR.UNAUTHORIZED,
-      };
-    }
-
-    const result = await db.transaction(async (tx) => {
-      await tx
-        .update(transactionTable)
-        .set({
-          statusTransaction: validateValues.data.statusTransaction,
-        })
-        .where(
-          eq(transactionTable.idTransaction, validateValues.data.idTransaction)
-        );
-
-      // update db nanti ambil status dari validateValues
-      const updateDetailTransaction = await tx
-        .update(detailTransactionTable)
-        .set({
-          statusDetailTransaction: validateValues.data.statusTransaction,
-        })
-        .where(
-          eq(
-            detailTransactionTable.transactionId,
-            validateValues.data.idTransaction
-          )
-        )
-        .returning();
-
-      return updateDetailTransaction;
-    });
-
-    if (result.length < 0) {
-      return {
-        ok: false,
-        message: LABEL.INPUT.FAILED.UPDATE,
-      };
-    }
-
-    // if (validateValues.data.statusTransaction === "ORDERED") {
-    //   // get supplier base on updated detail transaction -> input notifikasi table
-    //   const data = result.map((r) => ({
-    //     itemId: r.itemId,
-    //     supplierId: r.supplierId,
-    //     quantityDetailTransaction: r.quantityDetailTransaction,
-    //   }));
-
-    //   await supplierNotification(data);
-    // }
-
-    const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
-    await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
-    );
-
-    return {
-      ok: true,
-      message: LABEL.INPUT.SUCCESS.UPDATE,
-    };
-  } catch (error) {
-    console.error("error create purchase request : ", error);
     return {
       ok: false,
       message: LABEL.ERROR.SERVER,

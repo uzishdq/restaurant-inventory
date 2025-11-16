@@ -35,8 +35,19 @@ export default function FormDialog({
   className,
 }: IFormDialog) {
   const [open, setOpen] = React.useState(false);
+  const [isClosing, setIsClosing] = React.useState(false);
 
-  const handleSuccess = () => setOpen(false);
+  const smoothClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setOpen(false);
+      setIsClosing(false);
+    }, 200); // match dialog transition
+  };
+
+  const handleSuccess = () => {
+    smoothClose();
+  };
 
   const config = React.useMemo(() => {
     switch (type) {
@@ -79,6 +90,10 @@ export default function FormDialog({
     }
   }, [type]);
 
+  const injectedChild = React.isValidElement(children)
+    ? React.cloneElement(children, { onSuccess: handleSuccess })
+    : children;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -110,9 +125,9 @@ export default function FormDialog({
           )}
         </DialogHeader>
 
-        {React.isValidElement(children)
-          ? React.cloneElement(children, { onSuccess: handleSuccess })
-          : children}
+        <div className={cn(isClosing && "pointer-events-none")}>
+          {injectedChild}
+        </div>
       </DialogContent>
     </Dialog>
   );
