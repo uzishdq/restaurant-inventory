@@ -770,15 +770,17 @@ function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
 
   const onSubmit = (values: z.infer<typeof DeleteTransactionSchema>) => {
     startTransition(() => {
-      deleteTransaction(values).then((data) => {
-        if (data.ok) {
-          form.reset();
-          onSuccess?.();
-          toast.success(data.message);
-        } else {
-          toast.error(data.message);
-        }
-      });
+      // deleteTransaction(values).then((data) => {
+      //   if (data.ok) {
+      //     form.reset();
+      //     onSuccess?.();
+      //     toast.success(data.message);
+      //   } else {
+      //     toast.error(data.message);
+      //   }
+      // });
+
+      console.log(values);
     });
   };
 

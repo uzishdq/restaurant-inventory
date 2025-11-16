@@ -116,15 +116,25 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+            <DropdownMenuItem asChild>
               <Button asChild size="icon" variant="ghost" className="w-full">
                 <Link
-                  href={ROUTES.AUTH.TRANSACTION.STOCK_IN.EDIT_IN(
-                    dataRows.idTransaction
-                  )}
+                  href={
+                    dataRows.typeTransaction === "IN"
+                      ? ROUTES.AUTH.TRANSACTION.STOCK_IN.DETAIL(
+                          dataRows.idTransaction
+                        )
+                      : dataRows.typeTransaction === "OUT"
+                      ? ROUTES.AUTH.TRANSACTION.STOCK_OUT.DETAIL(
+                          dataRows.idTransaction
+                        )
+                      : ROUTES.AUTH.TRANSACTION.INVENTORY_CHECK.DETAIL(
+                          dataRows.idTransaction
+                        )
+                  }
                 >
                   <List className="mr-2 h-4 w-4" />
-                  Detail Transaction
+                  Detail Items
                 </Link>
               </Button>
             </DropdownMenuItem>

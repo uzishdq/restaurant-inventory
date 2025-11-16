@@ -1,5 +1,5 @@
 export function isTransactionId(id: string) {
-  return /^TRX-(IN|OUT)-\d{4}$/.test(id);
+  return /^TRX-(IN|OUT|CHK)-\d{4}$/.test(id);
 }
 
 export function extractNotification(message: string) {

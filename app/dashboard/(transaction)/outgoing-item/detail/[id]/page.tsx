@@ -7,7 +7,7 @@ import { getItemsTrx } from "@/lib/server/data/data-item";
 import { getSuppliersTrx } from "@/lib/server/data/data-supplier";
 import { getDetailTransactions } from "@/lib/server/data/data-transaction";
 
-export default async function EditStockInPage({
+export default async function DetailOutgoingPage({
   params,
 }: {
   params: Promise<{ id: string }>;

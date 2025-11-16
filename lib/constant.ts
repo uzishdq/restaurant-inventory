@@ -15,10 +15,16 @@ export const ROUTES = {
       CREATE: "/dashboard/create-transaction",
       STOCK_IN: {
         INDEX: "/dashboard/incoming-item",
-        EDIT_IN: (id: string) => `/dashboard/incoming-item/edit/${id}`,
+        DETAIL: (id: string) => `/dashboard/incoming-item/detail/${id}`,
       },
-      STOCK_OUT: "/dashboard/outgoing-item",
-      INVENTORY_CHECK: "/dashboard/inventory-check",
+      STOCK_OUT: {
+        INDEX: "/dashboard/outgoing-item",
+        DETAIL: (id: string) => `/dashboard/outgoing-item/detail/${id}`,
+      },
+      INVENTORY_CHECK: {
+        INDEX: "/dashboard/inventory-check",
+        DETAIL: (id: string) => `/dashboard/inventory-check/detail/${id}`,
+      },
     },
     ACCOUNT: "/dashboard/account",
     NOTIFICATION: "/dashboard/notification",

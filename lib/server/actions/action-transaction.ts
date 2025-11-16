@@ -135,6 +135,7 @@ export const deleteTransaction = async (
       };
     }
 
+    // otomatis delete detail transaction juga
     const [result] = await db
       .delete(transactionTable)
       .where(

@@ -30,6 +30,7 @@ const statusStyleMap: Record<
     CANCELLED: { variant: "destructive" },
   },
   typeTransaction: {
+    CHECK: { variant: "secondary" },
     IN: { variant: "default" },
     OUT: { variant: "destructive" },
   },

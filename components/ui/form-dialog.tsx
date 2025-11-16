@@ -103,10 +103,10 @@ export default function FormDialog({
 
           {/* Delete warning */}
           {type === "delete" && (
-            <div className="mt-2 rounded-md border border-red-400 bg-red-50 p-3 text-sm text-red-700">
+            <DialogDescription className="mt-2 rounded-md border border-red-400 bg-red-50 p-3 text-sm text-red-700">
               ⚠️ <strong>Warning:</strong> Deleting this data is irreversible.
               Make sure you understand the consequences before continuing.
-            </div>
+            </DialogDescription>
           )}
         </DialogHeader>
 

@@ -7,7 +7,8 @@ export type statusTransactionType =
   | "PENDING"
   | "ORDERED"
   | "RECEIVED"
-  | "CANCELLED";
+  | "CANCELLED"
+  | "COMPLETED";
 export type statusDetailTransactionType = "PENDING" | "ACCEPTED" | "CANCELLED";
 export type statusNotificationType = "PENDING" | "SENT" | "FAILED";
 

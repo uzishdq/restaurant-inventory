@@ -14,22 +14,19 @@ export default async function StockOutPage() {
     return RenderError(LABEL.ERROR.DESCRIPTION);
   }
 
-  const { pendingTransaction, orderedTransaction, receiveTransaction } =
+  const { pendingTransaction, completedTransaction } =
     transactions.data?.reduce(
       (acc, item) => {
         if (item.statusTransaction === "PENDING") {
           acc.pendingTransaction.push(item);
-        } else if (item.statusTransaction === "ORDERED") {
-          acc.orderedTransaction.push(item);
-        } else if (item.statusTransaction === "RECEIVED") {
-          acc.receiveTransaction.push(item);
+        } else if (item.statusTransaction === "COMPLETED") {
+          acc.completedTransaction.push(item);
         }
         return acc;
       },
       {
         pendingTransaction: [] as TTransaction[],
-        orderedTransaction: [] as TTransaction[],
-        receiveTransaction: [] as TTransaction[],
+        completedTransaction: [] as TTransaction[],
       }
     ) || {};
 
@@ -37,13 +34,13 @@ export default async function StockOutPage() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <SectionCard
-          title="Total Pending Outgoing Item"
+          title="Pending Outgoing Item"
           value={pendingTransaction.length}
           Icon={Clock}
         />
         <SectionCard
-          title="Total Approved Outgoing Item"
-          value={0}
+          title="Completed Outgoing Item"
+          value={completedTransaction.length}
           Icon={CheckCircle}
         />
       </div>

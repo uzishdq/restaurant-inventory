@@ -19,7 +19,14 @@ import { count, eq, like, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export async function generateTransactionID(type: typeTransactionType) {
-  const keyword = `TRX-${type}-%`;
+  const typeMap: Record<string, string> = {
+    IN: "IN",
+    OUT: "OUT",
+    CHECK: "CHK",
+  };
+
+  const prefix = typeMap[type] ?? type;
+  const keyword = `TRX-${prefix}-%`;
 
   const [result] = await db
     .select({ maxNo: sql<string>`max(${transactionTable.idTransaction})` })
@@ -34,7 +41,7 @@ export async function generateTransactionID(type: typeTransactionType) {
   // Buat nomor berikutnya
   const nextNumber = lastNumber + 1;
   const formattedNumber = nextNumber.toString().padStart(4, "0");
-  const nextID = `TRX-${type}-${formattedNumber}`;
+  const nextID = `TRX-${prefix}-${formattedNumber}`;
 
   return nextID;
 }

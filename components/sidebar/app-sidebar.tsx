@@ -68,7 +68,7 @@ export function AppSidebar({
         items: [
           {
             title: "Inventory Check",
-            url: ROUTES.AUTH.TRANSACTION.INVENTORY_CHECK,
+            url: ROUTES.AUTH.TRANSACTION.INVENTORY_CHECK.INDEX,
           },
           {
             title: "Incoming Item",
@@ -76,7 +76,7 @@ export function AppSidebar({
           },
           {
             title: "Outgoing Item",
-            url: ROUTES.AUTH.TRANSACTION.STOCK_OUT,
+            url: ROUTES.AUTH.TRANSACTION.STOCK_OUT.INDEX,
           },
         ],
       },

@@ -37,22 +37,22 @@ export default async function StockInPage() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <SectionCard
-          title="Total Pending Incoming Item"
+          title="Pending Incoming Item"
           value={pendingTransaction.length}
           Icon={Clock}
         />
         <SectionCard
-          title="Total Ordered Incoming Item"
+          title="Ordered Incoming Item"
           value={orderedTransaction.length}
           Icon={ShoppingCart}
         />
         <SectionCard
-          title="Total Received Incoming Item"
+          title="Received Incoming Item"
           value={receiveTransaction.length}
           Icon={PackageCheck}
         />
         <SectionCard
-          title="Total Approved Incoming Item"
+          title="Completed Incoming Item"
           value={0}
           Icon={CheckCircle}
         />
