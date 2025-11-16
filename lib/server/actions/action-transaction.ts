@@ -22,86 +22,6 @@ import {
   updateSupplierNotification,
 } from "./action-notifikasi";
 
-// export const createTransaction = async (
-//   values: z.infer<typeof CreateTransactionSchema>
-// ) => {
-//   try {
-//     const validateValues = CreateTransactionSchema.safeParse(values);
-
-//     if (!validateValues.success) {
-//       return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
-//     }
-
-//     const { typeTransaction, detail } = validateValues.data;
-
-//     const session = await auth();
-
-//     if (!session?.user.id) {
-//       return {
-//         ok: false,
-//         message: LABEL.ERROR.NOT_LOGIN,
-//       };
-//     }
-
-//     const customId = await generateTransactionID(typeTransaction);
-
-//     const payload = detail.map((item) => ({
-//       ...item,
-//       transactionId: customId,
-//     }));
-
-//     if (payload.length < 0) {
-//       return {
-//         ok: false,
-//         message: LABEL.INPUT.FAILED.SAVED,
-//       };
-//     }
-
-//     const result = await db.transaction(async (tx) => {
-//       const [createTransaction] = await tx
-//         .insert(transactionTable)
-//         .values({
-//           idTransaction: customId,
-//           typeTransaction: typeTransaction,
-//           userId: session.user.id,
-//         })
-//         .returning();
-
-//       for (const chunk of chunkArray(payload, 50)) {
-//         await tx
-//           .insert(detailTransactionTable)
-//           .values(chunk)
-//           .onConflictDoNothing();
-//       }
-
-//       return createTransaction;
-//     });
-
-//     if (!result) {
-//       return {
-//         ok: false,
-//         message: LABEL.INPUT.FAILED.SAVED,
-//       };
-//     }
-
-//     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
-//     await Promise.all(
-//       tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
-//     );
-
-//     return {
-//       ok: true,
-//       message: LABEL.INPUT.SUCCESS.SAVED,
-//     };
-//   } catch (error) {
-//     console.error("error create transaction : ", error);
-//     return {
-//       ok: false,
-//       message: LABEL.ERROR.SERVER,
-//     };
-//   }
-// };
-
 export const createTransaction = async (values: unknown) => {
   try {
     const [items] = await Promise.all([getItemsTrx()]);
@@ -132,7 +52,9 @@ export const createTransaction = async (values: unknown) => {
 
     const payload = detail.map((item) => ({
       ...item,
+      supplierId: item.supplierId || null,
       transactionId: customId,
+      note: item.note || null,
     }));
 
     if (payload.length < 0) {
@@ -142,32 +64,32 @@ export const createTransaction = async (values: unknown) => {
       };
     }
 
-    // const result = await db.transaction(async (tx) => {
-    //   const [createTransaction] = await tx
-    //     .insert(transactionTable)
-    //     .values({
-    //       idTransaction: customId,
-    //       typeTransaction: typeTransaction,
-    //       userId: session.user.id,
-    //     })
-    //     .returning();
+    const result = await db.transaction(async (tx) => {
+      const [createTransaction] = await tx
+        .insert(transactionTable)
+        .values({
+          idTransaction: customId,
+          typeTransaction: typeTransaction,
+          userId: session.user.id,
+        })
+        .returning();
 
-    //   for (const chunk of chunkArray(payload, 50)) {
-    //     await tx
-    //       .insert(detailTransactionTable)
-    //       .values(chunk)
-    //       .onConflictDoNothing();
-    //   }
+      for (const chunk of chunkArray(payload, 50)) {
+        await tx
+          .insert(detailTransactionTable)
+          .values(chunk)
+          .onConflictDoNothing();
+      }
 
-    //   return createTransaction;
-    // });
+      return createTransaction;
+    });
 
-    // if (!result) {
-    //   return {
-    //     ok: false,
-    //     message: LABEL.INPUT.FAILED.SAVED,
-    //   };
-    // }
+    if (!result) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.SAVED,
+      };
+    }
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
@@ -370,6 +292,7 @@ export const updateDetailTransaction = async (
       };
     }
 
+    //update hanya jika ganti qyt atau supplier
     // if (result.statusDetailTransaction === "ACCEPTED") {
     //   await updateSupplierNotification(result);
     // }

@@ -93,6 +93,9 @@ export type TDetailTransaction = {
   supplierId: string;
   store_name: string;
   quantityDetailTransaction: number;
+  quantityCheck: number | null;
+  quantityDifference: number | null;
+  note: string | null;
   statusDetailTransaction: statusDetailTransactionType;
 };
 

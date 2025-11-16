@@ -106,6 +106,9 @@ export const getDetailTransactions = unstable_cache(
           store_name: supplierTable.store_name,
           quantityDetailTransaction:
             detailTransactionTable.quantityDetailTransaction,
+          quantityCheck: detailTransactionTable.quantityCheck,
+          quantityDifference: detailTransactionTable.quantityDifference,
+          note: detailTransactionTable.note,
           statusDetailTransaction:
             detailTransactionTable.statusDetailTransaction,
         })

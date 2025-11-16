@@ -221,7 +221,14 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
 
   const onSubmit = (values: z.infer<typeof schema>) => {
     startTransition(() => {
-      console.log(values);
+      createTransaction(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
     });
   };
 

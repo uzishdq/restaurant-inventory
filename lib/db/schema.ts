@@ -127,7 +127,7 @@ export const detailTransactionTable = pgTable("detail_transaction", {
   quantityDetailTransaction: integer("quantity_detail_transaction").notNull(),
   quantityCheck: integer("quantity_check"),
   quantityDifference: integer("quantity_difference"),
-  note: varchar("transaction_id", { length: 225 }),
+  note: varchar("note", { length: 225 }),
   statusDetailTransaction: statusTransaction("status_detail_transaction")
     .default("PENDING")
     .notNull(),
