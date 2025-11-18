@@ -11,6 +11,7 @@ import {
   DeleteTransactionSchema,
   UpdateTransactionDetailSchema,
   UpdateTransactionSchema,
+  UpdateTrxDetailStatusSchema,
 } from "@/lib/schema-validation";
 import {
   Form,
@@ -56,6 +57,7 @@ import {
   deleteDetailTransaction,
   deleteTransaction,
   updateDetailTransaction,
+  updateDetailTrxStatus,
   updateTransaction,
 } from "@/lib/server/actions/action-transaction";
 import { cn } from "@/lib/utils";
@@ -84,6 +86,11 @@ interface IUpdateDetailTransactionForm {
   data: TDetailTransaction;
   items: TItemTrx[];
   suppliers: TSupplierTrx[];
+}
+
+interface IUpdateStatusDetailTransactionForm {
+  onSuccess?: () => void;
+  data: TDetailTransaction;
 }
 
 interface IDeleteDetailTransactionForm {
@@ -155,74 +162,168 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
     return map;
   }, [watchDetails, items]);
 
-  // --- Auto-fill & Auto-calculate (IN & OUT) ---
+  // // --- Auto-fill & Auto-calculate (IN & OUT) ---
+  // const prevDetailsRef = useRef<FormValues["detail"]>([]);
+
+  // useEffect(() => {
+  //   if (!watchDetails || watchDetails.length === 0) {
+  //     prevDetailsRef.current = watchDetails;
+  //     return;
+  //   }
+
+  //   let hasChanges = false;
+  //   const newValues: typeof watchDetails = [...watchDetails];
+
+  //   watchDetails.forEach((detail, index) => {
+  //     const selectedItem = items.find((i) => i.idItem === detail.itemId);
+  //     if (!selectedItem) return;
+
+  //     const qtyDetail = detail.quantityDetailTransaction ?? 0;
+  //     const qtyCheck = detail.quantityCheck ?? 0;
+  //     const currentDiff = detail.quantityDifference ?? 0;
+
+  //     // Auto-fill quantityDetailTransaction hanya jika 0 dan tipe OUT
+  //     if (watchType === "CHECK") {
+  //       newValues[index] = {
+  //         ...newValues[index],
+  //         quantityDetailTransaction: selectedItem.qty,
+  //       };
+  //       hasChanges = true;
+  //     }
+
+  //     // Auto-calculate difference: quantityDetailTransaction - quantityCheck
+  //     const expectedDiff = qtyCheck - qtyDetail;
+  //     if (currentDiff !== expectedDiff) {
+  //       newValues[index] = {
+  //         ...newValues[index],
+  //         quantityDifference: expectedDiff,
+  //       };
+  //       hasChanges = true;
+  //     }
+  //   });
+
+  //   if (hasChanges) {
+  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //     const safeStringify = (obj: any) =>
+  //       JSON.stringify(obj, (_, v) => (v === undefined ? null : v));
+
+  //     if (safeStringify(newValues) !== safeStringify(prevDetailsRef.current)) {
+  //       newValues.forEach((val, idx) => {
+  //         form.setValue(
+  //           `detail.${idx}.quantityDetailTransaction`,
+  //           val.quantityDetailTransaction!,
+  //           {
+  //             shouldValidate: false,
+  //             shouldDirty: true,
+  //           }
+  //         );
+  //         form.setValue(
+  //           `detail.${idx}.quantityDifference`,
+  //           val.quantityDifference!,
+  //           {
+  //             shouldValidate: false,
+  //             shouldDirty: true,
+  //           }
+  //         );
+  //       });
+  //       prevDetailsRef.current = newValues;
+  //     }
+  //   }
+  // }, [watchType, watchDetails, form, items]);
+
+  // --- Auto-fill & Auto-calculate (khusus untuk tipe CHECK) ---
   const prevDetailsRef = useRef<FormValues["detail"]>([]);
 
   useEffect(() => {
     if (!watchDetails || watchDetails.length === 0) {
+      prevDetailsRef.current = [];
+      return;
+    }
+
+    // Hanya jalankan auto-fill & auto-calculate jika tipe transaksinya adalah CHECK
+    if (watchType !== "CHECK") {
       prevDetailsRef.current = watchDetails;
       return;
     }
 
     let hasChanges = false;
-    const newValues: typeof watchDetails = [...watchDetails];
+    const newDetails: typeof watchDetails = watchDetails.map((detail) => ({
+      ...detail,
+    }));
 
     watchDetails.forEach((detail, index) => {
       const selectedItem = items.find((i) => i.idItem === detail.itemId);
       if (!selectedItem) return;
 
+      const qtySistem = selectedItem.qty; // stok di sistem
       const qtyDetail = detail.quantityDetailTransaction ?? 0;
       const qtyCheck = detail.quantityCheck ?? 0;
       const currentDiff = detail.quantityDifference ?? 0;
 
-      // Auto-fill quantityDetailTransaction hanya jika 0 dan tipe OUT
-      if (watchType === "CHECK") {
-        newValues[index] = {
-          ...newValues[index],
-          quantityDetailTransaction: selectedItem.qty,
-        };
+      let updated = false;
+      const updatedDetail = { ...newDetails[index] };
+
+      // 1. Auto-fill quantityDetailTransaction dengan stok sistem (hanya jika masih 0 atau kosong)
+      if (qtyDetail === 0 || qtyDetail === undefined || qtyDetail === null) {
+        if (qtyDetail !== qtySistem) {
+          updatedDetail.quantityDetailTransaction = qtySistem;
+          updated = true;
+          hasChanges = true;
+        }
+      }
+
+      // 2. Auto-calculate selisih: quantityCheck - quantityDetailTransaction
+      const expectedDiff =
+        qtyCheck - (updatedDetail.quantityDetailTransaction ?? qtyDetail);
+      if (currentDiff !== expectedDiff) {
+        updatedDetail.quantityDifference = expectedDiff;
+        updated = true;
         hasChanges = true;
       }
 
-      // Auto-calculate difference: quantityDetailTransaction - quantityCheck
-      const expectedDiff = qtyCheck - qtyDetail;
-      if (currentDiff !== expectedDiff) {
-        newValues[index] = {
-          ...newValues[index],
-          quantityDifference: expectedDiff,
-        };
-        hasChanges = true;
+      if (updated) {
+        newDetails[index] = updatedDetail;
       }
     });
 
+    // Update form hanya jika ada perubahan
     if (hasChanges) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const safeStringify = (obj: any) =>
-        JSON.stringify(obj, (_, v) => (v === undefined ? null : v));
-
-      if (safeStringify(newValues) !== safeStringify(prevDetailsRef.current)) {
-        newValues.forEach((val, idx) => {
+      newDetails.forEach((detail, idx) => {
+        // Update quantityDetailTransaction hanya jika berubah
+        if (
+          detail.quantityDetailTransaction !==
+          watchDetails[idx].quantityDetailTransaction
+        ) {
           form.setValue(
             `detail.${idx}.quantityDetailTransaction`,
-            val.quantityDetailTransaction!,
+            detail.quantityDetailTransaction ?? 0,
             {
-              shouldValidate: false,
+              shouldValidate: true,
               shouldDirty: true,
+              shouldTouch: true,
             }
           );
+        }
+
+        // Update quantityDifference
+        if (
+          detail.quantityDifference !== watchDetails[idx].quantityDifference
+        ) {
           form.setValue(
             `detail.${idx}.quantityDifference`,
-            val.quantityDifference!,
+            detail.quantityDifference ?? 0,
             {
-              shouldValidate: false,
+              shouldValidate: true,
               shouldDirty: true,
+              shouldTouch: true,
             }
           );
-        });
-        prevDetailsRef.current = newValues;
-      }
+        }
+      });
+
+      prevDetailsRef.current = newDetails;
     }
-  }, [watchType, watchDetails, form, items]);
+  }, [watchType, watchDetails, items, form]);
 
   // --- Handlers ---
   const handleAddItem = useCallback(() => {
@@ -391,7 +492,7 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                                 {isDisable ||
                                   (watchType === "OUT" && selectedItem && (
                                     <p className="text-xs text-muted-foreground">
-                                      Stock: {selectedItem.qty}
+                                      Current Stock: {selectedItem.qty}
                                     </p>
                                   ))}
                                 <FormMessage />
@@ -659,7 +760,7 @@ function UpdateTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
     defaultValues: {
       idTransaction: data.idTransaction,
       typeTransaction: data.typeTransaction,
-      statusTransaction: "CANCELLED",
+      statusTransaction: undefined,
     },
     mode: "onChange",
   });
@@ -697,7 +798,7 @@ function UpdateTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
                 <FormLabel>Status Transaction</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value.toString()}
+                  defaultValue={field.value?.toString() ?? ""}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
@@ -728,6 +829,13 @@ function UpdateTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
     </Form>
   );
 }
+
+function AddDetailTransactionCheckForm({
+  onSuccess,
+  data,
+  items,
+  supplier,
+}: IAddDetailTransactionForm) {}
 
 function AddDetailTransactionForm({
   onSuccess,
@@ -916,6 +1024,86 @@ function AddDetailTransactionForm({
   );
 }
 
+function UpdateStatusDetailTransactionForm({
+  onSuccess,
+  data,
+}: IUpdateStatusDetailTransactionForm) {
+  const [isPending, startTransition] = React.useTransition();
+
+  const form = useForm<z.infer<typeof UpdateTrxDetailStatusSchema>>({
+    resolver: zodResolver(UpdateTrxDetailStatusSchema),
+    defaultValues: {
+      idDetailTransaction: data.idDetailTransaction,
+      statusDetailTransaction: data.statusDetailTransaction,
+    },
+    mode: "onChange",
+  });
+
+  const valueSelect =
+    data.typeTransaction === "IN"
+      ? STATUS_TRANSACTION
+      : STATUS_TRANSACTION.filter((s) =>
+          ["COMPLETED", "CANCELLED"].includes(s.value)
+        );
+
+  const onSubmit = (values: z.infer<typeof UpdateTrxDetailStatusSchema>) => {
+    startTransition(() => {
+      updateDetailTrxStatus(values).then((data) => {
+        if (data.ok) {
+          form.reset();
+          onSuccess?.();
+          toast.success(data.message);
+        } else {
+          toast.error(data.message);
+        }
+      });
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="statusDetailTransaction"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status Detail Transaction</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value.toString()}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {valueSelect.map((item, index) => (
+                      <SelectItem
+                        key={index}
+                        className={statusColor[item.value]}
+                        value={item.value}
+                      >
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit" className="w-full mt-2" disabled={isPending}>
+          {isPending ? "Loading..." : "Update"}
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
 function UpdateDetailTransactionForm({
   onSuccess,
   data,
@@ -928,12 +1116,33 @@ function UpdateDetailTransactionForm({
     resolver: zodResolver(UpdateTransactionDetailSchema),
     defaultValues: {
       idDetailTransaction: data.idDetailTransaction,
+      typeTransaction: data.typeTransaction,
+      statusTransaction: data.statusDetailTransaction,
       itemId: data.itemId,
       supplierId: data.supplierId,
       quantityDetailTransaction: data.quantityDetailTransaction,
+      quantityCheck: data.quantityCheck ?? 0,
+      quantityDifference: data.quantityDifference ?? 0,
+      note: data.note ?? "",
     },
     mode: "onChange",
   });
+
+  const isDisable = !(
+    data.statusDetailTransaction === "PENDING" ||
+    data.statusDetailTransaction === "ORDERED"
+  );
+
+  useEffect(() => {
+    if (isDisable) {
+      const qtyDetail = form.getValues("quantityDetailTransaction");
+      const qtyCheck = form.getValues("quantityCheck");
+
+      if (qtyCheck === 0) {
+        form.setValue("quantityCheck", qtyDetail);
+      }
+    }
+  }, [isDisable, form]);
 
   const onSubmit = (values: z.infer<typeof UpdateTransactionDetailSchema>) => {
     startTransition(() => {
@@ -959,7 +1168,8 @@ function UpdateDetailTransactionForm({
           data={items}
           valueKey="idItem"
           labelKey="nameItem"
-          required
+          disabled={isDisable}
+          required={!isDisable}
         />
         <CustomSelect
           name="supplierId"
@@ -968,7 +1178,8 @@ function UpdateDetailTransactionForm({
           data={suppliers}
           valueKey="idSupplier"
           labelKey="store_name"
-          required
+          disabled={isDisable}
+          required={!isDisable}
         />
         <FormField
           control={form.control}
@@ -982,12 +1193,84 @@ function UpdateDetailTransactionForm({
                   {...field}
                   value={isNaN(field.value) ? "" : field.value}
                   onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  disabled={isDisable}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+        {isDisable && (
+          <>
+            <FormField
+              control={form.control}
+              name="quantityCheck"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Good Quantity</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={isNaN(field.value) ? "" : field.value}
+                      onChange={(e) => {
+                        const qtyCheck = e.target.valueAsNumber;
+                        field.onChange(qtyCheck);
+
+                        // Ambil qtyDetail dari form (sudah di-load dari data)
+                        const qtyDetail = form.getValues(
+                          "quantityDetailTransaction"
+                        );
+
+                        // Hitung selisih
+                        const diff = qtyDetail - qtyCheck;
+
+                        // Set hasilnya ke quantityDifference
+                        form.setValue(
+                          "quantityDifference",
+                          isNaN(diff) ? 0 : diff
+                        );
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="quantityDifference"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Damaged Quantity</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={isNaN(field.value) ? "" : field.value}
+                      disabled
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="note"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Note</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? "Loading..." : "Update"}
         </Button>
@@ -1069,6 +1352,7 @@ export {
   DeleteTransactionForm,
   UpdateTransactionForm,
   AddDetailTransactionForm,
+  UpdateStatusDetailTransactionForm,
   UpdateDetailTransactionForm,
   DeleteDetailTransactionForm,
 };

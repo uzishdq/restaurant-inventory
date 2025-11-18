@@ -26,6 +26,7 @@ import {
   DeleteDetailTransactionForm,
   DeleteTransactionForm,
   UpdateDetailTransactionForm,
+  UpdateStatusDetailTransactionForm,
   UpdateTransactionForm,
 } from "../transaction/transaction-form";
 import FormDialog from "../ui/form-dialog";
@@ -107,6 +108,15 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
               Actions
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+              <DialogEdit value={dataRows} />
+            </DropdownMenuItem>
+            {isPending && (
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <DialogDelete value={dataRows} />
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Button asChild size="icon" variant="ghost" className="w-full">
                 <Link
@@ -129,15 +139,6 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
                 </Link>
               </Button>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              <DialogEdit value={dataRows} />
-            </DropdownMenuItem>
-            {isPending && (
-              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-                <DialogDelete value={dataRows} />
-              </DropdownMenuItem>
-            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -164,15 +165,15 @@ function DialogDelete({ value }: TDialog) {
 function DialogEdit({ value }: TDialog) {
   const description =
     value.typeTransaction === "IN"
-      ? "Update this incoming item transaction by adjusting quantities or updating its status—whether the items have been ordered, received by the kitchen, or cancelled."
+      ? "Before updating the status of this incoming transaction, please ensure all item details—including quantities and received items—have been fully reviewed and verified."
       : value.typeTransaction === "OUT"
-      ? "Update this outgoing item transaction by reviewing requested quantities and adjusting its status based on the kitchen’s usage or approval progress."
-      : "Update this inventory check by reviewing physical counts, correcting discrepancies, and finalizing the audit results for accurate stock records.";
+      ? "Before updating the status of this outgoing transaction, make sure all requested items and quantities have been thoroughly checked and confirmed."
+      : "Before applying a status update, verify that all physical counts and item details have been carefully reviewed to ensure accurate audit results.";
 
   return (
     <FormDialog
-      type="edit"
-      title="Update Transaction"
+      type="edit_status"
+      title="Update Status Transaction"
       description={description}
     >
       <UpdateTransactionForm data={value} />
@@ -193,6 +194,14 @@ export const columnDetailTransactionIn = ({
     ),
   },
   {
+    accessorKey: "store_name",
+    header: "Store",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("store_name")}</div>
+    ),
+  },
+  {
     accessorKey: "quantityDetailTransaction",
     header: "Qyt",
     enableHiding: false,
@@ -203,11 +212,23 @@ export const columnDetailTransactionIn = ({
     ),
   },
   {
-    accessorKey: "store_name",
-    header: "Store",
-    enableHiding: false,
+    accessorKey: "quantityCheck",
+    header: "Good Qyt",
+    enableHiding: true,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("store_name")}</div>
+      <div className="capitalize">
+        {row.original.quantityCheck} / {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "quantityDifference",
+    header: "Damaged Qyt",
+    enableHiding: true,
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.original.quantityDifference} / {row.original.nameUnit}
+      </div>
     ),
   },
   {
@@ -217,7 +238,7 @@ export const columnDetailTransactionIn = ({
     cell: ({ row }) => (
       <BadgeCustom
         value={row.getValue("statusDetailTransaction")}
-        category="statusDetailTransaction"
+        category="statusTransaction"
       />
     ),
   },
@@ -247,6 +268,11 @@ export const columnDetailTransactionIn = ({
                 suppliers={suppliers}
               />
             </DropdownMenuItem>
+            {dataRows.statusDetailTransaction === "ORDERED" && (
+              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                <DetailDialogStatus value={dataRows} />
+              </DropdownMenuItem>
+            )}
             {dataRows.statusDetailTransaction === "PENDING" && (
               <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
                 <DetailDialogDelete value={dataRows} />
@@ -461,6 +487,25 @@ function DetailDialogDelete({ value }: { value: TDetailTransaction }) {
       description="Are you sure you want to Delete this item? This action cannot be undone"
     >
       <DeleteDetailTransactionForm data={value} />
+    </FormDialog>
+  );
+}
+
+function DetailDialogStatus({ value }: { value: TDetailTransaction }) {
+  const description =
+    value.typeTransaction === "IN"
+      ? "Before updating the status of this incoming transaction, please ensure all item details—including quantities and received items—have been fully reviewed and verified."
+      : value.typeTransaction === "OUT"
+      ? "Before updating the status of this outgoing transaction, make sure all requested items and quantities have been thoroughly checked and confirmed."
+      : "Before applying a status update, verify that all physical counts and item details have been carefully reviewed to ensure accurate audit results.";
+
+  return (
+    <FormDialog
+      type="edit_status"
+      title="Update Status Detail Transaction"
+      description={description}
+    >
+      <UpdateStatusDetailTransactionForm data={value} />
     </FormDialog>
   );
 }

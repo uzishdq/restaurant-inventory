@@ -10,10 +10,10 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Pencil, Plus, Trash } from "lucide-react";
+import { Pencil, Plus, RotateCcw, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type DialogType = "create" | "edit" | "delete";
+type DialogType = "create" | "edit" | "edit_status" | "delete";
 
 interface FormChildProps {
   onSuccess?: () => void;
@@ -67,6 +67,15 @@ export default function FormDialog({
           variant: "ghost" as const,
           size: "icon" as const,
           defaultTitle: "Edit Data",
+          defaultDesc: "Modify the selected data, then click Update.",
+        };
+      case "edit_status":
+        return {
+          icon: <RotateCcw className="h-4 w-4" />,
+          label: "Update Status",
+          variant: "ghost" as const,
+          size: "icon" as const,
+          defaultTitle: "Update Status",
           defaultDesc: "Modify the selected data, then click Update.",
         };
       case "delete":

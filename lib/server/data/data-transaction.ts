@@ -9,13 +9,14 @@ import {
   unitTable,
   userTable,
 } from "@/lib/db/schema";
-import { transactionIdSchema } from "@/lib/schema-validation";
+import { IdSchema, transactionIdSchema } from "@/lib/schema-validation";
 import {
   TDetailTransaction,
+  TOldDetailTransaction,
   TTransaction,
   typeTransactionType,
 } from "@/lib/type-data";
-import { count, eq, like, sql } from "drizzle-orm";
+import { asc, count, eq, like, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export async function generateTransactionID(type: typeTransactionType) {
@@ -106,6 +107,7 @@ export const getDetailTransactions = unstable_cache(
         .select({
           idDetailTransaction: detailTransactionTable.idDetailTransaction,
           idTransaction: detailTransactionTable.transactionId,
+          typeTransaction: transactionTable.typeTransaction,
           itemId: itemTable.idItem,
           nameItem: itemTable.nameItem,
           nameUnit: unitTable.nameUnit,
@@ -121,6 +123,13 @@ export const getDetailTransactions = unstable_cache(
         })
         .from(detailTransactionTable)
         .leftJoin(
+          transactionTable,
+          eq(
+            transactionTable.idTransaction,
+            detailTransactionTable.transactionId
+          )
+        )
+        .leftJoin(
           itemTable,
           eq(itemTable.idItem, detailTransactionTable.itemId)
         )
@@ -129,7 +138,8 @@ export const getDetailTransactions = unstable_cache(
           supplierTable,
           eq(supplierTable.idSupplier, detailTransactionTable.supplierId)
         )
-        .where(eq(detailTransactionTable.transactionId, id));
+        .where(eq(detailTransactionTable.transactionId, id))
+        .orderBy(asc(itemTable.idItem));
 
       if (result.length > 0) {
         return { ok: true, data: result as TDetailTransaction[] };
@@ -144,5 +154,36 @@ export const getDetailTransactions = unstable_cache(
   ["get-detail-transactions"],
   {
     tags: ["get-detail-transactions"],
+  }
+);
+
+export const getOldDetailTransaction = unstable_cache(
+  async (id: string) => {
+    try {
+      const validateValue = IdSchema.safeParse({ id });
+
+      if (!validateValue.success) {
+        return { ok: false, data: null };
+      }
+
+      const [result] = await db
+        .select()
+        .from(detailTransactionTable)
+        .where(eq(detailTransactionTable.idDetailTransaction, id))
+        .limit(1);
+
+      if (result) {
+        return { ok: true, data: result as TOldDetailTransaction };
+      } else {
+        return { ok: true, data: null };
+      }
+    } catch (error) {
+      console.error("error detail transaction data : ", error);
+      return { ok: false, data: null };
+    }
+  },
+  ["get-old-detail-transaction"],
+  {
+    tags: ["get-old-detail-transaction"],
   }
 );

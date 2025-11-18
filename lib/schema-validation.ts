@@ -290,7 +290,7 @@ export const DeleteTransactionSchema = z.object({
 export const UpdateTransactionSchema = z.object({
   idTransaction: transactionIdSchema,
   typeTransaction: z.enum(enumTypeTransaction),
-  statusTransaction: z.enum(enumStatusTransaction),
+  statusTransaction: z.enum(enumStatusTransaction, { message: "Required" }),
 });
 
 export const AddTransactionDetailSchema = z
@@ -312,11 +312,54 @@ export const AddTransactionDetailSchema = z
     });
   });
 
-export const UpdateTransactionDetailSchema = z.object({
+export const UpdateTransactionDetailSchema = transactionDetailSchema
+  .extend({
+    idDetailTransaction: z.uuid("Invalid ID format.").min(5),
+    typeTransaction: z.enum(enumTypeTransaction),
+    statusTransaction: z.enum(enumStatusTransaction),
+  })
+  .superRefine((data, ctx) => {
+    if (data.typeTransaction === "IN") {
+      if (!data.supplierId || data.supplierId.trim() === "") {
+        ctx.addIssue({
+          code: "custom",
+          path: ["supplierId"],
+          message: "Store is required for incoming transactions.",
+        });
+      }
+
+      if (data.quantityDifference > 0) {
+        if (!data.note || data.note.trim() === "") {
+          ctx.addIssue({
+            code: "custom",
+            path: ["note"],
+            message: "Note is required for damaged item.",
+          });
+        }
+      }
+
+      if (data.quantityCheck > data.quantityDetailTransaction) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["quantityCheck"],
+          message: `Checked quantity cannot exceed the ordered quantity (${data.quantityDetailTransaction}).`,
+        });
+      }
+
+      // Kurang dari batas minimal (-1)
+      if (data.quantityCheck <= -1) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["quantityCheck"],
+          message: "Checked quantity cannot be less than -1.",
+        });
+      }
+    }
+  });
+
+export const UpdateTrxDetailStatusSchema = z.object({
   idDetailTransaction: z.uuid("Invalid ID format.").min(5),
-  itemId: itemIdSchema,
-  supplierId: z.uuid("Invalid ID format.").min(5),
-  quantityDetailTransaction: validatedStock(1, 500),
+  statusDetailTransaction: z.enum(enumStatusTransaction),
 });
 
 export const DeleteTransactionDetailSchema = z.object({
@@ -326,4 +369,8 @@ export const DeleteTransactionDetailSchema = z.object({
 /* -------- NOTIFICATION --------  */
 export const NotificationSchema = z.object({
   id: z.uuid("Invalid ID format."),
+});
+
+export const NotificationRoleSchema = z.object({
+  role: z.enum(enumRole),
 });

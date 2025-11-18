@@ -27,6 +27,7 @@ interface ICustomSelect {
   valueKey: string; // key untuk id (misal: "idUnit", "idCategory")
   labelKey: string; // key untuk label (misal: "nameUnit", "nameCategory")
   placeholder?: string;
+  disabled?: boolean;
 }
 
 const ValueSelect = ({
@@ -37,6 +38,7 @@ const ValueSelect = ({
   valueKey,
   labelKey,
   placeholder = "Select an option...",
+  disabled = false,
 }: {
   label: string;
   value: string;
@@ -46,19 +48,24 @@ const ValueSelect = ({
   valueKey: string;
   labelKey: string;
   placeholder?: string;
+  disabled?: boolean;
 }) => {
   const [open, setOpen] = React.useState(false);
 
   const selectedItem = data.find((item) => item[valueKey] === value);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={disabled ? false : open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="justify-between w-full font-normal"
+          className={cn(
+            "justify-between w-full font-normal text-left",
+            disabled &&
+              "bg-muted text-muted-foreground opacity-70 cursor-not-allowed"
+          )}
         >
           {selectedItem ? selectedItem[labelKey] : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -105,6 +112,7 @@ export default function CustomSelect({
   valueKey,
   labelKey,
   placeholder,
+  disabled = false,
 }: ICustomSelect) {
   return (
     <div className="space-y-2">
@@ -127,6 +135,7 @@ export default function CustomSelect({
               valueKey={valueKey}
               labelKey={labelKey}
               placeholder={placeholder}
+              disabled={disabled}
             />
             {error && (
               <p className="text-destructive text-sm">{error.message}</p>

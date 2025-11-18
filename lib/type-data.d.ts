@@ -9,7 +9,12 @@ export type statusTransactionType =
   | "RECEIVED"
   | "CANCELLED"
   | "COMPLETED";
-export type statusDetailTransactionType = "PENDING" | "ACCEPTED" | "CANCELLED";
+export type statusDetailTransactionType =
+  | "PENDING"
+  | "ORDERED"
+  | "RECEIVED"
+  | "CANCELLED"
+  | "COMPLETED";
 export type statusNotificationType = "PENDING" | "SENT" | "FAILED";
 
 export type columnProps = {
@@ -30,6 +35,13 @@ export type TUser = {
   phoneNumber: string;
   role: roleType;
   createdAt: string;
+};
+
+export type TUserNumber = {
+  idUser: string;
+  nameUser: string;
+  phoneNumber: string;
+  role: roleType;
 };
 
 export type TSupplier = {
@@ -88,11 +100,24 @@ export type TTransaction = {
 export type TDetailTransaction = {
   idDetailTransaction: string;
   idTransaction: string;
+  typeTransaction: typeTransactionType;
   itemId: string;
   nameItem: string;
   nameUnit: string;
   supplierId: string;
   store_name: string;
+  quantityDetailTransaction: number;
+  quantityCheck: number | null;
+  quantityDifference: number | null;
+  note: string | null;
+  statusDetailTransaction: statusDetailTransactionType;
+};
+
+export type TOldDetailTransaction = {
+  idDetailTransaction: string;
+  transactionId: string;
+  itemId: string;
+  supplierId: string | null;
   quantityDetailTransaction: number;
   quantityCheck: number | null;
   quantityDifference: number | null;
@@ -124,4 +149,20 @@ export type TPurcaseNotif = {
   nameSupplier: string;
   phoneSupplier: string;
   items: TItemPurcaseNotif[];
+};
+
+export type TItemPurcaseMismatchNotif = {
+  nameItem: string;
+  nameUnit: string;
+  qty: number;
+  qtyCheck: number; // quantity hasil pengecekan
+  qtyDifference: number; // selisih
+  note?: string;
+};
+
+export type TPurcaseMismatchNotif = {
+  nameUser: string;
+  store_name: string;
+  nameSupplier: string;
+  items: TItemPurcaseMismatchNotif[];
 };

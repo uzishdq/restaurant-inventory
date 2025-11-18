@@ -8,9 +8,13 @@ import {
   DeleteTransactionSchema,
   UpdateTransactionDetailSchema,
   UpdateTransactionSchema,
+  UpdateTrxDetailStatusSchema,
 } from "@/lib/schema-validation";
 import { auth } from "@/lib/auth";
-import { generateTransactionID } from "../data/data-transaction";
+import {
+  generateTransactionID,
+  getOldDetailTransaction,
+} from "../data/data-transaction";
 import { db } from "@/lib/db";
 import { detailTransactionTable, transactionTable } from "@/lib/db/schema";
 import { chunkArray } from "@/lib/utils";
@@ -18,9 +22,11 @@ import { revalidateTag } from "next/cache";
 import { eq } from "drizzle-orm";
 import { getItemsTrx } from "../data/data-item";
 import {
+  purchaseMismatchNotification,
   supplierNotification,
   updateSupplierNotification,
 } from "./action-notifikasi";
+import { hasChanges } from "@/lib/helper";
 
 export const createTransaction = async (values: unknown) => {
   try {
@@ -174,7 +180,7 @@ export const updateTransaction = async (
       validateValues.data.typeTransaction === "IN" &&
       validateValues.data.statusTransaction === "ORDERED"
     ) {
-      // get supplier base on updated detail transaction -> input notifikasi table
+      // kirim notif ke supplier jika type In dan status Ordered
       const data = result.map((r) => ({
         itemId: r.itemId,
         supplierId: r.supplierId!,
@@ -337,6 +343,70 @@ export const addDetailTransaction = async (
   }
 };
 
+export const updateDetailTrxStatus = async (
+  values: z.infer<typeof UpdateTrxDetailStatusSchema>
+) => {
+  try {
+    const validateValues = UpdateTrxDetailStatusSchema.safeParse(values);
+
+    if (!validateValues.success) {
+      return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
+    }
+
+    const session = await auth();
+
+    if (!session?.user.id) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
+    if (session?.user.role === "MANAGER") {
+      return {
+        ok: false,
+        message: LABEL.ERROR.UNAUTHORIZED,
+      };
+    }
+
+    const [result] = await db
+      .update(detailTransactionTable)
+      .set({
+        statusDetailTransaction: validateValues.data.statusDetailTransaction,
+      })
+      .where(
+        eq(
+          detailTransactionTable.idDetailTransaction,
+          validateValues.data.idDetailTransaction
+        )
+      )
+      .returning();
+
+    if (!result) {
+      return {
+        ok: false,
+        message: LABEL.INPUT.FAILED.UPDATE,
+      };
+    }
+
+    const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
+    await Promise.all(
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+    );
+
+    return {
+      ok: true,
+      message: LABEL.INPUT.SUCCESS.UPDATE,
+    };
+  } catch (error) {
+    console.error("error update detail transaction status : ", error);
+    return {
+      ok: false,
+      message: LABEL.ERROR.SERVER,
+    };
+  }
+};
+
 // ubah flow sesuai type transaction
 export const updateDetailTransaction = async (
   values: z.infer<typeof UpdateTransactionDetailSchema>
@@ -357,40 +427,131 @@ export const updateDetailTransaction = async (
       };
     }
 
-    if (session?.user.role !== "ADMIN") {
+    if (session?.user.role === "MANAGER") {
       return {
         ok: false,
         message: LABEL.ERROR.UNAUTHORIZED,
       };
     }
 
-    const [result] = await db
-      .update(detailTransactionTable)
-      .set({
-        itemId: validateValues.data.itemId,
-        supplierId: validateValues.data.supplierId,
-        quantityDetailTransaction:
-          validateValues.data.quantityDetailTransaction,
-      })
-      .where(
-        eq(
-          detailTransactionTable.idDetailTransaction,
-          validateValues.data.idDetailTransaction
-        )
-      )
-      .returning();
+    if (validateValues.data.typeTransaction === "IN") {
+      //update hanya jika ganti item, supplier atau qyt
+      const oldData = await getOldDetailTransaction(
+        validateValues.data.idDetailTransaction
+      );
 
-    if (!result) {
-      return {
-        ok: false,
-        message: LABEL.INPUT.FAILED.UPDATE,
-      };
+      if (!oldData.ok || !oldData.data) {
+        return {
+          ok: false,
+          message: LABEL.ERROR.DATA_NOT_FOUND,
+        };
+      }
+
+      if (
+        validateValues.data.statusTransaction === "ORDERED" ||
+        validateValues.data.statusTransaction === "PENDING"
+      ) {
+        const newData = {
+          itemId: validateValues.data.itemId,
+          supplierId: validateValues.data.supplierId,
+          quantityDetailTransaction:
+            validateValues.data.quantityDetailTransaction,
+        };
+
+        const isSame = hasChanges(oldData.data, newData, [
+          "itemId",
+          "supplierId",
+          "quantityDetailTransaction",
+        ]);
+
+        if (!isSame) {
+          return { ok: false, message: LABEL.ERROR.CHECK_DATA };
+        }
+
+        const [result] = await db
+          .update(detailTransactionTable)
+          .set(newData)
+          .where(
+            eq(
+              detailTransactionTable.idDetailTransaction,
+              validateValues.data.idDetailTransaction
+            )
+          )
+          .returning();
+
+        if (!result) {
+          return {
+            ok: false,
+            message: LABEL.INPUT.FAILED.UPDATE,
+          };
+        }
+
+        //kirim notif karena sudah update barang baku di status received
+        if (validateValues.data.statusTransaction === "ORDERED") {
+          await updateSupplierNotification({
+            itemId: result.itemId,
+            supplierId: result.supplierId!,
+            quantityDetailTransaction: result.quantityDetailTransaction,
+          });
+        }
+      }
+
+      if (validateValues.data.statusTransaction === "RECEIVED") {
+        const newData = {
+          quantityDetailTransaction:
+            validateValues.data.quantityDetailTransaction,
+          quantityCheck: validateValues.data.quantityCheck,
+          quantityDifference: validateValues.data.quantityDifference,
+          note: validateValues.data.note,
+        };
+
+        const isSame = hasChanges(oldData.data, newData, [
+          "quantityDetailTransaction",
+          "quantityCheck",
+          "quantityDifference",
+          "note",
+        ]);
+
+        if (!isSame) {
+          return { ok: false, message: LABEL.ERROR.CHECK_DATA };
+        }
+
+        const [result] = await db
+          .update(detailTransactionTable)
+          .set({
+            quantityDetailTransaction:
+              validateValues.data.quantityDetailTransaction,
+            quantityCheck: validateValues.data.quantityCheck,
+            quantityDifference: validateValues.data.quantityDifference,
+            note: validateValues.data.note,
+          })
+          .where(
+            eq(
+              detailTransactionTable.idDetailTransaction,
+              validateValues.data.idDetailTransaction
+            )
+          )
+          .returning();
+
+        if (!result) {
+          return {
+            ok: false,
+            message: LABEL.INPUT.FAILED.UPDATE,
+          };
+        }
+
+        if (result.quantityDifference! > 0) {
+          await purchaseMismatchNotification({
+            itemId: result.itemId,
+            supplierId: result.supplierId!,
+            quantityDetailTransaction: result.quantityDetailTransaction,
+            quantityCheck: result.quantityCheck,
+            quantityDifference: result.quantityDifference,
+            note: result.note,
+          });
+        }
+      }
     }
-
-    //update hanya jika ganti qyt atau supplier
-    // if (result.statusDetailTransaction === "ACCEPTED") {
-    //   await updateSupplierNotification(result);
-    // }
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(

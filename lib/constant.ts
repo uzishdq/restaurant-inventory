@@ -54,6 +54,8 @@ export const LABEL = {
   },
   ERROR: {
     404: "Page Not Found",
+    CHECK_DATA: "No changes detected.",
+    DATA_NOT_FOUND: "Data not found.",
     INVALID_FIELD: "Invalid input. Please check your data.",
     DESCRIPTION: "We’re having some connection issues. Try again shortly.",
     SERVER: "Something went wrong on our server. Please try again later.",
@@ -68,6 +70,7 @@ export const tagsUserRevalidate = [
   "get-account",
   "get-users",
   "get-notification",
+  "get-users-numberByRole",
 ];
 export const tagsUnitRevalidate = ["get-units"];
 export const tagsCategoryRevalidate = ["get-category"];
@@ -84,6 +87,7 @@ export const tagsSupplierRevalidate = [
 export const tagsTransactionRevalidate = [
   "get-transactions",
   "get-detail-transactions",
+  "get-old-detail-transaction",
   "get-notification",
 ];
 

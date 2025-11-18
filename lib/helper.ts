@@ -8,3 +8,8 @@ export function extractNotification(message: string) {
   const body = message.replace(headerMatch?.[0] ?? "", "").trim();
   return { header, body };
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function hasChanges(oldObj: any, newObj: any, fields: string[]) {
+  return fields.some((f) => oldObj[f] !== newObj[f]);
+}
