@@ -72,7 +72,7 @@ export const getItemsTrx = unstable_cache(
         })
         .from(itemTable)
         .leftJoin(unitTable, eq(unitTable.idUnit, itemTable.unitId))
-        .orderBy(asc(itemTable.createdAt));
+        .orderBy(asc(itemTable.idItem));
 
       if (result.length > 0) {
         return { ok: true, data: result as TItemTrx[] };

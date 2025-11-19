@@ -293,42 +293,126 @@ export const UpdateTransactionSchema = z.object({
   statusTransaction: z.enum(enumStatusTransaction, { message: "Required" }),
 });
 
-export const AddTransactionDetailSchema = z
-  .object({
-    idTransaction: transactionIdSchema,
-    detail: z
-      .array(transactionDetailSchema)
-      .min(1, "At least one transaction detail is required."),
-  })
-  .superRefine((data, ctx) => {
-    data.detail.forEach((d, i) => {
-      if (!d.supplierId) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["detail", i, "supplierId"],
-          message: "Store is required for incoming transactions.",
-        });
-      }
+export const AddTransactionDetailSchema = (items: TItemTrx[]) =>
+  z
+    .object({
+      idTransaction: transactionIdSchema,
+      typeTransaction: z.enum(enumTypeTransaction),
+      detail: z
+        .array(transactionDetailSchema)
+        .min(1, "At least one transaction detail is required."),
+    })
+    .superRefine((data, ctx) => {
+      data.detail.forEach((d, i) => {
+        const item = items.find((it) => it.idItem === d.itemId);
+
+        if (!item) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["detail", i, "itemId"],
+            message: "Item not found.",
+          });
+          return;
+        }
+
+        if (data.typeTransaction === "IN") {
+          if (!d.supplierId) {
+            ctx.addIssue({
+              code: "custom",
+              path: ["detail", i, "supplierId"],
+              message: "Store is required for incoming transactions.",
+            });
+          }
+        }
+
+        if (data.typeTransaction === "OUT") {
+          if (d.quantityDetailTransaction > item.qty) {
+            ctx.addIssue({
+              code: "custom",
+              path: ["detail", i, "quantityDetailTransaction"],
+              message: `Quantity exceeds available stock (${item.qty}).`,
+            });
+          }
+        }
+
+        //Validasi note
+        if (["CHECK", "OUT"].includes(data.typeTransaction)) {
+          if (!d.note || d.note.trim() === "") {
+            ctx.addIssue({
+              code: "custom",
+              path: ["detail", i, "note"],
+              message: "Note is required for this transactions.",
+            });
+          }
+        }
+      });
     });
-  });
 
-export const UpdateTransactionDetailSchema = transactionDetailSchema
-  .extend({
-    idDetailTransaction: z.uuid("Invalid ID format.").min(5),
-    typeTransaction: z.enum(enumTypeTransaction),
-    statusTransaction: z.enum(enumStatusTransaction),
-  })
-  .superRefine((data, ctx) => {
-    if (data.typeTransaction === "IN") {
-      if (!data.supplierId || data.supplierId.trim() === "") {
+export const UpdateTransactionDetailSchema = (items: TItemTrx[]) =>
+  transactionDetailSchema
+    .extend({
+      idDetailTransaction: z.uuid("Invalid ID format.").min(5),
+      typeTransaction: z.enum(enumTypeTransaction),
+      statusTransaction: z.enum(enumStatusTransaction),
+    })
+    .superRefine((data, ctx) => {
+      const item = items.find((it) => it.idItem === data.itemId);
+
+      if (!item) {
         ctx.addIssue({
           code: "custom",
-          path: ["supplierId"],
-          message: "Store is required for incoming transactions.",
+          path: ["itemId"],
+          message: "Item not found.",
         });
+        return;
       }
 
-      if (data.quantityDifference > 0) {
+      if (data.typeTransaction === "IN") {
+        if (!data.supplierId || data.supplierId.trim() === "") {
+          ctx.addIssue({
+            code: "custom",
+            path: ["supplierId"],
+            message: "Store is required for incoming transactions.",
+          });
+        }
+
+        if (data.quantityDifference > 0) {
+          if (!data.note || data.note.trim() === "") {
+            ctx.addIssue({
+              code: "custom",
+              path: ["note"],
+              message: "Note is required for damaged item.",
+            });
+          }
+        }
+
+        if (data.quantityCheck > data.quantityDetailTransaction) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["quantityCheck"],
+            message: `Checked quantity cannot exceed the ordered quantity (${data.quantityDetailTransaction}).`,
+          });
+        }
+
+        // Kurang dari batas minimal (-1)
+        if (data.quantityCheck <= -1) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["quantityCheck"],
+            message: "Checked quantity cannot be less than -1.",
+          });
+        }
+      }
+
+      if (data.typeTransaction === "OUT") {
+        if (data.quantityDetailTransaction > item.qty) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["quantityDetailTransaction"],
+            message: `Quantity exceeds available stock (${item.qty}).`,
+          });
+        }
+
         if (!data.note || data.note.trim() === "") {
           ctx.addIssue({
             code: "custom",
@@ -337,25 +421,7 @@ export const UpdateTransactionDetailSchema = transactionDetailSchema
           });
         }
       }
-
-      if (data.quantityCheck > data.quantityDetailTransaction) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["quantityCheck"],
-          message: `Checked quantity cannot exceed the ordered quantity (${data.quantityDetailTransaction}).`,
-        });
-      }
-
-      // Kurang dari batas minimal (-1)
-      if (data.quantityCheck <= -1) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["quantityCheck"],
-          message: "Checked quantity cannot be less than -1.",
-        });
-      }
-    }
-  });
+    });
 
 export const UpdateTrxDetailStatusSchema = z.object({
   idDetailTransaction: z.uuid("Invalid ID format.").min(5),

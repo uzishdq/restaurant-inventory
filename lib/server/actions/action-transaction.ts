@@ -1,6 +1,10 @@
 "use server";
 import * as z from "zod";
-import { LABEL, tagsTransactionRevalidate } from "@/lib/constant";
+import {
+  LABEL,
+  tagsItemRevalidate,
+  tagsTransactionRevalidate,
+} from "@/lib/constant";
 import {
   AddTransactionDetailSchema,
   CreateTransactionTestSchema,
@@ -248,7 +252,9 @@ export const updateTransaction = async (
       await supplierNotification(data);
     }
 
-    const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
+    const tagsToRevalidate = Array.from(
+      new Set(...tagsTransactionRevalidate, ...tagsItemRevalidate)
+    );
     await Promise.all(
       tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
     );
@@ -325,11 +331,16 @@ export const deleteTransaction = async (
   }
 };
 
-export const addDetailTransaction = async (
-  values: z.infer<typeof AddTransactionDetailSchema>
-) => {
+export const addDetailTransaction = async (values: unknown) => {
   try {
-    const validateValues = AddTransactionDetailSchema.safeParse(values);
+    const [items] = await Promise.all([getItemsTrx()]);
+
+    if (!items.ok || !items.data) {
+      return { ok: false, message: LABEL.ERROR.SERVER };
+    }
+
+    const schema = AddTransactionDetailSchema(items.data);
+    const validateValues = schema.safeParse(values);
 
     if (!validateValues.success) {
       return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
@@ -353,15 +364,10 @@ export const addDetailTransaction = async (
 
     const { idTransaction, detail } = validateValues.data;
 
-    //     const payload = detail.map((item) => ({
-    //   ...item,
-    //   transactionId: idTransaction,
-    // }));
-
-    const payload = detail.map(({ supplierId, ...rest }) => ({
-      ...rest,
+    const payload = detail.map((item) => ({
+      ...item,
       transactionId: idTransaction,
-      supplierId: supplierId as string,
+      supplierId: item.supplierId || null,
     }));
 
     if (payload.length < 0) {
@@ -466,11 +472,16 @@ export const updateDetailTrxStatus = async (
 };
 
 // ubah flow sesuai type transaction
-export const updateDetailTransaction = async (
-  values: z.infer<typeof UpdateTransactionDetailSchema>
-) => {
+export const updateDetailTransaction = async (values: unknown) => {
   try {
-    const validateValues = UpdateTransactionDetailSchema.safeParse(values);
+    const [items] = await Promise.all([getItemsTrx()]);
+
+    if (!items.ok || !items.data) {
+      return { ok: false, message: LABEL.ERROR.SERVER };
+    }
+
+    const schema = UpdateTransactionDetailSchema(items.data);
+    const validateValues = schema.safeParse(values);
 
     if (!validateValues.success) {
       return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
@@ -492,18 +503,19 @@ export const updateDetailTransaction = async (
       };
     }
 
+    const oldData = await getOldDetailTransaction(
+      validateValues.data.idDetailTransaction
+    );
+
+    if (!oldData.ok || !oldData.data) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.DATA_NOT_FOUND,
+      };
+    }
+
     if (validateValues.data.typeTransaction === "IN") {
       //update hanya jika ganti item, supplier atau qyt
-      const oldData = await getOldDetailTransaction(
-        validateValues.data.idDetailTransaction
-      );
-
-      if (!oldData.ok || !oldData.data) {
-        return {
-          ok: false,
-          message: LABEL.ERROR.DATA_NOT_FOUND,
-        };
-      }
 
       if (
         validateValues.data.statusTransaction === "ORDERED" ||
@@ -576,13 +588,7 @@ export const updateDetailTransaction = async (
 
         const [result] = await db
           .update(detailTransactionTable)
-          .set({
-            quantityDetailTransaction:
-              validateValues.data.quantityDetailTransaction,
-            quantityCheck: validateValues.data.quantityCheck,
-            quantityDifference: validateValues.data.quantityDifference,
-            note: validateValues.data.note,
-          })
+          .set(newData)
           .where(
             eq(
               detailTransactionTable.idDetailTransaction,
@@ -608,6 +614,43 @@ export const updateDetailTransaction = async (
             note: result.note,
           });
         }
+      }
+    }
+
+    if (validateValues.data.typeTransaction === "OUT") {
+      const newData = {
+        itemId: validateValues.data.itemId,
+        quantityDetailTransaction:
+          validateValues.data.quantityDetailTransaction,
+        note: validateValues.data.note,
+      };
+
+      const isSame = hasChanges(oldData.data, newData, [
+        "itemId",
+        "quantityDetailTransaction",
+        "note",
+      ]);
+
+      if (!isSame) {
+        return { ok: false, message: LABEL.ERROR.CHECK_DATA };
+      }
+
+      const [result] = await db
+        .update(detailTransactionTable)
+        .set(newData)
+        .where(
+          eq(
+            detailTransactionTable.idDetailTransaction,
+            validateValues.data.idDetailTransaction
+          )
+        )
+        .returning();
+
+      if (!result) {
+        return {
+          ok: false,
+          message: LABEL.INPUT.FAILED.UPDATE,
+        };
       }
     }
 

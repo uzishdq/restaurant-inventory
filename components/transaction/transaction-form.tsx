@@ -845,10 +845,13 @@ function AddDetailTransactionForm({
 }: IAddDetailTransactionForm) {
   const [isPending, startTransition] = React.useTransition();
 
-  const form = useForm<z.infer<typeof AddTransactionDetailSchema>>({
-    resolver: zodResolver(AddTransactionDetailSchema),
+  const schema = AddTransactionDetailSchema(items);
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
       idTransaction: data.idTransaction,
+      typeTransaction: data.typeTransaction,
       detail: [
         {
           itemId: "",
@@ -870,7 +873,7 @@ function AddDetailTransactionForm({
 
   const watchedDetails = useWatch({ control: form.control, name: "detail" });
 
-  const onSubmit = (values: z.infer<typeof AddTransactionDetailSchema>) => {
+  const onSubmit = (values: z.infer<typeof schema>) => {
     startTransition(() => {
       addDetailTransaction(values).then((data) => {
         if (data.ok) {
@@ -922,16 +925,17 @@ function AddDetailTransactionForm({
                     labelKey="nameItem"
                     required
                   />
-
-                  <CustomSelect
-                    name={`detail.${index}.supplierId`}
-                    label="Store"
-                    control={form.control}
-                    data={supplier}
-                    valueKey="idSupplier"
-                    labelKey="store_name"
-                    required
-                  />
+                  {data.typeTransaction === "IN" && (
+                    <CustomSelect
+                      name={`detail.${index}.supplierId`}
+                      label="Store"
+                      control={form.control}
+                      data={supplier}
+                      valueKey="idSupplier"
+                      labelKey="store_name"
+                      required
+                    />
+                  )}
 
                   <FormField
                     control={form.control}
@@ -966,6 +970,24 @@ function AddDetailTransactionForm({
                       </FormItem>
                     )}
                   />
+
+                  {data.typeTransaction !== "IN" && (
+                    <div className="space-y-2">
+                      <FormField
+                        control={form.control}
+                        name={`detail.${index}.note`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Note</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
 
                   <div className="flex justify-end">
                     <Button
@@ -1112,14 +1134,16 @@ function UpdateDetailTransactionForm({
 }: IUpdateDetailTransactionForm) {
   const [isPending, startTransition] = React.useTransition();
 
-  const form = useForm<z.infer<typeof UpdateTransactionDetailSchema>>({
-    resolver: zodResolver(UpdateTransactionDetailSchema),
+  const schema = UpdateTransactionDetailSchema(items);
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
       idDetailTransaction: data.idDetailTransaction,
       typeTransaction: data.typeTransaction,
       statusTransaction: data.statusDetailTransaction,
       itemId: data.itemId,
-      supplierId: data.supplierId,
+      supplierId: data.supplierId ?? "",
       quantityDetailTransaction: data.quantityDetailTransaction,
       quantityCheck: data.quantityCheck ?? 0,
       quantityDifference: data.quantityDifference ?? 0,
@@ -1133,6 +1157,13 @@ function UpdateDetailTransactionForm({
     data.statusDetailTransaction === "ORDERED"
   );
 
+  const selectedItemId = useWatch({
+    control: form.control,
+    name: "itemId",
+  });
+
+  const selectedItem = items.find((i) => i.idItem === selectedItemId);
+
   useEffect(() => {
     if (isDisable) {
       const qtyDetail = form.getValues("quantityDetailTransaction");
@@ -1144,7 +1175,7 @@ function UpdateDetailTransactionForm({
     }
   }, [isDisable, form]);
 
-  const onSubmit = (values: z.infer<typeof UpdateTransactionDetailSchema>) => {
+  const onSubmit = (values: z.infer<typeof schema>) => {
     startTransition(() => {
       updateDetailTransaction(values).then((data) => {
         if (data.ok) {
@@ -1171,16 +1202,18 @@ function UpdateDetailTransactionForm({
           disabled={isDisable}
           required={!isDisable}
         />
-        <CustomSelect
-          name="supplierId"
-          label="Store"
-          control={form.control}
-          data={suppliers}
-          valueKey="idSupplier"
-          labelKey="store_name"
-          disabled={isDisable}
-          required={!isDisable}
-        />
+        {data.typeTransaction === "IN" && (
+          <CustomSelect
+            name="supplierId"
+            label="Store"
+            control={form.control}
+            data={suppliers}
+            valueKey="idSupplier"
+            labelKey="store_name"
+            disabled={isDisable}
+            required={!isDisable}
+          />
+        )}
         <FormField
           control={form.control}
           name="quantityDetailTransaction"
@@ -1188,15 +1221,29 @@ function UpdateDetailTransactionForm({
             <FormItem>
               <FormLabel>Quantity</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  {...field}
-                  value={isNaN(field.value) ? "" : field.value}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                  disabled={isDisable}
-                />
+                <div className="flex items-center gap-2">
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={isNaN(field.value) ? "" : field.value}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                      disabled={isDisable}
+                    />
+                  </FormControl>
+                  {selectedItem && (
+                    <span className="capitalize text-sm min-w-10">
+                      {selectedItem.nameUnit}
+                    </span>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
+              {selectedItem && (
+                <FormDescription>
+                  Current Stock: {selectedItem.qty}
+                </FormDescription>
+              )}
             </FormItem>
           )}
         />
@@ -1255,20 +1302,22 @@ function UpdateDetailTransactionForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Note</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </>
+        )}
+        {data.typeTransaction !== "IN" && (
+          <FormField
+            control={form.control}
+            name="note"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Note</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         )}
         {data.statusDetailTransaction !== "COMPLETED" && (
           <Button type="submit" className="w-full" disabled={isPending}>
@@ -1319,14 +1368,16 @@ function DeleteDetailTransactionForm({
             </div>
           </FormItem>
         </div>
-        <div className="space-y-2">
-          <FormItem>
-            <FormLabel>Store</FormLabel>
-            <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
-              {data.store_name}
-            </div>
-          </FormItem>
-        </div>
+        {data.typeTransaction === "IN" && (
+          <div className="space-y-2">
+            <FormItem>
+              <FormLabel>Store</FormLabel>
+              <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+                {data.store_name}
+              </div>
+            </FormItem>
+          </div>
+        )}
         <div className="space-y-2">
           <FormItem>
             <FormLabel>Qyt</FormLabel>
@@ -1335,6 +1386,16 @@ function DeleteDetailTransactionForm({
             </div>
           </FormItem>
         </div>
+        {["CHECK", "OUT"].includes(data.typeTransaction) && (
+          <div className="space-y-2">
+            <FormItem>
+              <FormLabel>Note</FormLabel>
+              <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
+                {data.note}
+              </div>
+            </FormItem>
+          </div>
+        )}
         <Button
           type="submit"
           variant="destructive"
