@@ -129,6 +129,21 @@ export type TDetailTransaction = {
   statusDetailTransaction: statusDetailTransactionType;
 };
 
+export type TReportTransaction = {
+  idTransaction: string;
+  typeTransaction: typeTransactionType;
+  dateTransaction: string | null;
+  nameUser: string | null;
+  nameItem: string | null;
+  nameUnit: string | null;
+  store_name: string | null;
+  quantityDetailTransaction: number;
+  quantityCheck: number | null;
+  quantityDifference: number | null;
+  note: string | null;
+  statusDetailTransaction: statusDetailTransactionType;
+};
+
 export type TOldDetailTransaction = {
   idDetailTransaction: string;
   transactionId: string;

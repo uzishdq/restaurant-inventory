@@ -1,5 +1,6 @@
 "use server";
 
+import { LABEL } from "@/lib/constant";
 import { db } from "@/lib/db";
 import {
   detailTransactionTable,
@@ -9,14 +10,19 @@ import {
   unitTable,
   userTable,
 } from "@/lib/db/schema";
-import { IdSchema, transactionIdSchema } from "@/lib/schema-validation";
+import {
+  IdSchema,
+  ReportTransactionSchema,
+  transactionIdSchema,
+} from "@/lib/schema-validation";
 import {
   TDetailTransaction,
   TOldDetailTransaction,
+  TReportTransaction,
   TTransaction,
   typeTransactionType,
 } from "@/lib/type-data";
-import { asc, count, eq, like, sql } from "drizzle-orm";
+import { asc, count, desc, eq, like, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export async function generateTransactionID(type: typeTransactionType) {
@@ -100,7 +106,7 @@ export const getDetailTransactions = unstable_cache(
       const validateValue = transactionIdSchema.safeParse(id);
 
       if (!validateValue.success) {
-        return { ok: false, data: null };
+        return { ok: false, data: null, message: LABEL.ERROR.INVALID_FIELD };
       }
 
       const result = await db
@@ -142,13 +148,21 @@ export const getDetailTransactions = unstable_cache(
         .orderBy(asc(itemTable.idItem));
 
       if (result.length > 0) {
-        return { ok: true, data: result as TDetailTransaction[] };
+        return {
+          ok: true,
+          data: result as TDetailTransaction[],
+          message: LABEL.ERROR.INVALID_FIELD,
+        };
       } else {
-        return { ok: true, data: [] as TDetailTransaction[] };
+        return {
+          ok: true,
+          data: [] as TDetailTransaction[],
+          message: LABEL.ERROR.DATA_NOT_FOUND,
+        };
       }
     } catch (error) {
       console.error("error detail transaction data : ", error);
-      return { ok: false, data: null };
+      return { ok: false, data: null, message: LABEL.ERROR.SERVER };
     }
   },
   ["get-detail-transactions"],
@@ -185,5 +199,78 @@ export const getOldDetailTransaction = unstable_cache(
   ["get-old-detail-transaction"],
   {
     tags: ["get-old-detail-transaction"],
+  }
+);
+
+export const getReportTransactions = unstable_cache(
+  async (type: typeTransactionType) => {
+    try {
+      const validateValue = ReportTransactionSchema.safeParse({
+        type: type,
+      });
+
+      if (!validateValue.success) {
+        return { ok: false, data: null, message: LABEL.ERROR.INVALID_FIELD };
+      }
+
+      const result = await db
+        .select({
+          idTransaction: detailTransactionTable.transactionId,
+          typeTransaction: transactionTable.typeTransaction,
+          dateTransaction: transactionTable.dateTransaction,
+          nameUser: userTable.nameUser,
+          nameItem: itemTable.nameItem,
+          nameUnit: unitTable.nameUnit,
+          store_name: supplierTable.store_name,
+          quantityDetailTransaction:
+            detailTransactionTable.quantityDetailTransaction,
+          quantityCheck: detailTransactionTable.quantityCheck,
+          quantityDifference: detailTransactionTable.quantityDifference,
+          note: detailTransactionTable.note,
+          statusDetailTransaction:
+            detailTransactionTable.statusDetailTransaction,
+        })
+        .from(detailTransactionTable)
+        .leftJoin(
+          transactionTable,
+          eq(
+            transactionTable.idTransaction,
+            detailTransactionTable.transactionId
+          )
+        )
+        .leftJoin(userTable, eq(userTable.idUser, transactionTable.userId))
+        .leftJoin(
+          itemTable,
+          eq(itemTable.idItem, detailTransactionTable.itemId)
+        )
+        .leftJoin(unitTable, eq(unitTable.idUnit, itemTable.unitId))
+        .leftJoin(
+          supplierTable,
+          eq(supplierTable.idSupplier, detailTransactionTable.supplierId)
+        )
+        .where(eq(transactionTable.typeTransaction, validateValue.data.type))
+        .orderBy(desc(transactionTable.dateTransaction));
+
+      if (result.length > 0) {
+        return {
+          ok: true,
+          data: result as TReportTransaction[],
+          message: LABEL.SUCCESS.DATA_FOUND,
+        };
+      } else {
+        return {
+          ok: true,
+          data: [] as TReportTransaction[],
+          message: LABEL.ERROR.DATA_NOT_FOUND,
+        };
+      }
+    } catch (error) {
+      console.error("error report transaction data : ", error);
+      return { ok: false, data: null, message: LABEL.ERROR.SERVER };
+    }
+  },
+  ["get-report-transactions"],
+  {
+    tags: ["get-report-transactions"],
   }
 );

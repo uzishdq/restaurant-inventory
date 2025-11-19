@@ -14,13 +14,7 @@ import {
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 import { ROUTES } from "@/lib/constant";
-import {
-  ArrowRightLeft,
-  BookOpen,
-  Database,
-  Files,
-  ShoppingBasket,
-} from "lucide-react";
+import { ArrowRightLeft, Database, Files, ShoppingBasket } from "lucide-react";
 import { Session } from "next-auth";
 
 export function AppSidebar({
@@ -85,47 +79,16 @@ export function AppSidebar({
         ],
       },
       {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
-      },
-      {
         title: "Reports",
         url: "#",
         icon: Files,
         items: [
           {
-            title: "General",
-            url: "#",
+            title: "Transaction",
+            url: ROUTES.AUTH.REPORT.TRANSACTION,
           },
           {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-          {
-            title: "Limits",
+            title: "Item",
             url: "#",
           },
         ],

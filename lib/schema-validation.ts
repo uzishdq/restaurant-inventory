@@ -432,6 +432,10 @@ export const DeleteTransactionDetailSchema = z.object({
   idDetailTransaction: z.uuid("Invalid ID format.").min(5),
 });
 
+export const ReportTransactionSchema = z.object({
+  type: z.enum(enumTypeTransaction, { message: "Required" }),
+});
+
 /* -------- NOTIFICATION --------  */
 export const NotificationSchema = z.object({
   id: z.uuid("Invalid ID format."),

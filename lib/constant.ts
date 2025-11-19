@@ -27,6 +27,10 @@ export const ROUTES = {
         DETAIL: (id: string) => `/dashboard/inventory-check/detail/${id}`,
       },
     },
+    REPORT: {
+      TRANSACTION: "/dashboard/report-transaction",
+      FIND_LAPORAN: (query: string) => `/dashboard/report-transaction?${query}`,
+    },
     ACCOUNT: "/dashboard/account",
     NOTIFICATION: "/dashboard/notification",
   },
@@ -52,6 +56,7 @@ export const LABEL = {
   },
   SUCCESS: {
     REVALIDATE: "Data is now fresh and updated.",
+    DATA_FOUND: "Data found",
   },
   ERROR: {
     404: "Page Not Found",
@@ -91,6 +96,7 @@ export const tagsTransactionRevalidate = [
   "get-detail-transactions",
   "get-old-detail-transaction",
   "get-notification",
+  "get-report-transactions",
 ];
 
 //ENUM SELECT
