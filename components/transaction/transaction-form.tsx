@@ -1270,10 +1270,11 @@ function UpdateDetailTransactionForm({
             />
           </>
         )}
-
-        <Button type="submit" className="w-full" disabled={isPending}>
-          {isPending ? "Loading..." : "Update"}
-        </Button>
+        {data.statusDetailTransaction !== "COMPLETED" && (
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? "Loading..." : "Update"}
+          </Button>
+        )}
       </form>
     </Form>
   );

@@ -14,7 +14,12 @@ export default async function StockInPage() {
     return RenderError(LABEL.ERROR.DESCRIPTION);
   }
 
-  const { pendingTransaction, orderedTransaction, receiveTransaction } =
+  const {
+    pendingTransaction,
+    orderedTransaction,
+    receiveTransaction,
+    completedTransaction,
+  } =
     transactions.data?.reduce(
       (acc, item) => {
         if (item.statusTransaction === "PENDING") {
@@ -23,6 +28,8 @@ export default async function StockInPage() {
           acc.orderedTransaction.push(item);
         } else if (item.statusTransaction === "RECEIVED") {
           acc.receiveTransaction.push(item);
+        } else if (item.statusTransaction === "COMPLETED") {
+          acc.completedTransaction.push(item);
         }
         return acc;
       },
@@ -30,6 +37,7 @@ export default async function StockInPage() {
         pendingTransaction: [] as TTransaction[],
         orderedTransaction: [] as TTransaction[],
         receiveTransaction: [] as TTransaction[],
+        completedTransaction: [] as TTransaction[],
       }
     ) || {};
 
@@ -53,7 +61,7 @@ export default async function StockInPage() {
         />
         <SectionCard
           title="Completed Incoming Item"
-          value={0}
+          value={completedTransaction.length}
           Icon={CheckCircle}
         />
       </div>

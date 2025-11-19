@@ -125,6 +125,13 @@ export type TOldDetailTransaction = {
   statusDetailTransaction: statusDetailTransactionType;
 };
 
+export type TInputItemMovement = {
+  transactionId: string;
+  typeMovement: typeTransactionType;
+  itemId: string;
+  quantityMovement: number;
+};
+
 export type TInputNotifikasi = {
   noTelpNotification: string;
   messageNotification: string;

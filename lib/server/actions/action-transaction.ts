@@ -16,10 +16,15 @@ import {
   getOldDetailTransaction,
 } from "../data/data-transaction";
 import { db } from "@/lib/db";
-import { detailTransactionTable, transactionTable } from "@/lib/db/schema";
+import {
+  detailTransactionTable,
+  itemMovementTable,
+  itemTable,
+  transactionTable,
+} from "@/lib/db/schema";
 import { chunkArray } from "@/lib/utils";
 import { revalidateTag } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { getItemsTrx } from "../data/data-item";
 import {
   purchaseMismatchNotification,
@@ -27,6 +32,7 @@ import {
   updateSupplierNotification,
 } from "./action-notifikasi";
 import { hasChanges } from "@/lib/helper";
+import { TInputItemMovement } from "@/lib/type-data";
 
 export const createTransaction = async (values: unknown) => {
   try {
@@ -165,6 +171,58 @@ export const updateTransaction = async (
           )
         )
         .returning();
+
+      if (validateValues.data.statusTransaction !== "COMPLETED") {
+        return updateDetailTransaction;
+      }
+
+      const type = validateValues.data.typeTransaction;
+
+      const movementPayload: TInputItemMovement[] = updateDetailTransaction.map(
+        (d) => {
+          let qtyMovement = 0;
+
+          if (type === "IN") {
+            qtyMovement = Math.abs(d.quantityCheck ?? 0);
+          }
+
+          if (type === "OUT") {
+            qtyMovement = -Math.abs(d.quantityDetailTransaction);
+          }
+
+          if (type === "CHECK") {
+            qtyMovement = d.quantityDifference ?? 0;
+          }
+
+          return {
+            transactionId: validateValues.data.idTransaction,
+            itemId: d.itemId,
+            typeMovement: type,
+            quantityMovement: qtyMovement,
+          };
+        }
+      );
+
+      for (const chunk of chunkArray(movementPayload, 50)) {
+        await tx.insert(itemMovementTable).values(chunk).onConflictDoNothing();
+      }
+
+      const totalMovementByItem: Record<string, number> = {};
+
+      for (const mv of movementPayload) {
+        totalMovementByItem[mv.itemId] =
+          (totalMovementByItem[mv.itemId] || 0) + mv.quantityMovement;
+      }
+
+      // Update semua item berdasarkan movement final
+      for (const [itemId, qtyMove] of Object.entries(totalMovementByItem)) {
+        await tx
+          .update(itemTable)
+          .set({
+            stockQuantity: sql`${itemTable.stockQuantity} + ${qtyMove}`,
+          })
+          .where(eq(itemTable.idItem, itemId));
+      }
 
       return updateDetailTransaction;
     });

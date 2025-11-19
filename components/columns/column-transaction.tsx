@@ -107,10 +107,14 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
             <DropdownMenuLabel className="text-center">
               Actions
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-              <DialogEdit value={dataRows} />
-            </DropdownMenuItem>
+            {dataRows.statusTransaction !== "COMPLETED" && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                  <DialogEdit value={dataRows} />
+                </DropdownMenuItem>
+              </>
+            )}
             {isPending && (
               <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
                 <DialogDelete value={dataRows} />
