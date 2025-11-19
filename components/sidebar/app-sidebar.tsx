@@ -78,6 +78,10 @@ export function AppSidebar({
             title: "Outgoing Item",
             url: ROUTES.AUTH.TRANSACTION.STOCK_OUT.INDEX,
           },
+          {
+            title: "Item Movement",
+            url: ROUTES.AUTH.TRANSACTION.MOVEMENT,
+          },
         ],
       },
       {

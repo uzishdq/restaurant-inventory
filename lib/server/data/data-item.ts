@@ -1,8 +1,13 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { categoryTable, itemTable, unitTable } from "@/lib/db/schema";
-import { TItem, TItemTrx } from "@/lib/type-data";
+import {
+  categoryTable,
+  itemMovementTable,
+  itemTable,
+  unitTable,
+} from "@/lib/db/schema";
+import { TItem, TItemMovement, TItemTrx } from "@/lib/type-data";
 import { asc, count, eq, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
@@ -57,6 +62,50 @@ export const getItems = unstable_cache(
   ["get-items"],
   {
     tags: ["get-items"],
+  }
+);
+
+export const getItemsMovement = unstable_cache(
+  async () => {
+    try {
+      const result = await db
+        .select({
+          idMovement: itemMovementTable.idMovement,
+          transactionId: itemMovementTable.transactionId,
+          typeMovement: itemMovementTable.typeMovement,
+          itemId: itemMovementTable.itemId,
+          nameItem: itemTable.nameItem,
+          unitId: unitTable.idUnit,
+          nameUnit: unitTable.nameUnit,
+          categoryId: categoryTable.idCategory,
+          nameCategory: categoryTable.nameCategory,
+          quantityMovement: itemMovementTable.quantityMovement,
+          dateExp: itemMovementTable.dateExp,
+          createdAt: itemMovementTable.createdAt,
+          updatedAt: itemMovementTable.updatedAt,
+        })
+        .from(itemMovementTable)
+        .leftJoin(itemTable, eq(itemMovementTable.itemId, itemTable.idItem))
+        .leftJoin(unitTable, eq(itemTable.unitId, unitTable.idUnit))
+        .leftJoin(
+          categoryTable,
+          eq(itemTable.categoryId, categoryTable.idCategory)
+        )
+        .orderBy(asc(itemMovementTable.createdAt));
+
+      if (result.length > 0) {
+        return { ok: true, data: result as TItemMovement[] };
+      } else {
+        return { ok: true, data: [] as TItemMovement[] };
+      }
+    } catch (error) {
+      console.error("error item data : ", error);
+      return { ok: false, data: null };
+    }
+  },
+  ["get-items-movement"],
+  {
+    tags: ["get-items-movement"],
   }
 );
 

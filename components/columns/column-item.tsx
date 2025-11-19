@@ -11,10 +11,17 @@ import {
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { columnProps, TCategory, TItem, TUnit } from "@/lib/type-data";
+import {
+  columnProps,
+  TCategory,
+  TItem,
+  TItemMovement,
+  TUnit,
+} from "@/lib/type-data";
 import { DeleteItemForm, UpdateItemForm } from "../item/item-form";
 import { formatDateWIB } from "@/lib/utils";
 import FormDialog from "../ui/form-dialog";
+import { BadgeCustom } from "./badge-custom";
 
 export const columnItem = ({
   unit,
@@ -101,6 +108,72 @@ export const columnItem = ({
         </DropdownMenu>
       );
     },
+  },
+];
+
+export const columnItemMovement: ColumnDef<TItemMovement>[] = [
+  {
+    accessorKey: "transactionId",
+    header: "No Transaction",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("transactionId")}</div>
+    ),
+  },
+  {
+    accessorKey: "typeMovement",
+    header: "Status",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <BadgeCustom
+        value={row.getValue("typeMovement")}
+        category="typeTransaction"
+      />
+    ),
+  },
+  {
+    accessorKey: "itemId",
+    header: "No Item",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("itemId")}</div>
+    ),
+  },
+  {
+    accessorKey: "nameItem",
+    header: "Name",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nameItem")}</div>
+    ),
+  },
+  {
+    accessorKey: "nameCategory",
+    header: "Category",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nameCategory")}</div>
+    ),
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Date",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {formatDateWIB(row.getValue("createdAt"))}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "stockQuantity",
+    header: "Stock",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.original.quantityMovement} / {row.original.nameUnit}
+      </div>
+    ),
   },
 ];
 

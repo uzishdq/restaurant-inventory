@@ -13,6 +13,7 @@ export const ROUTES = {
     },
     TRANSACTION: {
       CREATE: "/dashboard/create-transaction",
+      MOVEMENT: "/dashboard/item-movement",
       STOCK_IN: {
         INDEX: "/dashboard/incoming-item",
         DETAIL: (id: string) => `/dashboard/incoming-item/detail/${id}`,
@@ -78,6 +79,7 @@ export const tagsItemRevalidate = [
   "get-items",
   "get-count-item",
   "get-items-trx",
+  "get-items-movement",
 ];
 export const tagsSupplierRevalidate = [
   "get-suppliers",

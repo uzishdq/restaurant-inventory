@@ -80,6 +80,22 @@ export type TItem = {
   updatedAt: Date | null;
 };
 
+export type TItemMovement = {
+  idMovement: string;
+  transactionId: string;
+  typeMovement: typeTransactionType;
+  itemId: string;
+  nameItem: string;
+  unitId: string;
+  nameUnit: string;
+  categoryId: string;
+  nameCategory: string;
+  quantityMovement: number;
+  dateExp: string;
+  createdAt: Date;
+  updatedAt: Date | null;
+};
+
 export type TItemTrx = {
   idItem: string;
   nameItem: string;
