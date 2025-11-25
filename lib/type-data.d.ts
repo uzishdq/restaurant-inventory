@@ -80,6 +80,15 @@ export type TItem = {
   updatedAt: Date | null;
 };
 
+export type TLowItem = {
+  idItem: string;
+  nameItem: string;
+  nameUnit: string | null;
+  stockQuantity: number;
+  minStock: number;
+  updatedAt: Date | null;
+};
+
 export type TItemMovement = {
   idMovement: string;
   transactionId: string;
@@ -94,6 +103,12 @@ export type TItemMovement = {
   dateExp: string;
   createdAt: Date;
   updatedAt: Date | null;
+};
+
+export type TItemMovementChart = {
+  date: string;
+  incoming: number;
+  outgoing: number;
 };
 
 export type TItemTrx = {
@@ -127,6 +142,21 @@ export type TDetailTransaction = {
   quantityDifference: number | null;
   note: string | null;
   statusDetailTransaction: statusDetailTransactionType;
+};
+
+export type TLastTransaction = {
+  details: {
+    itemId: string;
+    nameItem: string | null;
+    nameUnit: string | null;
+    quantityDetailTransaction: number;
+    quantityCheck: number | null;
+    quantityDifference: number | null;
+    note: string | null;
+  }[];
+  idTransaction: string;
+  dateTransaction: string;
+  nameUser: string | null;
 };
 
 export type TReportTransaction = {

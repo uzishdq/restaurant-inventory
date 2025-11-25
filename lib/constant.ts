@@ -83,8 +83,10 @@ export const tagsCategoryRevalidate = ["get-category"];
 export const tagsItemRevalidate = [
   "get-items",
   "get-count-item",
+  "get-low-item",
   "get-items-trx",
   "get-items-movement",
+  "get-item-movement-grouped",
 ];
 export const tagsSupplierRevalidate = [
   "get-suppliers",
@@ -96,6 +98,7 @@ export const tagsTransactionRevalidate = [
   "get-detail-transactions",
   "get-old-detail-transaction",
   "get-notification",
+  "get-last-transactions",
   "get-report-transactions",
 ];
 

@@ -17,12 +17,13 @@ import {
 } from "@/lib/schema-validation";
 import {
   TDetailTransaction,
+  TLastTransaction,
   TOldDetailTransaction,
   TReportTransaction,
   TTransaction,
   typeTransactionType,
 } from "@/lib/type-data";
-import { asc, count, desc, eq, like, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, like, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export async function generateTransactionID(type: typeTransactionType) {
@@ -272,5 +273,62 @@ export const getReportTransactions = unstable_cache(
   ["get-report-transactions"],
   {
     tags: ["get-report-transactions"],
+  }
+);
+
+export const getLastTransactions = unstable_cache(
+  async (type: typeTransactionType) => {
+    try {
+      const [transaction] = await db
+        .select({
+          idTransaction: transactionTable.idTransaction,
+          dateTransaction: transactionTable.dateTransaction,
+          nameUser: userTable.nameUser,
+        })
+        .from(transactionTable)
+        .leftJoin(userTable, eq(transactionTable.userId, userTable.idUser))
+        .where(
+          and(
+            eq(transactionTable.typeTransaction, type),
+            eq(transactionTable.statusTransaction, "COMPLETED")
+          )
+        )
+        .orderBy(desc(transactionTable.dateTransaction))
+        .limit(1);
+
+      if (!transaction) return { ok: true, data: null };
+
+      const detail = await db
+        .select({
+          itemId: detailTransactionTable.itemId,
+          nameItem: itemTable.nameItem,
+          nameUnit: unitTable.nameUnit,
+          quantityDetailTransaction:
+            detailTransactionTable.quantityDetailTransaction,
+          quantityCheck: detailTransactionTable.quantityCheck,
+          quantityDifference: detailTransactionTable.quantityDifference,
+          note: detailTransactionTable.note,
+        })
+        .from(detailTransactionTable)
+        .leftJoin(
+          itemTable,
+          eq(detailTransactionTable.itemId, itemTable.idItem)
+        )
+        .leftJoin(unitTable, eq(itemTable.unitId, unitTable.idUnit))
+        .where(
+          eq(detailTransactionTable.transactionId, transaction.idTransaction)
+        );
+
+      const result = { ...transaction, details: detail };
+
+      return { ok: true, data: result as TLastTransaction };
+    } catch (error) {
+      console.error("error transaction data : ", error);
+      return { ok: false, data: null };
+    }
+  },
+  ["get-last-transactions"],
+  {
+    tags: ["get-last-transactions"],
   }
 );

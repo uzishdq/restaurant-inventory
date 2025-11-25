@@ -7,8 +7,14 @@ import {
   itemTable,
   unitTable,
 } from "@/lib/db/schema";
-import { TItem, TItemMovement, TItemTrx } from "@/lib/type-data";
-import { asc, count, eq, sql } from "drizzle-orm";
+import {
+  TItem,
+  TItemMovement,
+  TItemMovementChart,
+  TItemTrx,
+  TLowItem,
+} from "@/lib/type-data";
+import { and, asc, count, eq, gte, lte, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export async function generateItemID() {
@@ -153,5 +159,73 @@ export const getCountItem = unstable_cache(
   ["get-count-item"],
   {
     tags: ["get-count-item"],
+  }
+);
+
+export const getLowItem = unstable_cache(
+  async () => {
+    try {
+      const result = await db
+        .select({
+          idItem: itemTable.idItem,
+          nameItem: itemTable.nameItem,
+          nameUnit: unitTable.nameUnit,
+          stockQuantity: itemTable.stockQuantity,
+          minStock: itemTable.minStock,
+          updatedAt: itemTable.updatedAt,
+        })
+        .from(itemTable)
+        .leftJoin(unitTable, eq(itemTable.unitId, unitTable.idUnit))
+        .where(lte(itemTable.stockQuantity, itemTable.minStock))
+        .orderBy(asc(itemTable.stockQuantity));
+
+      if (result.length > 0) {
+        return { ok: true, data: result as TLowItem[] };
+      } else {
+        return { ok: true, data: null };
+      }
+    } catch (error) {
+      console.error("error low item : ", error);
+      return { ok: false, data: null };
+    }
+  },
+  ["get-low-item"],
+  {
+    tags: ["get-low-item"],
+  }
+);
+
+export const getItemMovementGrouped = unstable_cache(
+  async () => {
+    try {
+      const now = new Date();
+      const lastMonth = new Date();
+      lastMonth.setDate(now.getDate() - 90);
+
+      const result = await db
+        .select({
+          date: sql<string>`DATE(${itemMovementTable.createdAt})`,
+          incoming: sql<number>`SUM(CASE WHEN ${itemMovementTable.typeMovement} = 'IN' THEN ${itemMovementTable.quantityMovement} ELSE 0 END)`,
+          outgoing: sql<number>`SUM(CASE WHEN ${itemMovementTable.typeMovement} = 'OUT' THEN ${itemMovementTable.quantityMovement} ELSE 0 END)`,
+        })
+        .from(itemMovementTable)
+        .where(
+          and(
+            gte(itemMovementTable.createdAt, lastMonth),
+            lte(itemMovementTable.createdAt, now)
+          )
+        )
+        .groupBy(sql`DATE(${itemMovementTable.createdAt})`)
+        .orderBy(sql`DATE(${itemMovementTable.createdAt})`);
+
+      return { ok: true, data: result as TItemMovementChart[] };
+    } catch (error) {
+      console.error("error count item : ", error);
+      return { ok: false, data: null };
+    }
+  },
+  ["get-item-movement-grouped"],
+  {
+    tags: ["get-item-movement-grouped"],
   }
 );
