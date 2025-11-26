@@ -2,6 +2,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PackageSearch } from "lucide-react";
 import { TLastTransaction } from "@/lib/type-data";
+import { formatDateToIndo } from "@/lib/utils";
 
 export default function LastStockCheckCard({
   data,
@@ -38,7 +39,7 @@ export default function LastStockCheckCard({
             <strong>ID:</strong> {data.idTransaction}
           </p>
           <p>
-            <strong>Date:</strong> {data.dateTransaction}
+            <strong>Date:</strong> {formatDateToIndo(data.dateTransaction)}
           </p>
           <p>
             <strong>Checked By:</strong> {data.nameUser ?? "Unknown"}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect } from "react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
@@ -102,7 +102,6 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
   const [isPending, startTransition] = React.useTransition();
 
   const schema = CreateTransactionTestSchema(items);
-  type FormValues = z.infer<typeof schema>;
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -132,9 +131,7 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
     name: "typeTransaction",
   });
 
-  const watchDetails = useWatch({ control: form.control, name: "detail" });
-
-  useEffect(() => {
+  React.useEffect(() => {
     form.reset({
       typeTransaction: watchType,
       detail: [
@@ -148,182 +145,48 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
         },
       ],
     });
-  }, [watchType, form.reset, form]);
+  }, [watchType, form]);
 
-  // --- Memo: Map selected items ---
-  const selectedItemsMap = useMemo(() => {
-    const map = new Map<string, TItemTrx>();
-    watchDetails?.forEach((detail, index) => {
-      if (detail?.itemId) {
-        const item = items.find((i) => i.idItem === detail.itemId);
-        if (item) map.set(`${index}`, item);
-      }
-    });
-    return map;
-  }, [watchDetails, items]);
+  React.useEffect(() => {
+    if (watchType !== "CHECK") return;
 
-  // // --- Auto-fill & Auto-calculate (IN & OUT) ---
-  // const prevDetailsRef = useRef<FormValues["detail"]>([]);
+    const subscription = form.watch((_, { name }) => {
+      if (!name) return;
 
-  // useEffect(() => {
-  //   if (!watchDetails || watchDetails.length === 0) {
-  //     prevDetailsRef.current = watchDetails;
-  //     return;
-  //   }
+      const match = name.match(/^detail\.(\d+)\.(itemId|quantityCheck)$/);
+      if (!match) return;
 
-  //   let hasChanges = false;
-  //   const newValues: typeof watchDetails = [...watchDetails];
+      const index = parseInt(match[1], 10);
 
-  //   watchDetails.forEach((detail, index) => {
-  //     const selectedItem = items.find((i) => i.idItem === detail.itemId);
-  //     if (!selectedItem) return;
+      setTimeout(() => {
+        const itemId = form.getValues(`detail.${index}.itemId`);
+        const qtyCheck = form.getValues(`detail.${index}.quantityCheck`) ?? 0;
 
-  //     const qtyDetail = detail.quantityDetailTransaction ?? 0;
-  //     const qtyCheck = detail.quantityCheck ?? 0;
-  //     const currentDiff = detail.quantityDifference ?? 0;
+        const selectedItem = itemId
+          ? items.find((i) => i.idItem === itemId)
+          : null;
+        const qtySystem = selectedItem?.qty ?? 0;
 
-  //     // Auto-fill quantityDetailTransaction hanya jika 0 dan tipe OUT
-  //     if (watchType === "CHECK") {
-  //       newValues[index] = {
-  //         ...newValues[index],
-  //         quantityDetailTransaction: selectedItem.qty,
-  //       };
-  //       hasChanges = true;
-  //     }
+        // Update stok sistem
+        form.setValue(`detail.${index}.quantityDetailTransaction`, qtySystem, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
 
-  //     // Auto-calculate difference: quantityDetailTransaction - quantityCheck
-  //     const expectedDiff = qtyCheck - qtyDetail;
-  //     if (currentDiff !== expectedDiff) {
-  //       newValues[index] = {
-  //         ...newValues[index],
-  //         quantityDifference: expectedDiff,
-  //       };
-  //       hasChanges = true;
-  //     }
-  //   });
-
-  //   if (hasChanges) {
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //     const safeStringify = (obj: any) =>
-  //       JSON.stringify(obj, (_, v) => (v === undefined ? null : v));
-
-  //     if (safeStringify(newValues) !== safeStringify(prevDetailsRef.current)) {
-  //       newValues.forEach((val, idx) => {
-  //         form.setValue(
-  //           `detail.${idx}.quantityDetailTransaction`,
-  //           val.quantityDetailTransaction!,
-  //           {
-  //             shouldValidate: false,
-  //             shouldDirty: true,
-  //           }
-  //         );
-  //         form.setValue(
-  //           `detail.${idx}.quantityDifference`,
-  //           val.quantityDifference!,
-  //           {
-  //             shouldValidate: false,
-  //             shouldDirty: true,
-  //           }
-  //         );
-  //       });
-  //       prevDetailsRef.current = newValues;
-  //     }
-  //   }
-  // }, [watchType, watchDetails, form, items]);
-
-  // --- Auto-fill & Auto-calculate (khusus untuk tipe CHECK) ---
-  const prevDetailsRef = useRef<FormValues["detail"]>([]);
-
-  useEffect(() => {
-    if (!watchDetails || watchDetails.length === 0) {
-      prevDetailsRef.current = [];
-      return;
-    }
-
-    // Hanya jalankan auto-fill & auto-calculate jika tipe transaksinya adalah CHECK
-    if (watchType !== "CHECK") {
-      prevDetailsRef.current = watchDetails;
-      return;
-    }
-
-    let hasChanges = false;
-    const newDetails: typeof watchDetails = watchDetails.map((detail) => ({
-      ...detail,
-    }));
-
-    watchDetails.forEach((detail, index) => {
-      const selectedItem = items.find((i) => i.idItem === detail.itemId);
-      if (!selectedItem) return;
-
-      const qtySistem = selectedItem.qty; // stok di sistem
-      const qtyDetail = detail.quantityDetailTransaction ?? 0;
-      const qtyCheck = detail.quantityCheck ?? 0;
-      const currentDiff = detail.quantityDifference ?? 0;
-
-      let updated = false;
-      const updatedDetail = { ...newDetails[index] };
-
-      // 1. Auto-fill quantityDetailTransaction dengan stok sistem (hanya jika masih 0 atau kosong)
-      if (qtyDetail === 0 || qtyDetail === undefined || qtyDetail === null) {
-        if (qtyDetail !== qtySistem) {
-          updatedDetail.quantityDetailTransaction = qtySistem;
-          updated = true;
-          hasChanges = true;
-        }
-      }
-
-      // 2. Auto-calculate selisih: quantityCheck - quantityDetailTransaction
-      const expectedDiff =
-        qtyCheck - (updatedDetail.quantityDetailTransaction ?? qtyDetail);
-      if (currentDiff !== expectedDiff) {
-        updatedDetail.quantityDifference = expectedDiff;
-        updated = true;
-        hasChanges = true;
-      }
-
-      if (updated) {
-        newDetails[index] = updatedDetail;
-      }
+        // Update selisih
+        form.setValue(
+          `detail.${index}.quantityDifference`,
+          qtyCheck - qtySystem,
+          {
+            shouldDirty: true,
+          }
+        );
+      }, 0);
     });
 
-    // Update form hanya jika ada perubahan
-    if (hasChanges) {
-      newDetails.forEach((detail, idx) => {
-        // Update quantityDetailTransaction hanya jika berubah
-        if (
-          detail.quantityDetailTransaction !==
-          watchDetails[idx].quantityDetailTransaction
-        ) {
-          form.setValue(
-            `detail.${idx}.quantityDetailTransaction`,
-            detail.quantityDetailTransaction ?? 0,
-            {
-              shouldValidate: true,
-              shouldDirty: true,
-              shouldTouch: true,
-            }
-          );
-        }
-
-        // Update quantityDifference
-        if (
-          detail.quantityDifference !== watchDetails[idx].quantityDifference
-        ) {
-          form.setValue(
-            `detail.${idx}.quantityDifference`,
-            detail.quantityDifference ?? 0,
-            {
-              shouldValidate: true,
-              shouldDirty: true,
-              shouldTouch: true,
-            }
-          );
-        }
-      });
-
-      prevDetailsRef.current = newDetails;
-    }
-  }, [watchType, watchDetails, items, form]);
+    return () => subscription.unsubscribe();
+  }, [form, items, watchType]);
 
   // --- Handlers ---
   const handleAddItem = useCallback(() => {
@@ -407,7 +270,8 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
               <FormLabel>Transaction Details</FormLabel>
 
               {fields.map((field, index) => {
-                const selectedItem = selectedItemsMap.get(`${index}`);
+                const itemId = form.getValues(`detail.${index}.itemId`);
+                const selectedItem = items.find((i) => i.idItem === itemId);
                 const isDisable = watchType === "CHECK";
 
                 return (
@@ -830,13 +694,6 @@ function UpdateTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
   );
 }
 
-function AddDetailTransactionCheckForm({
-  onSuccess,
-  data,
-  items,
-  supplier,
-}: IAddDetailTransactionForm) {}
-
 function AddDetailTransactionForm({
   onSuccess,
   data,
@@ -871,7 +728,44 @@ function AddDetailTransactionForm({
     name: "detail",
   });
 
-  const watchedDetails = useWatch({ control: form.control, name: "detail" });
+  React.useEffect(() => {
+    if (data.typeTransaction !== "CHECK") return;
+
+    const subscription = form.watch((value, { name }) => {
+      if (!name) return;
+
+      const match = name.match(/^detail\.(\d+)\.(itemId|quantityCheck)$/);
+      if (!match) return;
+
+      const index = parseInt(match[1], 10);
+
+      // Gunakan setTimeout 0 supaya masuk ke queue setelah semua update selesai
+      setTimeout(() => {
+        const itemId = form.getValues(`detail.${index}.itemId`);
+        const qtyCheck = form.getValues(`detail.${index}.quantityCheck`) ?? 0;
+
+        const selectedItem = itemId
+          ? items.find((i) => i.idItem === itemId)
+          : null;
+        const qtySystem = selectedItem?.qty ?? 0;
+
+        // Update stok sistem
+        form.setValue(`detail.${index}.quantityDetailTransaction`, qtySystem, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true,
+        });
+
+        // Update selisih
+        form.setValue(
+          `detail.${index}.quantityDifference`,
+          qtyCheck - qtySystem
+        );
+      }, 0);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, items, data.typeTransaction]);
 
   const onSubmit = (values: z.infer<typeof schema>) => {
     startTransition(() => {
@@ -906,9 +800,8 @@ function AddDetailTransactionForm({
           <FormLabel>Transaction Details</FormLabel>
 
           {fields.map((field, index) => {
-            const selectedItem = items.find(
-              (it) => it.idItem === watchedDetails?.[index]?.itemId
-            );
+            const itemId = form.getValues(`detail.${index}.itemId`);
+            const selectedItem = items.find((it) => it.idItem === itemId);
 
             return (
               <Card key={field.id}>
@@ -952,7 +845,7 @@ function AddDetailTransactionForm({
                               onChange={(e) =>
                                 field.onChange(e.target.valueAsNumber)
                               }
-                              placeholder="Enter quantity"
+                              disabled={data.typeTransaction === "CHECK"}
                             />
                           </FormControl>
                           {selectedItem && (
@@ -971,22 +864,135 @@ function AddDetailTransactionForm({
                     )}
                   />
 
-                  {data.typeTransaction !== "IN" && (
-                    <div className="space-y-2">
-                      <FormField
-                        control={form.control}
-                        name={`detail.${index}.note`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Note</FormLabel>
+                  {data.typeTransaction === "CHECK" && (
+                    <FormField
+                      control={form.control}
+                      name={`detail.${index}.quantityCheck`}
+                      render={({ field: checkField }) => (
+                        <FormItem>
+                          <FormLabel>Quantity Check</FormLabel>
+                          <div className="flex items-center gap-2">
                             <FormControl>
-                              <Textarea {...field} />
+                              <Input
+                                type="number"
+                                {...checkField}
+                                value={
+                                  checkField.value === null
+                                    ? ""
+                                    : checkField.value
+                                }
+                                onChange={(e) => {
+                                  const raw = e.target.value;
+
+                                  // Jika kosong → set null agar field bisa dikosongkan
+                                  if (raw === "") {
+                                    checkField.onChange(null);
+
+                                    // Set diff juga kosong (atau nol, sesuai kebutuhan)
+                                    form.setValue(
+                                      `detail.${index}.quantityDifference`,
+                                      0,
+                                      {
+                                        shouldDirty: true,
+                                      }
+                                    );
+
+                                    return;
+                                  }
+
+                                  // Convert ke number kalau tidak kosong
+                                  const checkVal = e.target.valueAsNumber;
+                                  checkField.onChange(checkVal);
+
+                                  // Ambil qty system
+                                  const transQty =
+                                    form.getValues(
+                                      `detail.${index}.quantityDetailTransaction`
+                                    ) || 0;
+
+                                  // Hitung selisih
+                                  const diff = checkVal - transQty;
+
+                                  form.setValue(
+                                    `detail.${index}.quantityDifference`,
+                                    diff,
+                                    {
+                                      shouldDirty: true,
+                                    }
+                                  );
+                                }}
+                              />
                             </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                            {selectedItem && (
+                              <span className="text-sm min-w-10 capitalize">
+                                {selectedItem.nameUnit}
+                              </span>
+                            )}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  {data.typeTransaction === "CHECK" && (
+                    <FormField
+                      control={form.control}
+                      name={`detail.${index}.quantityDifference`}
+                      render={({ field: diffField }) => (
+                        <FormItem>
+                          <FormLabel>Difference</FormLabel>
+                          <div className="flex items-center gap-2">
+                            <FormControl>
+                              <Input
+                                type="number"
+                                {...diffField}
+                                className="bg-muted font-medium"
+                                readOnly
+                                disabled
+                              />
+                            </FormControl>
+                            {selectedItem && (
+                              <span className="text-sm min-w-10 capitalize">
+                                {selectedItem.nameUnit}
+                              </span>
+                            )}
+                          </div>
+                          <FormDescription
+                            className={cn(
+                              diffField.value > 0
+                                ? "text-green-600"
+                                : diffField.value < 0
+                                ? "text-red-600"
+                                : "text-muted-foreground"
+                            )}
+                          >
+                            {diffField.value > 0
+                              ? `+${diffField.value} excess`
+                              : diffField.value < 0
+                              ? `${diffField.value} shortage`
+                              : "Matched"}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  {data.typeTransaction !== "IN" && (
+                    <FormField
+                      control={form.control}
+                      name={`detail.${index}.note`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Note</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   )}
 
                   <div className="flex justify-end">
@@ -1152,10 +1158,11 @@ function UpdateDetailTransactionForm({
     mode: "onChange",
   });
 
-  const isDisable = !(
-    data.statusDetailTransaction === "PENDING" ||
-    data.statusDetailTransaction === "ORDERED"
-  );
+  const allowStatuses = ["PENDING", "ORDERED"];
+
+  const isDisable =
+    data.typeTransaction === "CHECK" ||
+    !allowStatuses.includes(data.statusDetailTransaction);
 
   const selectedItemId = useWatch({
     control: form.control,

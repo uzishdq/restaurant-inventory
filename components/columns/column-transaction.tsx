@@ -424,6 +424,12 @@ export const columnDetailTransactionCheck = ({
     ),
   },
   {
+    accessorKey: "note",
+    header: "Note",
+    enableHiding: true,
+    cell: ({ row }) => <div className="capitalize">{row.getValue("note")}</div>,
+  },
+  {
     id: "actions",
     header: "Actions",
     enableHiding: false,

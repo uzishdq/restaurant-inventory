@@ -253,7 +253,7 @@ export const updateTransaction = async (
     }
 
     const tagsToRevalidate = Array.from(
-      new Set(...tagsTransactionRevalidate, ...tagsItemRevalidate)
+      new Set([...tagsTransactionRevalidate, ...tagsItemRevalidate])
     );
     await Promise.all(
       tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
