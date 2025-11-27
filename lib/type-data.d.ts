@@ -234,3 +234,8 @@ export type TPurcaseMismatchNotif = {
   nameSupplier: string;
   items: TItemPurcaseMismatchNotif[];
 };
+
+export type TColumnExcell = {
+  header: string;
+  value: string;
+};
