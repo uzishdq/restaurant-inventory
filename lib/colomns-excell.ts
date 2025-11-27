@@ -29,7 +29,7 @@ export const columnsExcelTransactionCHECK: TColumnExcell[] = [
   { header: "Date", value: "dateTransaction" },
   { header: "Item", value: "nameItem" },
   { header: "Unit", value: "nameUnit" },
-  { header: "Qyt", value: "quantityDetailTransaction" },
+  { header: "Qyt System", value: "quantityDetailTransaction" },
   { header: "Qyt Check", value: "quantityCheck" },
   { header: "Difference", value: "quantityDifference" },
   { header: "Note", value: "note" },

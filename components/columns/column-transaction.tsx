@@ -384,7 +384,7 @@ export const columnDetailTransactionCheck = ({
   },
   {
     accessorKey: "quantityDetailTransaction",
-    header: "System Qty",
+    header: "Qty System",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -394,7 +394,7 @@ export const columnDetailTransactionCheck = ({
   },
   {
     accessorKey: "quantityCheck",
-    header: "Physical Qty",
+    header: "Qty Physical",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">

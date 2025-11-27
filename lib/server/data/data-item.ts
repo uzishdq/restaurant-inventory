@@ -14,7 +14,7 @@ import {
   TItemTrx,
   TLowItem,
 } from "@/lib/type-data";
-import { and, asc, count, eq, gte, lte, sql } from "drizzle-orm";
+import { and, asc, count, eq, gte, inArray, lte, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 export async function generateItemID() {
@@ -211,6 +211,7 @@ export const getItemMovementGrouped = unstable_cache(
         .from(itemMovementTable)
         .where(
           and(
+            inArray(itemMovementTable.typeMovement, ["IN", "OUT"]),
             gte(itemMovementTable.createdAt, lastMonth),
             lte(itemMovementTable.createdAt, now)
           )
