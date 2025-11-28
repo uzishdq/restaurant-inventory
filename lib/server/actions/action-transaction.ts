@@ -195,7 +195,9 @@ export const updateTransaction = async (
           }
 
           if (type === "CHECK") {
-            qtyMovement = d.quantityDifference ?? 0;
+            const diff = d.quantityDifference ?? 0;
+
+            qtyMovement = diff !== 0 ? diff : d.quantityCheck ?? 0;
           }
 
           return {
