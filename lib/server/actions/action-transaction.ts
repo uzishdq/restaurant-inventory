@@ -187,7 +187,12 @@ export const updateTransaction = async (
           let qtyMovement = 0;
 
           if (type === "IN") {
-            qtyMovement = Math.abs(d.quantityCheck ?? 0);
+            const check = d.quantityCheck ?? 0;
+
+            qtyMovement =
+              check === 0
+                ? Math.abs(d.quantityDetailTransaction ?? 0)
+                : Math.abs(check);
           }
 
           if (type === "OUT") {
