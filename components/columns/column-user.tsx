@@ -26,7 +26,7 @@ export const columnUsers: ColumnDef<TUser>[] = [
   },
   {
     accessorKey: "nameUser",
-    header: "Name",
+    header: "Nama",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameUser")}</div>
@@ -34,7 +34,7 @@ export const columnUsers: ColumnDef<TUser>[] = [
   },
   {
     accessorKey: "phoneNumber",
-    header: "Phone Number",
+    header: "No.Telp",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("phoneNumber")}</div>
@@ -42,7 +42,7 @@ export const columnUsers: ColumnDef<TUser>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: "Added On",
+    header: "Ditambahkan Pada",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -60,7 +60,7 @@ export const columnUsers: ColumnDef<TUser>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Opsi",
     enableHiding: false,
     cell: ({ row }) => {
       const dataRows = row.original;
@@ -73,9 +73,7 @@ export const columnUsers: ColumnDef<TUser>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel className="text-center">
-              Actions
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-center">Opsi</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <DialogEdit value={dataRows} />
@@ -96,7 +94,7 @@ function DialogEdit({ value }: TDialog) {
     <FormDialog
       type="edit"
       title="Edit Role User"
-      description="Update the user’s role, then click Update to confirm."
+      description="Update role user, lalu klik Update untuk mengonfirmasi."
     >
       <AccountRoleUpdate data={value} />
     </FormDialog>

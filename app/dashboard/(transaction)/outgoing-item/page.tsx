@@ -34,21 +34,21 @@ export default async function StockOutPage() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <SectionCard
-          title="Pending Outgoing Item"
+          title="Bahan Baku Keluar Pending"
           value={pendingTransaction.length}
           Icon={Clock}
         />
         <SectionCard
-          title="Completed Outgoing Item"
+          title="Bahan Baku Keluar Selesai"
           value={completedTransaction.length}
           Icon={CheckCircle}
         />
       </div>
       <TableDateWrapper
-        header="Outgoing Item"
-        description="Record ingredients used during meal preparation to keep inventory levels updated"
+        header="Bahan Baku Keluar"
+        description="Pencatatan bahan baku yang digunakan untuk keperluan dapur"
         searchBy="nameUser"
-        labelSearch="name"
+        labelSearch="Nama"
         isFilterDate={true}
         filterDate="dateTransaction"
         data={transactions.data}

@@ -7,8 +7,10 @@ export default function LowItemCard({ data }: { data: TLowItem[] }) {
   return (
     <Card className="rounded-2xl shadow-sm border border-gray-200">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="text-lg font-semibold">Low Stock Items</CardTitle>
-        <AlertTriangle className="h-6 w-6 text-yellow-500" />
+        <CardTitle className="text-lg font-semibold">
+          Bahan Baku Persediaan Rendah
+        </CardTitle>
+        <AlertTriangle className="h-6 w-6" />
       </CardHeader>
 
       <CardContent>
@@ -27,7 +29,7 @@ function EmptyState() {
     <div className="py-6 text-center">
       <CheckCircle2 className="h-8 w-8 mx-auto text-green-500 mb-2" />
       <p className="text-sm text-muted-foreground">
-        All items are sufficiently stocked.
+        Semua bahan baku tersedia dalam jumlah yang cukup.
       </p>
     </div>
   );
@@ -77,9 +79,6 @@ function ItemList({ data }: { data: TLowItem[] }) {
             <div className="flex items-center justify-between mb-2">
               <div>
                 <p className="font-medium">{item.nameItem}</p>
-                {/* <p className="text-xs text-muted-foreground">
-                  Unit: {item.nameUnit ?? "-"}
-                </p> */}
               </div>
 
               <div className="flex items-center gap-1">
@@ -93,7 +92,7 @@ function ItemList({ data }: { data: TLowItem[] }) {
             {/* Quantity Info */}
             <div className="flex justify-between text-sm mb-1">
               <span className="text-muted-foreground">
-                Stock: {item.stockQuantity} {item.nameUnit ?? "-"}
+                Persediaan: {item.stockQuantity} {item.nameUnit ?? "-"}
               </span>
               <span className="text-muted-foreground">
                 Min: {item.minStock} {item.nameUnit ?? "-"}

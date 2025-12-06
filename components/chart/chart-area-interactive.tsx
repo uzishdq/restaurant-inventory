@@ -32,11 +32,11 @@ const chartConfig = {
     label: "Item Movement",
   },
   incoming: {
-    label: "Incoming",
+    label: "Masuk",
     color: "var(--chart-1)",
   },
   outgoing: {
-    label: "Outgoing",
+    label: "Keluar",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
@@ -62,10 +62,10 @@ export function ChartAreaInteractive({ data }: { data: TItemMovementChart[] }) {
     <Card className="pt-0">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <CardTitle className="text-lg">Item Movement Overview </CardTitle>
+          <CardTitle className="text-lg">Transaksi Bahan Baku</CardTitle>
           <CardDescription>
-            Tracks total incoming and outgoing stock activity over the past
-            three months
+            Melacak total aktivitas stok masuk dan keluar selama tiga bulan
+            terakhir
           </CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>

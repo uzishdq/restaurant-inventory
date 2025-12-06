@@ -34,7 +34,7 @@ import FormDialog from "../ui/form-dialog";
 export const columnTransaction: ColumnDef<TTransaction>[] = [
   {
     accessorKey: "idTransaction",
-    header: "No Transaction",
+    header: "No Transaksi",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("idTransaction")}</div>
@@ -42,7 +42,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
   },
   {
     accessorKey: "nameUser",
-    header: "Created By",
+    header: "Dibuat Oleh",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameUser")}</div>
@@ -50,7 +50,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
   },
   {
     accessorKey: "typeTransaction",
-    header: "Type",
+    header: "Jenis",
     enableHiding: false,
     cell: ({ row }) => (
       <BadgeCustom
@@ -61,7 +61,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
   },
   {
     accessorKey: "dateTransaction",
-    header: "Date",
+    header: "Tanggal",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -71,7 +71,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
   },
   {
     accessorKey: "totalItems",
-    header: "Total Items",
+    header: "Total Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("totalItems")}</div>
@@ -90,7 +90,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Opsi",
     enableHiding: false,
     cell: ({ row }) => {
       const dataRows = row.original;
@@ -104,9 +104,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="space-y-1">
-            <DropdownMenuLabel className="text-center">
-              Actions
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-center">Opsi</DropdownMenuLabel>
             {dataRows.statusTransaction !== "COMPLETED" && (
               <>
                 <DropdownMenuSeparator />
@@ -139,7 +137,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
                   }
                 >
                   <List className="mr-2 h-4 w-4" />
-                  Detail Items
+                  Detail Data
                 </Link>
               </Button>
             </DropdownMenuItem>

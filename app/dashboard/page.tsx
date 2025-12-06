@@ -36,7 +36,11 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-        <SectionCard title="Total Item" value={countItem.data} Icon={Package} />
+        <SectionCard
+          title="Total Bahan Baku"
+          value={countItem.data}
+          Icon={Package}
+        />
         <SectionCard
           title="Total Supplier"
           value={countSupplier.data}

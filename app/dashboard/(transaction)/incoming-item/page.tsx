@@ -45,31 +45,31 @@ export default async function StockInPage() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <SectionCard
-          title="Pending Incoming Item"
+          title="Pemesanan Pending"
           value={pendingTransaction.length}
           Icon={Clock}
         />
         <SectionCard
-          title="Ordered Incoming Item"
+          title="Pemesanan Diproses / Dipesan"
           value={orderedTransaction.length}
           Icon={ShoppingCart}
         />
         <SectionCard
-          title="Received Incoming Item"
+          title="Pemesanan Diterima"
           value={receiveTransaction.length}
           Icon={PackageCheck}
         />
         <SectionCard
-          title="Completed Incoming Item"
+          title="Pemesanan Selesai"
           value={completedTransaction.length}
           Icon={CheckCircle}
         />
       </div>
       <TableDateWrapper
-        header="Incoming Item"
-        description="Incoming ingredients or supplies received from vendors to keep your inventory accurate and up to date"
+        header="Pemesanan Bahan Baku"
+        description="Informasi pesanan bahan baku yang digunakan untuk memperbarui persediaan"
         searchBy="nameUser"
-        labelSearch="name"
+        labelSearch="Nama"
         isFilterDate={true}
         filterDate="dateTransaction"
         data={transactions.data}

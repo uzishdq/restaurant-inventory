@@ -34,21 +34,21 @@ export default async function InventoryCheckPage() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <SectionCard
-          title="Pending Inventory Check"
+          title="Pemeriksaan Bahan Baku Pending"
           value={pendingTransaction.length}
           Icon={Clock}
         />
         <SectionCard
-          title="Completed Inventory Check"
+          title="Pemeriksaan Bahan Baku Selesai"
           value={completedTransaction.length}
           Icon={CheckCircle}
         />
       </div>
       <TableDateWrapper
-        header="Inventory Check"
-        description="Review and verify actual ingredient quantities against system records"
+        header="Pemeriksaan Bahan Baku"
+        description="Periksa dan pastikan jumlah bahan baku yang tersedia sesuai dengan data di sistem"
         searchBy="nameUser"
-        labelSearch="name"
+        labelSearch="Nama"
         isFilterDate={true}
         filterDate="dateTransaction"
         data={transactions.data}

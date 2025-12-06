@@ -108,12 +108,13 @@ export default function LastStockCheckCard({
       <Card className="p-4">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
-            <PackageSearch className="h-5 w-5" /> Last Item Check
+            <PackageSearch className="h-5 w-5" /> Pemeriksaan Bahan Baku
+            Terakhir
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            No item check record found.
+            Tidak ditemukan catatan pemeriksaan bahan baku.
           </p>
         </CardContent>
       </Card>
@@ -127,7 +128,7 @@ export default function LastStockCheckCard({
     <Card className="p-4 rounded-2xl shadow">
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
-          <PackageSearch className="h-5 w-5" /> Last Item Check
+          <PackageSearch className="h-5 w-5" /> Pemeriksaan Bahan Baku Terakhir
         </CardTitle>
       </CardHeader>
 
@@ -136,10 +137,10 @@ export default function LastStockCheckCard({
         <div className="text-sm space-y-1">
           <p className="font-bold">{data.idTransaction}</p>
           <p>
-            <strong>Date:</strong> {formatDateToIndo(data.dateTransaction)}
+            <strong>Tanggal:</strong> {formatDateToIndo(data.dateTransaction)}
           </p>
           <p className="capitalize">
-            <strong>Checked By:</strong> {data.nameUser ?? "Unknown"}
+            <strong>Diperiksa Oleh:</strong> {data.nameUser ?? "Unknown"}
           </p>
         </div>
 
@@ -157,15 +158,15 @@ export default function LastStockCheckCard({
 
               <div className="grid grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-muted-foreground">Qyt System</p>
+                  <p className="text-muted-foreground">Qyt Sistem</p>
                   <p className="font-semibold">{d.quantityDetailTransaction}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Qyt Check</p>
+                  <p className="text-muted-foreground">Qyt Cek</p>
                   <p className="font-semibold">{d.quantityCheck ?? "-"}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Difference</p>
+                  <p className="text-muted-foreground">Selisih</p>
                   <p
                     className={`font-semibold ${
                       d.quantityDifference === 0

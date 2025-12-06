@@ -53,7 +53,7 @@ export const columnItem = ({
   },
   {
     accessorKey: "stockQuantity",
-    header: "Persediaan",
+    header: "Tersedia",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">

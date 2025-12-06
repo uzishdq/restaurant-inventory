@@ -18,15 +18,15 @@ export default async function UserPage() {
   return (
     <div className=" space-y-4">
       <SectionCard
-        title="Total Users"
+        title="Total User"
         value={users.data.length}
         Icon={UserCheck}
       />
       <TableDateWrapper
-        header="Users"
+        header="User"
         description="User dan informasi profil untuk platform manajemen bahan baku"
         searchBy="nameUser"
-        labelSearch="name"
+        labelSearch="Nama"
         isFilterDate={true}
         filterDate="created_at"
         data={users.data}

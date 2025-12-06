@@ -189,7 +189,7 @@ function CreateAccountForm({ onSuccess }: { onSuccess?: () => void }) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Nama</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -219,7 +219,7 @@ function CreateAccountForm({ onSuccess }: { onSuccess?: () => void }) {
             name="phoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>No.Telp</FormLabel>
                 <FormControl>
                   <Input {...field} type="number" />
                 </FormControl>
