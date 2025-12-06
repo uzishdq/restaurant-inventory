@@ -57,8 +57,8 @@ export default function FormDialog({
           label: "Add",
           variant: "default" as const,
           size: "sm" as const,
-          defaultTitle: "Add Data",
-          defaultDesc: "Fill in the new data, then click Create.",
+          defaultTitle: "Tambah Data",
+          defaultDesc: "Isi data baru, kemudian klik Create.",
         };
       case "edit":
         return {
@@ -67,7 +67,7 @@ export default function FormDialog({
           variant: "ghost" as const,
           size: "icon" as const,
           defaultTitle: "Edit Data",
-          defaultDesc: "Modify the selected data, then click Update.",
+          defaultDesc: "Ubah data yang dipilih, lalu klik Update.",
         };
       case "edit_status":
         return {
@@ -76,7 +76,7 @@ export default function FormDialog({
           variant: "ghost" as const,
           size: "icon" as const,
           defaultTitle: "Update Status",
-          defaultDesc: "Modify the selected data, then click Update.",
+          defaultDesc: "Ubah data yang dipilih, lalu klik Update.",
         };
       case "delete":
         return {
@@ -85,7 +85,8 @@ export default function FormDialog({
           variant: "destructive" as const,
           size: "icon" as const,
           defaultTitle: "Delete Data",
-          defaultDesc: "This action cannot be undone. Are you sure?",
+          defaultDesc:
+            "Tindakan ini tidak dapat dibatalkan. Apakah Anda yakin?",
         };
       default:
         return {
@@ -127,9 +128,10 @@ export default function FormDialog({
 
           {/* Delete warning */}
           {type === "delete" && (
-            <DialogDescription className="mt-2 rounded-md border border-red-400 bg-red-50 p-3 text-sm text-red-700">
-              ⚠️ <strong>Warning:</strong> Deleting this data is irreversible.
-              Make sure you understand the consequences before continuing.
+            <DialogDescription className="mt-2 text-justify rounded-md border border-red-400 bg-red-50 p-3 text-sm text-red-700">
+              ⚠️ <strong>Peringatan: </strong> Menghapus data ini tidak dapat
+              dipulihkan. Pastikan Anda memahami konsekuensinya sebelum
+              melanjutkan.
             </DialogDescription>
           )}
         </DialogHeader>

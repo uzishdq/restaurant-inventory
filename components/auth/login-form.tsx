@@ -70,9 +70,9 @@ export default function LoginForm() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
+        <CardTitle>Selamat Datang</CardTitle>
         <CardDescription>
-          Enter your username below to login to your account
+          Masukkan nama pengguna Anda di bawah ini untuk masuk ke akun Anda
         </CardDescription>
       </CardHeader>
       <CardContent>

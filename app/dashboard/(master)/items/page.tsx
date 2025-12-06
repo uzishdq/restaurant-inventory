@@ -21,7 +21,7 @@ export default async function ItemsPage() {
   return (
     <div className=" space-y-4">
       <SectionCard
-        title="Total Items"
+        title="Total Bahan Baku"
         value={items.data.length}
         Icon={Package}
       />

@@ -18,21 +18,21 @@ export default async function CategoryPage() {
   return (
     <div className=" space-y-4">
       <SectionCard
-        title="Total Category"
+        title="Total Kategori"
         value={category.data.length}
         Icon={Blocks}
       />
       <TableDateWrapper
-        header="Category"
-        description="A collection of item categories used to organize products by type, such as vegetables, meat, or spices"
+        header="Kategori"
+        description="Koleksi kategori barang yang digunakan untuk mengatur produk berdasarkan jenis, seperti sayuran, daging, atau rempah"
         searchBy="nameCategory"
-        labelSearch="name"
+        labelSearch="Nama"
         isFilterDate={false}
         filterDate=""
         data={category.data}
         columns={columnCategory}
       >
-        <FormDialog type="create" title="Create Category">
+        <FormDialog type="create" title="Tambah Kategori">
           <CreateCategoryForm />
         </FormDialog>
       </TableDateWrapper>

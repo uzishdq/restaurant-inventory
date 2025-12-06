@@ -24,7 +24,7 @@ export default async function UserPage() {
       />
       <TableDateWrapper
         header="Users"
-        description="User accounts and profile information for the inventory management platform"
+        description="User dan informasi profil untuk platform manajemen bahan baku"
         searchBy="nameUser"
         labelSearch="name"
         isFilterDate={true}

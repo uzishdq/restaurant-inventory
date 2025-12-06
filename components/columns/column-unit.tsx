@@ -18,7 +18,7 @@ import FormDialog from "../ui/form-dialog";
 export const columnUnit: ColumnDef<TUnit>[] = [
   {
     accessorKey: "nameUnit",
-    header: "Name",
+    header: "Nama",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameUnit")}</div>
@@ -26,7 +26,7 @@ export const columnUnit: ColumnDef<TUnit>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Opsi",
     enableHiding: false,
     cell: ({ row }) => {
       const dataRows = row.original;
@@ -39,9 +39,7 @@ export const columnUnit: ColumnDef<TUnit>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="space-y-1">
-            <DropdownMenuLabel className="text-center">
-              Actions
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-center">Opsi</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <DialogEdit value={dataRows} />
@@ -65,7 +63,7 @@ function DialogEdit({ value }: TDialog) {
     <FormDialog
       type="edit"
       title="Edit Unit"
-      description="Update the unit name, then click Uppdate to confirm."
+      description="Update nama unit, lalu klik Update untuk mengonfirmasi."
     >
       <UpdateUnitForm data={value} />
     </FormDialog>
@@ -77,7 +75,7 @@ function DialogDelete({ value }: TDialog) {
     <FormDialog
       type="delete"
       title="Delete Unit"
-      description="Are you sure you want to Delete this unit? This action cannot be undone."
+      description="Apakah Anda yakin ingin menghapus unit ini? Tindakan ini tidak dapat dibatalkan."
     >
       <DeleteUnitForm data={value} />
     </FormDialog>

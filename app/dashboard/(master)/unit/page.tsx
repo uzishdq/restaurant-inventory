@@ -17,18 +17,18 @@ export default async function UnitPage() {
 
   return (
     <div className=" space-y-4">
-      <SectionCard title="Total Units" value={units.data.length} Icon={Boxes} />
+      <SectionCard title="Total Unit" value={units.data.length} Icon={Boxes} />
       <TableDateWrapper
-        header="Units"
-        description="A list of measurement units used to define how items are counted or measured, such as pcs, kg, or liters"
+        header="Unit"
+        description="Daftar satuan pengukuran yang digunakan untuk menentukan bagaimana barang dihitung atau diukur, seperti pcs, kg, atau liter"
         searchBy="nameUnit"
-        labelSearch="name"
+        labelSearch="Nama"
         isFilterDate={false}
         filterDate=""
         data={units.data}
         columns={columnUnit}
       >
-        <FormDialog type="create" title="Create Unit">
+        <FormDialog type="create" title="Tambah Unit">
           <CreateUnitForm />
         </FormDialog>
       </TableDateWrapper>

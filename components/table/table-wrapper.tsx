@@ -115,7 +115,7 @@ export default function TableDateWrapper<T>({
         <div className="w-full">
           <div className="flex flex-col items-center gap-2 py-4 md:flex-row">
             <Input
-              placeholder={`Search ${labelSearch}`}
+              placeholder={`Cari Berdasarkan ${labelSearch}`}
               value={
                 (table.getColumn(searchBy)?.getFilterValue() as string) ?? ""
               }

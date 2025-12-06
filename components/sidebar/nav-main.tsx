@@ -43,7 +43,7 @@ export function NavMain({
           >
             <Link href={ROUTES.AUTH.TRANSACTION.CREATE}>
               <PlusCircle />
-              <span>Create Transaction</span>
+              <span>Buat Transaksi</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>

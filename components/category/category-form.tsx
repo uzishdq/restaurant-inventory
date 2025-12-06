@@ -60,7 +60,7 @@ function CreateCategoryForm({ onSuccess }: { onSuccess?: () => void }) {
             name="nameCategory"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name Category</FormLabel>
+                <FormLabel>Nama Kategori</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -117,7 +117,7 @@ function UpdateCategoryForm({ onSuccess, data }: IUpdateCategoryForm) {
             name="nameCategory"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name Category</FormLabel>
+                <FormLabel>Nama Kategori</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -164,7 +164,7 @@ function DeleteCategoryForm({ onSuccess, data }: IUpdateCategoryForm) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Name Category</FormLabel>
+            <FormLabel>Nama Kategori</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.nameCategory}
             </div>

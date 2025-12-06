@@ -24,15 +24,15 @@ export default async function SupplierPage() {
       />
       <TableDateWrapper
         header="Supplier"
-        description="Contains information about vendors or suppliers who provide ingredients and materials for the restaurant"
+        description="Berisi informasi tentang vendor atau supplier yang menyediakan bahan dan material untuk restoran"
         searchBy="nameSupplier"
-        labelSearch="name"
+        labelSearch="Nama"
         isFilterDate={false}
         filterDate=""
         data={suppliers.data}
         columns={columnSupplier}
       >
-        <FormDialog type="create" title="Create Supplier">
+        <FormDialog type="create" title="Tambah Supplier">
           <CreateSupplierForm />
         </FormDialog>
       </TableDateWrapper>

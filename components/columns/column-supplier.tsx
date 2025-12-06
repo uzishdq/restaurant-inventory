@@ -21,7 +21,7 @@ import FormDialog from "../ui/form-dialog";
 export const columnSupplier: ColumnDef<TSupplier>[] = [
   {
     accessorKey: "nameSupplier",
-    header: "Name",
+    header: "Nama",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameSupplier")}</div>
@@ -29,7 +29,7 @@ export const columnSupplier: ColumnDef<TSupplier>[] = [
   },
   {
     accessorKey: "store_name",
-    header: "Store",
+    header: "Toko",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("store_name")}</div>
@@ -37,7 +37,7 @@ export const columnSupplier: ColumnDef<TSupplier>[] = [
   },
   {
     accessorKey: "addressSupplier",
-    header: "Address",
+    header: "Alamat",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("addressSupplier")}</div>
@@ -45,7 +45,7 @@ export const columnSupplier: ColumnDef<TSupplier>[] = [
   },
   {
     accessorKey: "phoneSupplier",
-    header: "Phone",
+    header: "No.Telp",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("phoneSupplier")}</div>
@@ -53,7 +53,7 @@ export const columnSupplier: ColumnDef<TSupplier>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Opsi",
     enableHiding: false,
     cell: ({ row }) => {
       const dataRows = row.original;
@@ -66,9 +66,7 @@ export const columnSupplier: ColumnDef<TSupplier>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="space-y-1">
-            <DropdownMenuLabel className="text-center">
-              Actions
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-center">Opsi</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <DialogEdit value={dataRows} />
@@ -92,7 +90,7 @@ function DialogEdit({ value }: TDialog) {
     <FormDialog
       type="edit"
       title="Edit Supplier"
-      description="Update the supplier data, then click Update to confirm."
+      description="Update data supplier, lalu klik Update untuk mengonfirmasi."
     >
       <UpdateSupplierForm data={value} />
     </FormDialog>
@@ -104,7 +102,7 @@ function DialogDelete({ value }: TDialog) {
     <FormDialog
       type="delete"
       title="Delete Supplier"
-      description="Are you sure you want to Delete this supplier? This action cannot be undone."
+      description="Apakah Anda yakin ingin menghapus pemasok ini? Tindakan ini tidak bisa dibatalkan."
     >
       <DeleteSupplierForm data={value} />
     </FormDialog>

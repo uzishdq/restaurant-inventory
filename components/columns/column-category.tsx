@@ -21,7 +21,7 @@ import FormDialog from "../ui/form-dialog";
 export const columnCategory: ColumnDef<TCategory>[] = [
   {
     accessorKey: "nameCategory",
-    header: "Name",
+    header: "Nama",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameCategory")}</div>
@@ -29,7 +29,7 @@ export const columnCategory: ColumnDef<TCategory>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Opsi",
     enableHiding: false,
     cell: ({ row }) => {
       const dataRows = row.original;
@@ -42,9 +42,7 @@ export const columnCategory: ColumnDef<TCategory>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="space-y-1">
-            <DropdownMenuLabel className="text-center">
-              Actions
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-center">Opsi</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <DialogEdit value={dataRows} />
@@ -67,8 +65,8 @@ function DialogEdit({ value }: TDialog) {
   return (
     <FormDialog
       type="edit"
-      title="Edit Category"
-      description="Update the category name, then click Update to confirm."
+      title="Edit Kategori"
+      description="Update nama kategori, lalu klik Update untuk mengonfirmasi."
     >
       <UpdateCategoryForm data={value} />
     </FormDialog>
@@ -79,8 +77,8 @@ function DialogDelete({ value }: TDialog) {
   return (
     <FormDialog
       type="delete"
-      title="Delete Category"
-      description="Are you sure you want to Delete this category? This action cannot be undone."
+      title="Delete Kategori"
+      description="Apakah Anda yakin ingin menghapus kategori ini? Tindakan ini tidak dapat dibatalkan."
     >
       <DeleteCategoryForm data={value} />
     </FormDialog>

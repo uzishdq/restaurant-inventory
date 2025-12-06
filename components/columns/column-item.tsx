@@ -29,7 +29,7 @@ export const columnItem = ({
 }: columnProps): ColumnDef<TItem>[] => [
   {
     accessorKey: "idItem",
-    header: "No Item",
+    header: "No Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("idItem")}</div>
@@ -37,7 +37,7 @@ export const columnItem = ({
   },
   {
     accessorKey: "nameItem",
-    header: "Name",
+    header: "Nama",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameItem")}</div>
@@ -45,7 +45,7 @@ export const columnItem = ({
   },
   {
     accessorKey: "nameCategory",
-    header: "Category",
+    header: "Kategori",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameCategory")}</div>
@@ -53,7 +53,7 @@ export const columnItem = ({
   },
   {
     accessorKey: "stockQuantity",
-    header: "Stock",
+    header: "Persediaan",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -63,7 +63,7 @@ export const columnItem = ({
   },
   {
     accessorKey: "minStock",
-    header: "Min Stock",
+    header: "Minimal Persediaan",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("minStock")}</div>
@@ -71,7 +71,7 @@ export const columnItem = ({
   },
   {
     accessorKey: "updatedAt",
-    header: "Last Update",
+    header: "Pembaruan Terakhir",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -81,7 +81,7 @@ export const columnItem = ({
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Opsi",
     enableHiding: false,
     cell: ({ row }) => {
       const dataRows = row.original;
@@ -94,9 +94,7 @@ export const columnItem = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="space-y-1">
-            <DropdownMenuLabel className="text-center">
-              Actions
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-center">Opsi</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <DialogEdit value={dataRows} unit={unit} category={category} />
@@ -187,8 +185,8 @@ function DialogEdit({ value, unit, category }: TDialog) {
   return (
     <FormDialog
       type="edit"
-      title="Edit Item"
-      description="Update the item name, then click Update to confirm."
+      title="Edit Bahan Baku"
+      description="Update bahan baku, lalu klik Update untuk mengonfirmasi."
     >
       <UpdateItemForm data={value} units={unit} categorys={category} />
     </FormDialog>

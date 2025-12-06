@@ -61,7 +61,7 @@ function CreateUnitForm({ onSuccess }: { onSuccess?: () => void }) {
             name="nameUnit"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name Unit</FormLabel>
+                <FormLabel>Nama Unit</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -120,7 +120,7 @@ function UpdateUnitForm({ onSuccess, data }: IUpdateUnitForm) {
             name="nameUnit"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name Unit</FormLabel>
+                <FormLabel>Nama Unit</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -167,7 +167,7 @@ function DeleteUnitForm({ onSuccess, data }: IUpdateUnitForm) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Name Unit</FormLabel>
+            <FormLabel>Nama Unit</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.nameUnit}
             </div>

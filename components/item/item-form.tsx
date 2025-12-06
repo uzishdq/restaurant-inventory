@@ -70,7 +70,7 @@ function CreateItemForm({ onSuccess, unit, category }: ICreateItemForm) {
             name="nameItem"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name Item</FormLabel>
+                <FormLabel>Nama</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -82,7 +82,7 @@ function CreateItemForm({ onSuccess, unit, category }: ICreateItemForm) {
 
         <CustomSelect
           name="categoryId"
-          label="Category"
+          label="Kategori"
           control={form.control}
           data={category}
           valueKey="idCategory"
@@ -96,7 +96,7 @@ function CreateItemForm({ onSuccess, unit, category }: ICreateItemForm) {
             name="minStock"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Min Stock</FormLabel>
+                <FormLabel>Minimal Persediaan</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -178,7 +178,7 @@ function UpdateItemForm({
             name="nameItem"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name Item</FormLabel>
+                <FormLabel>Nama</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -190,7 +190,7 @@ function UpdateItemForm({
 
         <CustomSelect
           name="categoryId"
-          label="Category"
+          label="Kategori"
           control={form.control}
           data={categorys}
           valueKey="idCategory"
@@ -204,7 +204,7 @@ function UpdateItemForm({
             name="minStock"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Min Stock</FormLabel>
+                <FormLabel>Minimal Persediaan</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -269,7 +269,7 @@ function DeleteItemForm({ data }: IDeleteItemForm) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Name Item</FormLabel>
+            <FormLabel>Nama</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.nameItem}
             </div>
@@ -277,7 +277,7 @@ function DeleteItemForm({ data }: IDeleteItemForm) {
         </div>
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Category</FormLabel>
+            <FormLabel>Kategori</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.nameCategory}
             </div>

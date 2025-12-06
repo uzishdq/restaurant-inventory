@@ -25,16 +25,16 @@ export default function ItemTableWrapper({
 
   return (
     <TableDateWrapper
-      header="Items"
-      description="Represents raw materials or ingredients used in the restaurant’s operations and inventory tracking."
+      header="Bahan Baku"
+      description="Mewakili bahan baku atau bahan yang digunakan dalam operasi restoran dan pelacakan inventaris"
       searchBy="nameItem"
-      labelSearch="name"
+      labelSearch="Nama"
       isFilterDate={true}
       filterDate="updatedAt"
       data={data}
       columns={columns}
     >
-      <FormDialog type="create" title="Create Item">
+      <FormDialog type="create" title="Tambah Bahan Baku">
         <CreateItemForm unit={units} category={categorys} />
       </FormDialog>
     </TableDateWrapper>

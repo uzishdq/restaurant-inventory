@@ -34,7 +34,7 @@ export function AppSidebar({
         icon: Database,
         items: [
           {
-            title: "Category",
+            title: "Kategori",
             url: ROUTES.AUTH.MASTER.CATEGORY,
           },
           {
@@ -42,7 +42,7 @@ export function AppSidebar({
             url: ROUTES.AUTH.MASTER.UNIT,
           },
           {
-            title: "Items",
+            title: "Bahan Baku",
             url: ROUTES.AUTH.MASTER.ITEMS,
           },
           {
@@ -56,39 +56,39 @@ export function AppSidebar({
         ],
       },
       {
-        title: "Transaction",
+        title: "Transaksi",
         url: "#",
         icon: ArrowRightLeft,
         items: [
           {
-            title: "Inventory Check",
+            title: "Cek Bahan Baku",
             url: ROUTES.AUTH.TRANSACTION.INVENTORY_CHECK.INDEX,
           },
           {
-            title: "Incoming Item",
+            title: "Pemesanan Bahan Baku",
             url: ROUTES.AUTH.TRANSACTION.STOCK_IN.INDEX,
           },
           {
-            title: "Outgoing Item",
+            title: "Bahan Baku Keluar",
             url: ROUTES.AUTH.TRANSACTION.STOCK_OUT.INDEX,
           },
           {
-            title: "Item Movement",
+            title: "Pergerakan Bahan Baku",
             url: ROUTES.AUTH.TRANSACTION.MOVEMENT,
           },
         ],
       },
       {
-        title: "Reports",
+        title: "Laporan",
         url: "#",
         icon: Files,
         items: [
           {
-            title: "Transaction",
+            title: "Transaksi",
             url: ROUTES.AUTH.REPORT.TRANSACTION,
           },
           {
-            title: "Item",
+            title: "Bahan Baku",
             url: "#",
           },
         ],

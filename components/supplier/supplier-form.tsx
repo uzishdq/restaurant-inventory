@@ -64,7 +64,7 @@ function CreateSupplierForm({ onSuccess }: { onSuccess?: () => void }) {
             name="store_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Store</FormLabel>
+                <FormLabel>Toko</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -79,7 +79,7 @@ function CreateSupplierForm({ onSuccess }: { onSuccess?: () => void }) {
             name="addressSupplier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address</FormLabel>
+                <FormLabel>Alamat</FormLabel>
                 <FormControl>
                   <Textarea {...field} />
                 </FormControl>
@@ -94,7 +94,7 @@ function CreateSupplierForm({ onSuccess }: { onSuccess?: () => void }) {
             name="nameSupplier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Nama</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -109,7 +109,7 @@ function CreateSupplierForm({ onSuccess }: { onSuccess?: () => void }) {
             name="phoneSupplier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>No.Telp</FormLabel>
                 <FormControl>
                   <Input {...field} type="number" />
                 </FormControl>
@@ -169,7 +169,7 @@ function UpdateSupplierForm({ onSuccess, data }: IUpdateSupplierForm) {
             name="store_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Store</FormLabel>
+                <FormLabel>Toko</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -184,7 +184,7 @@ function UpdateSupplierForm({ onSuccess, data }: IUpdateSupplierForm) {
             name="addressSupplier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address</FormLabel>
+                <FormLabel>Alamat</FormLabel>
                 <FormControl>
                   <Textarea {...field} />
                 </FormControl>
@@ -199,7 +199,7 @@ function UpdateSupplierForm({ onSuccess, data }: IUpdateSupplierForm) {
             name="nameSupplier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Nama</FormLabel>
                 <FormControl>
                   <Input {...field} type="text" />
                 </FormControl>
@@ -214,7 +214,7 @@ function UpdateSupplierForm({ onSuccess, data }: IUpdateSupplierForm) {
             name="phoneSupplier"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>No.Telp</FormLabel>
                 <FormControl>
                   <Input {...field} type="number" />
                 </FormControl>
@@ -261,7 +261,7 @@ function DeleteSupplierForm({ onSuccess, data }: IUpdateSupplierForm) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Store</FormLabel>
+            <FormLabel>Toko</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.store_name}
             </div>
@@ -269,7 +269,7 @@ function DeleteSupplierForm({ onSuccess, data }: IUpdateSupplierForm) {
         </div>
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Name</FormLabel>
+            <FormLabel>Nama</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.nameSupplier}
             </div>
