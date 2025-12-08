@@ -137,7 +137,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
                   }
                 >
                   <List className="mr-2 h-4 w-4" />
-                  Detail Data
+                  Detail Transaksi
                 </Link>
               </Button>
             </DropdownMenuItem>
@@ -156,8 +156,8 @@ function DialogDelete({ value }: TDialog) {
   return (
     <FormDialog
       type="delete"
-      title="Delete Transaction"
-      description="Are you sure you want to Delete this transaction? This action cannot be undone"
+      title="Delete Transaksi"
+      description="Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan"
     >
       <DeleteTransactionForm data={value} />
     </FormDialog>
@@ -167,15 +167,15 @@ function DialogDelete({ value }: TDialog) {
 function DialogEdit({ value }: TDialog) {
   const description =
     value.typeTransaction === "IN"
-      ? "Before updating the status of this incoming transaction, please ensure all item details—including quantities and received items—have been fully reviewed and verified."
+      ? "Sebelum update status pemesanan bahan baku, harap pastikan semua detail bahan baku yang diterima—telah ditinjau dan diverifikasi."
       : value.typeTransaction === "OUT"
-      ? "Before updating the status of this outgoing transaction, make sure all requested items and quantities have been thoroughly checked and confirmed."
-      : "Before applying a status update, verify that all physical counts and item details have been carefully reviewed to ensure accurate audit results.";
+      ? "Sebelum update status bahan baku keluar, pastikan semua bahan baku telah diperiksa dan dikonfirmasi."
+      : "Sebelum update status, verifikasi bahwa semua hitungan fisik dan rincian bahan baku telah diperiksa dengan cermat untuk memastikan hasil audit yang akurat.";
 
   return (
     <FormDialog
       type="edit_status"
-      title="Update Status Transaction"
+      title="Update Status Transaksi"
       description={description}
     >
       <UpdateTransactionForm data={value} />
@@ -189,7 +189,7 @@ export const columnDetailTransactionIn = ({
 }: columnTrxProps): ColumnDef<TDetailTransaction>[] => [
   {
     accessorKey: "nameItem",
-    header: "Item",
+    header: "Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameItem")}</div>
@@ -197,7 +197,7 @@ export const columnDetailTransactionIn = ({
   },
   {
     accessorKey: "store_name",
-    header: "Store",
+    header: "Toko",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("store_name")}</div>
@@ -205,7 +205,7 @@ export const columnDetailTransactionIn = ({
   },
   {
     accessorKey: "quantityDetailTransaction",
-    header: "Qyt",
+    header: "Jumlah Dipesan",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -215,7 +215,7 @@ export const columnDetailTransactionIn = ({
   },
   {
     accessorKey: "quantityCheck",
-    header: "Good Qyt",
+    header: "Jumlah Baik",
     enableHiding: true,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -225,7 +225,7 @@ export const columnDetailTransactionIn = ({
   },
   {
     accessorKey: "quantityDifference",
-    header: "Damaged Qyt",
+    header: "Jumlah Rusak",
     enableHiding: true,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -246,7 +246,7 @@ export const columnDetailTransactionIn = ({
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Opsi",
     enableHiding: false,
     cell: ({ row }) => {
       const dataRows = row.original;
@@ -259,9 +259,7 @@ export const columnDetailTransactionIn = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="space-y-1">
-            <DropdownMenuLabel className="text-center">
-              Actions
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-center">Opsi</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <DetailDialogEdit
@@ -293,7 +291,7 @@ export const columnDetailTransactionOut = ({
 }: columnTrxProps): ColumnDef<TDetailTransaction>[] => [
   {
     accessorKey: "nameItem",
-    header: "Item",
+    header: "Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameItem")}</div>
@@ -301,7 +299,7 @@ export const columnDetailTransactionOut = ({
   },
   {
     accessorKey: "quantityDetailTransaction",
-    header: "Qyt",
+    header: "Qyt Keluar",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -332,7 +330,7 @@ export const columnDetailTransactionOut = ({
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Opsi",
     enableHiding: false,
     cell: ({ row }) => {
       const dataRows = row.original;
@@ -345,9 +343,7 @@ export const columnDetailTransactionOut = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="space-y-1">
-            <DropdownMenuLabel className="text-center">
-              Actions
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-center">Opsi</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <DetailDialogEdit
@@ -374,7 +370,7 @@ export const columnDetailTransactionCheck = ({
 }: columnTrxProps): ColumnDef<TDetailTransaction>[] => [
   {
     accessorKey: "nameItem",
-    header: "Item",
+    header: "Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameItem")}</div>
@@ -382,7 +378,7 @@ export const columnDetailTransactionCheck = ({
   },
   {
     accessorKey: "quantityDetailTransaction",
-    header: "Qty System",
+    header: "Qty Sistem",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -392,7 +388,7 @@ export const columnDetailTransactionCheck = ({
   },
   {
     accessorKey: "quantityCheck",
-    header: "Qty Physical",
+    header: "Qty Fisik",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -402,7 +398,7 @@ export const columnDetailTransactionCheck = ({
   },
   {
     accessorKey: "quantityDifference",
-    header: "Difference",
+    header: "Selisih",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -429,7 +425,7 @@ export const columnDetailTransactionCheck = ({
   },
   {
     id: "actions",
-    header: "Actions",
+    header: "Opsi",
     enableHiding: false,
     cell: ({ row }) => {
       const dataRows = row.original;
@@ -442,9 +438,7 @@ export const columnDetailTransactionCheck = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="space-y-1">
-            <DropdownMenuLabel className="text-center">
-              Actions
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-center">Opsi</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
               <DetailDialogEdit
@@ -475,8 +469,8 @@ function DetailDialogEdit({ value, items, suppliers }: TDetailDialog) {
   return (
     <FormDialog
       type="edit"
-      title="Edit Detail Transaction"
-      description="Update detail transaction, then click Update to confirm."
+      title="Edit Detail Transaksi"
+      description="Update Perbarui detail transaksi, lalu klik Update untuk mengonfirmasi."
     >
       <UpdateDetailTransactionForm
         data={value}
@@ -491,8 +485,8 @@ function DetailDialogDelete({ value }: { value: TDetailTransaction }) {
   return (
     <FormDialog
       type="delete"
-      title="Delete Detail Transaction"
-      description="Are you sure you want to Delete this item? This action cannot be undone"
+      title="Delete Detail Transaksi"
+      description="Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan"
     >
       <DeleteDetailTransactionForm data={value} />
     </FormDialog>
@@ -502,15 +496,15 @@ function DetailDialogDelete({ value }: { value: TDetailTransaction }) {
 function DetailDialogStatus({ value }: { value: TDetailTransaction }) {
   const description =
     value.typeTransaction === "IN"
-      ? "Before updating the status of this incoming transaction, please ensure all item details—including quantities and received items—have been fully reviewed and verified."
+      ? "Sebelum update status pemesanan bahan baku, harap pastikan semua detail bahan baku yang diterima—telah ditinjau dan diverifikasi."
       : value.typeTransaction === "OUT"
-      ? "Before updating the status of this outgoing transaction, make sure all requested items and quantities have been thoroughly checked and confirmed."
-      : "Before applying a status update, verify that all physical counts and item details have been carefully reviewed to ensure accurate audit results.";
+      ? "Sebelum update status bahan baku keluar, pastikan semua bahan baku telah diperiksa dan dikonfirmasi."
+      : "Sebelum update status, verifikasi bahwa semua hitungan fisik dan rincian bahan baku telah diperiksa dengan cermat untuk memastikan hasil audit yang akurat.";
 
   return (
     <FormDialog
       type="edit_status"
-      title="Update Status Detail Transaction"
+      title="Update Status Detail Transaksi"
       description={description}
     >
       <UpdateStatusDetailTransactionForm data={value} />

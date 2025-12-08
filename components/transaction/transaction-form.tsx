@@ -581,7 +581,7 @@ function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Transaction</FormLabel>
+            <FormLabel>No Transaksi</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.idTransaction}
             </div>
@@ -589,7 +589,7 @@ function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
         </div>
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Created By</FormLabel>
+            <FormLabel>Dibuat Oleh</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.nameUser}
             </div>
@@ -597,7 +597,7 @@ function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
         </div>
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Total Item</FormLabel>
+            <FormLabel>Total Bahan Baku</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.totalItems}
             </div>
@@ -659,14 +659,14 @@ function UpdateTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
             name="statusTransaction"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Status Transaction</FormLabel>
+                <FormLabel>Status Transaksi</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value?.toString() ?? ""}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Status" />
+                      <SelectValue placeholder="Pilih Status" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -1097,14 +1097,14 @@ function UpdateStatusDetailTransactionForm({
             name="statusDetailTransaction"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Status Detail Transaction</FormLabel>
+                <FormLabel>Status Detail Transaksi</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value.toString()}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Status" />
+                      <SelectValue placeholder="Pilih Status" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -1369,7 +1369,7 @@ function DeleteDetailTransactionForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <FormItem>
-            <FormLabel>Item</FormLabel>
+            <FormLabel>Bahan Baku</FormLabel>
             <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
               {data.nameItem}
             </div>
@@ -1378,7 +1378,7 @@ function DeleteDetailTransactionForm({
         {data.typeTransaction === "IN" && (
           <div className="space-y-2">
             <FormItem>
-              <FormLabel>Store</FormLabel>
+              <FormLabel>Toko</FormLabel>
               <div className="rounded-md border px-3 py-2 text-sm text-gray-700 bg-muted/20">
                 {data.store_name}
               </div>
