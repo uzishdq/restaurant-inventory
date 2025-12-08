@@ -14,8 +14,8 @@ export default async function ItemMovementPage() {
   return (
     <div className="space-y-4">
       <TableDateWrapper
-        header="Item Movement"
-        description="Incoming ingredients or supplies received from vendors to keep your inventory accurate and up to date"
+        header="Pergerakan Bahan Baku"
+        description="Catatan semua aktivitas keluar-masuk dan perubahan stok bahan baku untuk memastikan inventaris tetap akurat dan terkendali"
         searchBy="nameItem"
         labelSearch="name Item"
         isFilterDate={true}

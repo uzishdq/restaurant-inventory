@@ -112,7 +112,7 @@ export const columnItem = ({
 export const columnItemMovement: ColumnDef<TItemMovement>[] = [
   {
     accessorKey: "transactionId",
-    header: "No Transaction",
+    header: "No Transaksi",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("transactionId")}</div>
@@ -131,7 +131,7 @@ export const columnItemMovement: ColumnDef<TItemMovement>[] = [
   },
   {
     accessorKey: "itemId",
-    header: "No Item",
+    header: "No Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("itemId")}</div>
@@ -139,7 +139,7 @@ export const columnItemMovement: ColumnDef<TItemMovement>[] = [
   },
   {
     accessorKey: "nameItem",
-    header: "Name",
+    header: "Nama",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameItem")}</div>
@@ -147,7 +147,7 @@ export const columnItemMovement: ColumnDef<TItemMovement>[] = [
   },
   {
     accessorKey: "nameCategory",
-    header: "Category",
+    header: "Kategori",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameCategory")}</div>
@@ -155,7 +155,7 @@ export const columnItemMovement: ColumnDef<TItemMovement>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: "Date",
+    header: "Tanggal",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -165,7 +165,7 @@ export const columnItemMovement: ColumnDef<TItemMovement>[] = [
   },
   {
     accessorKey: "stockQuantity",
-    header: "Stock",
+    header: "Jumlah",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">

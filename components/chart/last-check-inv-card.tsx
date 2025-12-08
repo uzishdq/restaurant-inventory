@@ -162,7 +162,7 @@ export default function LastStockCheckCard({
                   <p className="font-semibold">{d.quantityDetailTransaction}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Qyt Cek</p>
+                  <p className="text-muted-foreground">Qyt Fisik</p>
                   <p className="font-semibold">{d.quantityCheck ?? "-"}</p>
                 </div>
                 <div>

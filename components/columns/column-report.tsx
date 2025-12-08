@@ -8,7 +8,7 @@ import { formatDateToIndo } from "@/lib/utils";
 export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
   {
     accessorKey: "idTransaction",
-    header: "No Transaction",
+    header: "No Transaksi",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("idTransaction")}</div>
@@ -16,7 +16,7 @@ export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "nameUser",
-    header: "Created By",
+    header: "Dibuat Oleh",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameUser")}</div>
@@ -24,7 +24,7 @@ export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "dateTransaction",
-    header: "Date",
+    header: "Tanggal",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -34,7 +34,7 @@ export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "store_name",
-    header: "Supplier",
+    header: "Toko",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("store_name")}</div>
@@ -42,7 +42,7 @@ export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "nameItem",
-    header: "Item",
+    header: "Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameItem")}</div>
@@ -58,7 +58,7 @@ export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "quantityDetailTransaction",
-    header: "Ordered Qyt",
+    header: "Jumlah Dipesan",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -68,7 +68,7 @@ export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "quantityCheck",
-    header: "Good Qyt",
+    header: "Jumlah Baik",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("quantityCheck")}</div>
@@ -76,7 +76,7 @@ export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "quantityDifference",
-    header: "Damaged Qyt",
+    header: "Jumlah Rusak",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("quantityDifference")}</div>
@@ -104,7 +104,7 @@ export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
 export const columnTransactionReportOUT: ColumnDef<TReportTransaction>[] = [
   {
     accessorKey: "idTransaction",
-    header: "No Transaction",
+    header: "No Transaksi",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("idTransaction")}</div>
@@ -112,7 +112,7 @@ export const columnTransactionReportOUT: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "nameUser",
-    header: "Created By",
+    header: "Dibuat Oleh",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameUser")}</div>
@@ -120,7 +120,7 @@ export const columnTransactionReportOUT: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "dateTransaction",
-    header: "Date",
+    header: "Tanggal",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -130,7 +130,7 @@ export const columnTransactionReportOUT: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "nameItem",
-    header: "Item",
+    header: "Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameItem")}</div>
@@ -146,7 +146,7 @@ export const columnTransactionReportOUT: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "quantityDetailTransaction",
-    header: "Qyt",
+    header: "Qyt Keluar",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -176,7 +176,7 @@ export const columnTransactionReportOUT: ColumnDef<TReportTransaction>[] = [
 export const columnTransactionReportCHECK: ColumnDef<TReportTransaction>[] = [
   {
     accessorKey: "idTransaction",
-    header: "No Transaction",
+    header: "No Transaksi",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("idTransaction")}</div>
@@ -184,7 +184,7 @@ export const columnTransactionReportCHECK: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "nameUser",
-    header: "Created By",
+    header: "Dibuat Oleh",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameUser")}</div>
@@ -192,7 +192,7 @@ export const columnTransactionReportCHECK: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "dateTransaction",
-    header: "Date",
+    header: "Tanggal",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -202,7 +202,7 @@ export const columnTransactionReportCHECK: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "nameItem",
-    header: "Item",
+    header: "Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameItem")}</div>
@@ -218,7 +218,7 @@ export const columnTransactionReportCHECK: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "quantityDetailTransaction",
-    header: "Qyt",
+    header: "Qyt Sistem",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -228,7 +228,7 @@ export const columnTransactionReportCHECK: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "quantityCheck",
-    header: "Qyt Check",
+    header: "Qyt Fisik",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("quantityCheck")}</div>
@@ -236,7 +236,7 @@ export const columnTransactionReportCHECK: ColumnDef<TReportTransaction>[] = [
   },
   {
     accessorKey: "quantityDifference",
-    header: "Difference",
+    header: "Selisih",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("quantityDifference")}</div>

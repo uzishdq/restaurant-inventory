@@ -120,15 +120,15 @@ export const ROLE = [
 
 export const TYPE_TRANSACTION = [
   {
-    name: "Stock Check",
+    name: "Cek Bahan Baku",
     value: "CHECK",
   },
   {
-    name: "Stock In",
+    name: "Pembelian Bahan Baku",
     value: "IN",
   },
   {
-    name: "Stock Out",
+    name: "Bahan Baku Keluar",
     value: "OUT",
   },
 ];

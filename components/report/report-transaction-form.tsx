@@ -13,10 +13,8 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { createCategory } from "@/lib/server/actions/action-category";
 import {
   Select,
   SelectContent,
@@ -65,10 +63,10 @@ export default function ReportTransactionForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Transaction Report</CardTitle>
+        <CardTitle className="text-xl">Laporan Transaksi</CardTitle>
         <CardDescription className="text-base">
-          Select the transaction type (Stock In, Out, or Check) to generate
-          transaction report.
+          Pilih jenis transaksi (Pembelian, Keluar, atau Cek) untuk menghasilkan
+          laporan transaksi.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -79,7 +77,7 @@ export default function ReportTransactionForm() {
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Transaction Type</FormLabel>
+                  <FormLabel>Jenis Transaksi</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}

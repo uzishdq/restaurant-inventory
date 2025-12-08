@@ -19,23 +19,23 @@ import React from "react";
 
 const REPORT_CONFIG = {
   IN: {
-    header: "Incoming Transactions Report",
+    header: "Laporan Pembelian Bahan Baku",
     description:
-      "A detailed report of all incoming items received from suppliers, including quantities, dates, and item details to ensure accurate inventory updates",
+      "Laporan rinci tentang semua barang yang diterima dari pemasok, termasuk kuantitas, tanggal, dan rincian barang untuk memastikan pembaruan inventaris yang akurat",
     columns: columnTransactionReportIN,
     excel: columnsExcelTransactionIn,
   },
   OUT: {
-    header: "Outgoing Transactions Report",
+    header: "Laporan Bahan Baku Keluar",
     description:
-      "A complete report of all outgoing items, including usage, transfers, or sales. This helps track stock reductions and maintain accurate inventory levels",
+      "Laporan lengkap tentang semua barang keluar, termasuk penggunaan, pemindahan, atau penjualan. Ini membantu melacak pengurangan stok dan menjaga tingkat inventaris yang akurat",
     columns: columnTransactionReportOUT,
     excel: columnsExcelTransactionOUT,
   },
   CHECK: {
-    header: "Stock Check Report",
+    header: "Laporan Pengecekan Bahan Baku",
     description:
-      "A comparative report between system quantities and physical counts. Useful for detecting discrepancies and validating inventory accuracy",
+      "Laporan perbandingan antara jumlah sistem dan hitungan fisik. Berguna untuk mendeteksi ketidaksesuaian dan memvalidasi keakuratan inventaris",
     columns: columnTransactionReportCHECK,
     excel: columnsExcelTransactionCHECK,
   },

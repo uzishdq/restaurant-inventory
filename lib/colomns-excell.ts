@@ -1,36 +1,36 @@
 import { TColumnExcell } from "./type-data";
 
 export const columnsExcelTransactionIn: TColumnExcell[] = [
-  { header: "No Transaction", value: "idTransaction" },
-  { header: "Created By", value: "nameUser" },
-  { header: "Date", value: "dateTransaction" },
-  { header: "Supplier", value: "store_name" },
-  { header: "Item", value: "nameItem" },
+  { header: "No Transaksi", value: "idTransaction" },
+  { header: "Dibuat Oleh", value: "nameUser" },
+  { header: "Tanggal", value: "dateTransaction" },
+  { header: "Toko", value: "store_name" },
+  { header: "Bahan Baku", value: "nameItem" },
   { header: "Unit", value: "nameUnit" },
-  { header: "Ordered Qyt", value: "quantityDetailTransaction" },
-  { header: "Good Qyt", value: "quantityCheck" },
-  { header: "Damaged Qyt", value: "quantityDifference" },
+  { header: "Jumlah Dipesan", value: "quantityDetailTransaction" },
+  { header: "Jumlah Baik", value: "quantityCheck" },
+  { header: "Jumlah Rusak", value: "quantityDifference" },
   { header: "Note", value: "note" },
 ];
 
 export const columnsExcelTransactionOUT: TColumnExcell[] = [
-  { header: "No Transaction", value: "idTransaction" },
-  { header: "Created By", value: "nameUser" },
-  { header: "Date", value: "dateTransaction" },
-  { header: "Item", value: "nameItem" },
+  { header: "No Transaksi", value: "idTransaction" },
+  { header: "Dibuat Oleh", value: "nameUser" },
+  { header: "Tanggal", value: "dateTransaction" },
+  { header: "Bahan Baku", value: "nameItem" },
   { header: "Unit", value: "nameUnit" },
-  { header: "Qyt", value: "quantityDetailTransaction" },
+  { header: "Qyt Keluar", value: "quantityDetailTransaction" },
   { header: "Note", value: "note" },
 ];
 
 export const columnsExcelTransactionCHECK: TColumnExcell[] = [
-  { header: "No Transaction", value: "idTransaction" },
-  { header: "Created By", value: "nameUser" },
-  { header: "Date", value: "dateTransaction" },
-  { header: "Item", value: "nameItem" },
+  { header: "No Transaksi", value: "idTransaction" },
+  { header: "Dibuat Oleh", value: "nameUser" },
+  { header: "Tanggal", value: "dateTransaction" },
+  { header: "Bahan Baku", value: "nameItem" },
   { header: "Unit", value: "nameUnit" },
-  { header: "Qyt System", value: "quantityDetailTransaction" },
-  { header: "Qyt Check", value: "quantityCheck" },
-  { header: "Difference", value: "quantityDifference" },
+  { header: "Qyt Sistem", value: "quantityDetailTransaction" },
+  { header: "Qyt Fisik", value: "quantityCheck" },
+  { header: "Selisih", value: "quantityDifference" },
   { header: "Note", value: "note" },
 ];

@@ -85,11 +85,11 @@ export default function DateTableFilter<T>({
         <>
           <Select onValueChange={handleMonthChange} value={filterMonth}>
             <SelectTrigger className="w-fit">
-              <SelectValue placeholder="Select Month" />
+              <SelectValue placeholder="Bulan" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectLabel>Month</SelectLabel>
+                <SelectLabel>Bulan</SelectLabel>
                 {MONTHS.map((item) => (
                   <SelectItem key={item.value} value={item.value}>
                     {item.title}
@@ -100,11 +100,11 @@ export default function DateTableFilter<T>({
           </Select>
           <Select onValueChange={handleYearChange} value={filterYear}>
             <SelectTrigger className="w-fit">
-              <SelectValue placeholder="Select Year" />
+              <SelectValue placeholder="Tahun" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectLabel>Year</SelectLabel>
+                <SelectLabel>Tahun</SelectLabel>
                 {YEARS.map((year) => (
                   <SelectItem key={year} value={year}>
                     {year}
