@@ -37,7 +37,7 @@ const ValueSelect = ({
   data,
   valueKey,
   labelKey,
-  placeholder = "Select an option...",
+  placeholder = "Pilih sebuah opsi",
   disabled = false,
 }: {
   label: string;
@@ -73,8 +73,8 @@ const ValueSelect = ({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
         <Command>
-          <CommandInput placeholder={`Search ${label}...`} />
-          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandInput placeholder={`Cari ${label}`} />
+          <CommandEmpty>Tidak ada hasil yang ditemukan.</CommandEmpty>
           <CommandList>
             <CommandGroup>
               {data.map((item) => (
