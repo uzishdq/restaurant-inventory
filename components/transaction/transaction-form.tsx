@@ -99,6 +99,24 @@ interface IDeleteDetailTransactionForm {
   data: TDetailTransaction;
 }
 
+const labelMap = {
+  CHECK: {
+    quantityDetailTransaction: "Qty Sistem",
+    quantityCheck: "Qty Fisik",
+    quantityDifference: "Selisih",
+  },
+  OUT: {
+    quantityDetailTransaction: "Qyt Keluar",
+    quantityCheck: "Qty Fisik",
+    quantityDifference: "Selisih",
+  },
+  IN: {
+    quantityDetailTransaction: "Jumlah Dipesan",
+    quantityCheck: "Jumlah Baik",
+    quantityDifference: "Jumlah Rusak",
+  },
+} as const;
+
 function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
   const [isPending, startTransition] = React.useTransition();
 
@@ -470,7 +488,10 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                             name={`detail.${index}.quantityDetailTransaction`}
                             render={({ field: qtyField }) => (
                               <FormItem>
-                                <FormLabel>Quantity</FormLabel>
+                                <FormLabel>
+                                  {labelMap[watchType]
+                                    ?.quantityDetailTransaction ?? "Quantity"}
+                                </FormLabel>
                                 <div className="flex items-center gap-2">
                                   <FormControl>
                                     <Input
@@ -524,7 +545,10 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                               name={`detail.${index}.quantityCheck`}
                               render={({ field: checkField }) => (
                                 <FormItem>
-                                  <FormLabel>Quantity Fisik</FormLabel>
+                                  <FormLabel>
+                                    {labelMap[watchType]?.quantityCheck ??
+                                      "Quantity Fisik"}
+                                  </FormLabel>
                                   <div className="flex items-center gap-2">
                                     <FormControl>
                                       <Input
@@ -599,7 +623,10 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
                               name={`detail.${index}.quantityDifference`}
                               render={({ field: diffField }) => (
                                 <FormItem>
-                                  <FormLabel>Selisih</FormLabel>
+                                  <FormLabel>
+                                    {labelMap[watchType]?.quantityDifference ??
+                                      "Selisih"}
+                                  </FormLabel>
                                   <div className="flex items-center gap-2">
                                     <FormControl>
                                       <Input
@@ -949,7 +976,7 @@ function AddDetailTransactionForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {/* DETAIL TRANSACTION */}
         <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
-          <FormLabel>Transaction Details</FormLabel>
+          <FormLabel>Detail Transaksi</FormLabel>
 
           {fields.map((field, index) => {
             const itemId = form.getValues(`detail.${index}.itemId`);
@@ -958,12 +985,12 @@ function AddDetailTransactionForm({
             return (
               <Card key={field.id}>
                 <CardHeader className="font-medium text-gray-700">
-                  Item #{index + 1}
+                  Data #{index + 1}
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <CustomSelect
                     name={`detail.${index}.itemId`}
-                    label="Item"
+                    label="Bahan Baku"
                     control={form.control}
                     data={items}
                     valueKey="idItem"
@@ -973,7 +1000,7 @@ function AddDetailTransactionForm({
                   {data.typeTransaction === "IN" && (
                     <CustomSelect
                       name={`detail.${index}.supplierId`}
-                      label="Store"
+                      label="Toko"
                       control={form.control}
                       data={supplier}
                       valueKey="idSupplier"
@@ -987,7 +1014,11 @@ function AddDetailTransactionForm({
                     name={`detail.${index}.quantityDetailTransaction`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Quantity</FormLabel>
+                        <FormLabel>
+                          {" "}
+                          {labelMap[data.typeTransaction]
+                            ?.quantityDetailTransaction ?? "Quantity"}
+                        </FormLabel>
                         <div className="flex items-center gap-2">
                           <FormControl>
                             <Input
@@ -1009,7 +1040,7 @@ function AddDetailTransactionForm({
                         <FormMessage />
                         {selectedItem && (
                           <FormDescription>
-                            Current Stock: {selectedItem.qty}
+                            Stok Saat Ini: {selectedItem.qty}
                           </FormDescription>
                         )}
                       </FormItem>
@@ -1022,7 +1053,10 @@ function AddDetailTransactionForm({
                       name={`detail.${index}.quantityCheck`}
                       render={({ field: checkField }) => (
                         <FormItem>
-                          <FormLabel>Quantity Check</FormLabel>
+                          <FormLabel>
+                            {labelMap[data.typeTransaction]?.quantityCheck ??
+                              "Quantity Fisik"}
+                          </FormLabel>
                           <div className="flex items-center gap-2">
                             <FormControl>
                               <Input
@@ -1093,7 +1127,10 @@ function AddDetailTransactionForm({
                       name={`detail.${index}.quantityDifference`}
                       render={({ field: diffField }) => (
                         <FormItem>
-                          <FormLabel>Difference</FormLabel>
+                          <FormLabel>
+                            {labelMap[data.typeTransaction]
+                              ?.quantityDifference ?? "Selisih"}
+                          </FormLabel>
                           <div className="flex items-center gap-2">
                             <FormControl>
                               <Input
@@ -1120,10 +1157,10 @@ function AddDetailTransactionForm({
                             )}
                           >
                             {diffField.value > 0
-                              ? `+${diffField.value} excess`
+                              ? `+${diffField.value} lebih`
                               : diffField.value < 0
-                              ? `${diffField.value} shortage`
-                              : "Matched"}
+                              ? `${diffField.value} kurang`
+                              : "cocok"}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -1155,7 +1192,7 @@ function AddDetailTransactionForm({
                       onClick={() => handleRemove(index)}
                       disabled={fields.length === 1}
                     >
-                      Remove
+                      Delete
                     </Button>
                   </div>
                 </CardContent>
@@ -1192,7 +1229,8 @@ function AddDetailTransactionForm({
               });
             }}
           >
-            + Add Item
+            <Plus className="mr-2 h-4 w-4" />
+            Tambah Detail
           </Button>
         </div>
 
@@ -1353,7 +1391,7 @@ function UpdateDetailTransactionForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <CustomSelect
           name="itemId"
-          label="Item"
+          label="Bahan Baku"
           control={form.control}
           data={items}
           valueKey="idItem"
@@ -1364,7 +1402,7 @@ function UpdateDetailTransactionForm({
         {data.typeTransaction === "IN" && (
           <CustomSelect
             name="supplierId"
-            label="Store"
+            label="Toko"
             control={form.control}
             data={suppliers}
             valueKey="idSupplier"
@@ -1378,7 +1416,10 @@ function UpdateDetailTransactionForm({
           name="quantityDetailTransaction"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Quantity</FormLabel>
+              <FormLabel>
+                {labelMap[data.typeTransaction]?.quantityDetailTransaction ??
+                  "Quantity"}
+              </FormLabel>
               <FormControl>
                 <div className="flex items-center gap-2">
                   <FormControl>
@@ -1400,7 +1441,7 @@ function UpdateDetailTransactionForm({
               <FormMessage />
               {selectedItem && (
                 <FormDescription>
-                  Current Stock: {selectedItem.qty}
+                  Stok Saat ini: {selectedItem.qty}
                 </FormDescription>
               )}
             </FormItem>
@@ -1413,7 +1454,10 @@ function UpdateDetailTransactionForm({
               name="quantityCheck"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Good Quantity</FormLabel>
+                  <FormLabel>
+                    {labelMap[data.typeTransaction]?.quantityCheck ??
+                      "Good Quantity"}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -1429,7 +1473,7 @@ function UpdateDetailTransactionForm({
                         );
 
                         // Hitung selisih
-                        const diff = qtyDetail - qtyCheck;
+                        const diff = qtyCheck - qtyDetail;
 
                         // Set hasilnya ke quantityDifference
                         form.setValue(
@@ -1448,7 +1492,10 @@ function UpdateDetailTransactionForm({
               name="quantityDifference"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Damaged Quantity</FormLabel>
+                  <FormLabel>
+                    {labelMap[data.typeTransaction]?.quantityDifference ??
+                      "Damaged Quantity"}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -1457,6 +1504,21 @@ function UpdateDetailTransactionForm({
                       disabled
                     />
                   </FormControl>
+                  <FormDescription
+                    className={cn(
+                      field.value > 0
+                        ? "text-green-600"
+                        : field.value < 0
+                        ? "text-red-600"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {field.value > 0
+                      ? `+${field.value} lebih`
+                      : field.value < 0
+                      ? `${field.value} kurang`
+                      : "cocok"}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

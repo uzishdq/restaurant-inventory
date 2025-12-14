@@ -120,7 +120,7 @@ export const columnItemMovement: ColumnDef<TItemMovement>[] = [
   },
   {
     accessorKey: "typeMovement",
-    header: "Status",
+    header: "Jenis",
     enableHiding: false,
     cell: ({ row }) => (
       <BadgeCustom

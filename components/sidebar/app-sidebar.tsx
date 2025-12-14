@@ -89,7 +89,7 @@ export function AppSidebar({
           },
           {
             title: "Bahan Baku",
-            url: "#",
+            url: ROUTES.AUTH.REPORT.ITEM,
           },
         ],
       },

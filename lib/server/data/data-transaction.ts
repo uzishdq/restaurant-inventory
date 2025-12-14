@@ -23,8 +23,9 @@ import {
   TTransaction,
   typeTransactionType,
 } from "@/lib/type-data";
-import { and, asc, count, desc, eq, like, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, like, lte, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
+import * as z from "zod";
 
 export async function generateTransactionID(type: typeTransactionType) {
   const typeMap: Record<string, string> = {
@@ -204,11 +205,10 @@ export const getOldDetailTransaction = unstable_cache(
 );
 
 export const getReportTransactions = unstable_cache(
-  async (type: typeTransactionType) => {
+  async (values: z.infer<typeof ReportTransactionSchema>) => {
     try {
-      const validateValue = ReportTransactionSchema.safeParse({
-        type: type,
-      });
+      const validateValue = ReportTransactionSchema.safeParse(values);
+      console.log(validateValue);
 
       if (!validateValue.success) {
         return { ok: false, data: null, message: LABEL.ERROR.INVALID_FIELD };
@@ -249,7 +249,13 @@ export const getReportTransactions = unstable_cache(
           supplierTable,
           eq(supplierTable.idSupplier, detailTransactionTable.supplierId)
         )
-        .where(eq(transactionTable.typeTransaction, validateValue.data.type))
+        .where(
+          and(
+            gte(transactionTable.dateTransaction, validateValue.data.startDate),
+            lte(transactionTable.dateTransaction, validateValue.data.endDate),
+            eq(transactionTable.typeTransaction, validateValue.data.type)
+          )
+        )
         .orderBy(desc(transactionTable.dateTransaction));
 
       if (result.length > 0) {

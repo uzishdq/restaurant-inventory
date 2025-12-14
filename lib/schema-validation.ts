@@ -74,6 +74,14 @@ export const DeleteUUIDSchema = z.object({
   id: z.uuid("Invalid ID format.").min(5),
 });
 
+const DateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Date format must be YYYY-MM-DD")
+  .refine((val) => {
+    const d = new Date(val);
+    return !isNaN(d.getTime()) && val === d.toISOString().slice(0, 10);
+  }, "Invalid date");
+
 /* -------- ENUM --------  */
 export const enumRole = ["ADMIN", "HEADKITCHEN", "MANAGER"] as const;
 export const enumTypeTransaction = ["IN", "OUT", "CHECK"] as const;
@@ -432,9 +440,23 @@ export const DeleteTransactionDetailSchema = z.object({
   idDetailTransaction: z.uuid("Invalid ID format.").min(5),
 });
 
-export const ReportTransactionSchema = z.object({
-  type: z.enum(enumTypeTransaction, { message: "Required" }),
-});
+export const ReportTransactionSchema = z
+  .object({
+    type: z.enum(enumTypeTransaction, { message: "Required" }),
+    startDate: DateSchema,
+    endDate: DateSchema,
+  })
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      return start <= end;
+    },
+    {
+      message: "Start date must be earlier or equal to end date",
+      path: ["startDate"],
+    }
+  );
 
 /* -------- NOTIFICATION --------  */
 export const NotificationSchema = z.object({

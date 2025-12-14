@@ -17,7 +17,7 @@ export default async function ItemMovementPage() {
         header="Pergerakan Bahan Baku"
         description="Catatan semua aktivitas keluar-masuk dan perubahan stok bahan baku untuk memastikan inventaris tetap akurat dan terkendali"
         searchBy="nameItem"
-        labelSearch="name Item"
+        labelSearch="Nama"
         isFilterDate={true}
         filterDate="createdAt"
         data={itemMovement.data}

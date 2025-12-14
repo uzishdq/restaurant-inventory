@@ -661,6 +661,45 @@ export const updateDetailTransaction = async (values: unknown) => {
       }
     }
 
+    if (validateValues.data.typeTransaction === "CHECK") {
+      const newData = {
+        quantityDetailTransaction:
+          validateValues.data.quantityDetailTransaction,
+        quantityCheck: validateValues.data.quantityCheck,
+        quantityDifference: validateValues.data.quantityDifference,
+        note: validateValues.data.note,
+      };
+
+      const isSame = hasChanges(oldData.data, newData, [
+        "quantityDetailTransaction",
+        "quantityCheck",
+        "quantityDifference",
+        "note",
+      ]);
+
+      if (!isSame) {
+        return { ok: false, message: LABEL.ERROR.CHECK_DATA };
+      }
+
+      const [result] = await db
+        .update(detailTransactionTable)
+        .set(newData)
+        .where(
+          eq(
+            detailTransactionTable.idDetailTransaction,
+            validateValues.data.idDetailTransaction
+          )
+        )
+        .returning();
+
+      if (!result) {
+        return {
+          ok: false,
+          message: LABEL.INPUT.FAILED.UPDATE,
+        };
+      }
+    }
+
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
       tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))

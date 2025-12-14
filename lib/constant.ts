@@ -30,6 +30,7 @@ export const ROUTES = {
     REPORT: {
       TRANSACTION: "/dashboard/report-transaction",
       FIND_LAPORAN: (query: string) => `/dashboard/report-transaction?${query}`,
+      ITEM: "/dashboard/report-item",
     },
     ACCOUNT: "/dashboard/account",
     NOTIFICATION: "/dashboard/notification",

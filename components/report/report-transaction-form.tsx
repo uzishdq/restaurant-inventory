@@ -32,6 +32,7 @@ import {
 } from "../ui/card";
 import { findReportTransaction } from "@/lib/server/actions/action-report";
 import { useRouter } from "next/navigation";
+import { Input } from "../ui/input";
 
 export default function ReportTransactionForm() {
   const router = useRouter();
@@ -41,6 +42,8 @@ export default function ReportTransactionForm() {
     resolver: zodResolver(ReportTransactionSchema),
     defaultValues: {
       type: undefined,
+      startDate: "",
+      endDate: "",
     },
     mode: "onChange",
   });
@@ -99,6 +102,35 @@ export default function ReportTransactionForm() {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="startDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tanggal Awal</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="date" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="endDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tanggal Akhir</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="date" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? "Loading..." : "View Report"}
             </Button>

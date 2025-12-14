@@ -12,10 +12,10 @@ import {
   columnsExcelTransactionIn,
   columnsExcelTransactionOUT,
 } from "@/lib/colomns-excell";
+import { LABEL } from "@/lib/constant";
 import { ReportTransactionSchema } from "@/lib/schema-validation";
 import { getReportTransactions } from "@/lib/server/data/data-transaction";
 import { TReportTransaction } from "@/lib/type-data";
-import React from "react";
 
 const REPORT_CONFIG = {
   IN: {
@@ -47,9 +47,16 @@ export default async function ReportTransactionPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const value = await searchParams;
-  const typeParams = value.type ?? "";
 
-  const validate = ReportTransactionSchema.safeParse({ type: typeParams });
+  const typeParams = value.type ?? "";
+  const startDateParams = value.startDate ?? "";
+  const endDateParams = value.endDate ?? "";
+
+  const validate = ReportTransactionSchema.safeParse({
+    type: typeParams,
+    startDate: startDateParams,
+    endDate: endDateParams,
+  });
 
   let reportTransaction: TReportTransaction[] | null = null;
   let messageReport: string | undefined;
@@ -62,7 +69,7 @@ export default async function ReportTransactionPage({
 
     config = REPORT_CONFIG[type];
 
-    const response = await getReportTransactions(type);
+    const response = await getReportTransactions(validate.data);
 
     statusReportTransaction = response.ok;
     messageReport = response.message;
@@ -71,6 +78,10 @@ export default async function ReportTransactionPage({
 
   return (
     <div className="space-y-4">
+      {typeParams === "" ||
+        (!validate.success && (
+          <FormStatus status={false} message={LABEL.ERROR.INVALID_FIELD} />
+        ))}
       <ReportTransactionForm />
       {config && reportTransaction ? (
         <TableDateWrapper

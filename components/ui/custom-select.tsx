@@ -37,7 +37,7 @@ const ValueSelect = ({
   data,
   valueKey,
   labelKey,
-  placeholder = "Pilih sebuah opsi",
+  placeholder = "Pilih...",
   disabled = false,
 }: {
   label: string;
