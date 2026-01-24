@@ -117,7 +117,10 @@ const labelMap = {
   },
 } as const;
 
-function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
+function CreateTransactionForm({
+  items,
+  supplier,
+}: Readonly<ICreateTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
 
   const schema = CreateTransactionTestSchema(items);
@@ -140,73 +143,6 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
     mode: "onChange",
   });
 
-  // const { fields, append, remove } = useFieldArray({
-  //   control: form.control,
-  //   name: "detail",
-  // });
-
-  // const watchType = useWatch({
-  //   control: form.control,
-  //   name: "typeTransaction",
-  // });
-
-  // React.useEffect(() => {
-  //   form.reset({
-  //     typeTransaction: watchType,
-  //     detail: [
-  //       {
-  //         itemId: "",
-  //         supplierId: "",
-  //         quantityDetailTransaction: 0,
-  //         quantityCheck: 0,
-  //         quantityDifference: 0,
-  //         note: "",
-  //       },
-  //     ],
-  //   });
-  // }, [watchType, form]);
-
-  // React.useEffect(() => {
-  //   if (watchType !== "CHECK") return;
-
-  //   const subscription = form.watch((_, { name }) => {
-  //     if (!name) return;
-
-  //     const match = name.match(/^detail\.(\d+)\.(itemId|quantityCheck)$/);
-  //     if (!match) return;
-
-  //     const index = parseInt(match[1], 10);
-
-  //     setTimeout(() => {
-  //       const itemId = form.getValues(`detail.${index}.itemId`);
-  //       const qtyCheck = form.getValues(`detail.${index}.quantityCheck`) ?? 0;
-
-  //       const selectedItem = itemId
-  //         ? items.find((i) => i.idItem === itemId)
-  //         : null;
-  //       const qtySystem = selectedItem?.qty ?? 0;
-
-  //       // Update stok sistem
-  //       form.setValue(`detail.${index}.quantityDetailTransaction`, qtySystem, {
-  //         shouldValidate: true,
-  //         shouldDirty: true,
-  //         shouldTouch: true,
-  //       });
-
-  //       // Update selisih
-  //       form.setValue(
-  //         `detail.${index}.quantityDifference`,
-  //         qtyCheck - qtySystem,
-  //         {
-  //           shouldDirty: true,
-  //         }
-  //       );
-  //     }, 0);
-  //   });
-
-  //   return () => subscription.unsubscribe();
-  // }, [form, items, watchType]);
-
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "detail",
@@ -225,7 +161,7 @@ function CreateTransactionForm({ items, supplier }: ICreateTransactionForm) {
 
   const prevTypeRef = useRef<string | undefined>(undefined);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Pertama kali render → inisialisasi
     if (prevTypeRef.current === undefined) {
       prevTypeRef.current = watchType;

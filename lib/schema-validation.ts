@@ -5,82 +5,82 @@ const allowedRegex = /^[a-zA-Z0-9.,/ \-']+$/;
 
 const username = z
   .string()
-  .min(5, "must be at least 5 characters long.")
-  .max(50, "must not exceed 50 characters.")
+  .min(5, "Harus memiliki minimal 5 karakter.")
+  .max(50, "Tidak boleh melebihi 50 karakter.")
   .regex(
     allowedRegex,
-    "Use only letters, numbers, spaces, dots, commas, or slashes."
+    "Gunakan hanya huruf, angka, spasi, titik, koma, atau garis miring.",
   )
   .refine((username) => !/\s/.test(username), {
-    message: "can’t contain spaces.",
+    message: "Tidak boleh mengandung spasi.",
   });
 
 const password = z
   .string()
-  .min(6, "must be at least 6 characters long.")
-  .max(50, "must not exceed 50 characters.");
+  .min(6, "Harus memiliki minimal 6 karakter.")
+  .max(50, "Tidak boleh melebihi 50 karakter.");
 
 export const IdSchema = z.object({
-  id: z.uuid("Invalid ID format."),
+  id: z.uuid("Format ID tidak valid."),
 });
 
 const validatedStringSchema = (min = 5, max = 50) =>
   z
     .string()
-    .min(min, `must be at least ${min} characters long.`)
-    .max(max, `must not exceed ${max} characters.`)
+    .min(min, `Harus memiliki minimal ${min} karakter.`)
+    .max(max, `Tidak boleh melebihi ${max} karakter.`)
     .regex(
       allowedRegex,
-      "Use only letters, numbers, spaces, dots, commas, or slashes."
+      "Gunakan hanya huruf, angka, spasi, titik, koma, atau garis miring.",
     );
 
 const validatedPhoneSchema = z
   .string()
   .min(10, {
-    message: "Phone number must be at least 10 digits long.",
+    message: "Nomor telepon harus terdiri minimal 10 digit.",
   })
   .max(15, {
-    message: "Phone number must not exceed 15 digits.",
+    message: "Nomor telepon tidak boleh melebihi 15 digit.",
   })
   .regex(/^[0-9]+$/, {
-    message: "Phone number can contain digits only.",
+    message: "Nomor telepon hanya boleh berisi angka.",
   })
   .refine((value) => value.startsWith("0"), {
-    message: "Phone number must start with the digit 0.",
+    message: "Nomor telepon harus diawali dengan angka 0.",
   });
 
 const validatedStock = (min = 0, max = 60) =>
-  z.number("Required").refine(
+  z.number("Kolom wajib diisi").refine(
     (n) => {
       const allowZero = min === 0;
       return (n >= min && n <= max) || (allowZero && n === 0);
     },
     {
-      message: `Must be at least ${min} - ${max}`,
-    }
+      message: `Setidaknya harus ${min} - ${max}`,
+    },
   );
 
 const itemIdSchema = z.string().regex(/^BB-\d{4}$/, {
-  message: "Invalid ID format.",
+  message: "Format ID tidak valid.",
 });
 
 export const transactionIdSchema = z
   .string()
   .regex(/^TRX-(IN|OUT|CHK)-\d{4}$/, {
-    message: "Invalid transaction ID format.",
+    message: "Format ID transaksi tidak valid.",
   });
 
 export const DeleteUUIDSchema = z.object({
-  id: z.uuid("Invalid ID format.").min(5),
+  id: z.uuid("Format ID tidak valid.").min(5),
 });
 
 const DateSchema = z
   .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, "Date format must be YYYY-MM-DD")
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Format tanggal harus YYYY-MM-DD")
   .refine((val) => {
     const d = new Date(val);
     return !isNaN(d.getTime()) && val === d.toISOString().slice(0, 10);
-  }, "Invalid date");
+  }, "Tanggal tidak valid");
 
 /* -------- ENUM --------  */
 export const enumRole = ["ADMIN", "HEADKITCHEN", "MANAGER"] as const;
@@ -118,7 +118,7 @@ export const UsernameUpdateSchema = z
     newUsername: username,
   })
   .refine((data) => data.oldUsername !== data.newUsername, {
-    message: "New username must be different from the current username",
+    message: "Username baru harus berbeda dari username saat ini.",
     path: ["newUsername"],
   });
 
@@ -129,16 +129,16 @@ export const PasswordUpdateSchema = z
     newConfirmPassword: password,
   })
   .refine((data) => data.oldPassword !== data.newPassword, {
-    message: "New password must be different from the current password",
+    message: "Password baru harus berbeda dari password saat ini.",
     path: ["newPassword"],
   })
   .refine((data) => data.newPassword === data.newConfirmPassword, {
-    message: "Passwords do not match",
+    message: "Passwords tidak cocok",
     path: ["newConfirmPassword"],
   });
 
 export const RoleUpdateSchema = z.object({
-  idUser: z.uuid("Invalid ID format.").min(5),
+  idUser: z.uuid("Format ID tidak valid.").min(5),
   role: z.enum(enumRole),
 });
 
@@ -151,7 +151,7 @@ export const CreateSupplierSchema = z.object({
 });
 
 export const UpdateSupplierSchema = z.object({
-  idSupplier: z.uuid("Invalid ID format.").min(5),
+  idSupplier: z.uuid("Format ID tidak valid.").min(5),
   store_name: validatedStringSchema(5, 50),
   nameSupplier: validatedStringSchema(5, 50),
   addressSupplier: validatedStringSchema(5, 100),
@@ -164,7 +164,7 @@ export const CreateUnitSchema = z.object({
 });
 
 export const UpdateUnitSchema = z.object({
-  idUnit: z.uuid("Invalid ID format.").min(5),
+  idUnit: z.uuid("Format ID tidak valid.").min(5),
   nameUnit: validatedStringSchema(2, 10),
 });
 
@@ -174,23 +174,23 @@ export const CreateCategorySchema = z.object({
 });
 
 export const UpdateCategorySchema = z.object({
-  idCategory: z.uuid("Invalid ID format.").min(5),
+  idCategory: z.uuid("Format ID tidak valid.").min(5),
   nameCategory: validatedStringSchema(5, 10),
 });
 
 /* -------- ITEM --------  */
 export const CreateItemSchema = z.object({
   nameItem: validatedStringSchema(5, 100),
-  unitId: z.uuid("Invalid ID format.").min(5),
-  categoryId: z.uuid("Invalid ID format.").min(5),
+  unitId: z.uuid("Format ID tidak valid.").min(5),
+  categoryId: z.uuid("Format ID tidak valid.").min(5),
   minStock: validatedStock(),
 });
 
 export const UpdateItemSchema = z.object({
   idItem: itemIdSchema,
   nameItem: validatedStringSchema(5, 100),
-  unitId: z.uuid("Invalid ID format.").min(5),
-  categoryId: z.uuid("Invalid ID format.").min(5),
+  unitId: z.uuid("Format ID tidak valid.").min(5),
+  categoryId: z.uuid("Format ID tidak valid.").min(5),
   minStock: validatedStock(),
 });
 
@@ -207,10 +207,10 @@ const transactionDetailSchema = z.object({
   quantityDifference: validatedStock(-500, 500),
   note: z
     .string()
-    .max(100, "must not exceed 100 characters.")
+    .max(100, "Tidak boleh melebihi 100 karakter.")
     .regex(
       allowedRegex,
-      "Use only letters, numbers, spaces, dots, commas, or slashes."
+      "Gunakan hanya huruf, angka, spasi, titik, koma, atau garis miring.",
     )
     .optional()
     .or(z.literal("")),
@@ -222,7 +222,7 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
       typeTransaction: z.enum(enumTypeTransaction),
       detail: z
         .array(transactionDetailSchema)
-        .min(1, "At least one transaction detail is required."),
+        .min(1, "Setidaknya satu detail transaksi diperlukan."),
     })
     .superRefine((data, ctx) => {
       data.detail.forEach((d, i) => {
@@ -232,7 +232,7 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
           ctx.addIssue({
             code: "custom",
             path: ["detail", i, "itemId"],
-            message: "Item not found.",
+            message: "Bahan Baku tidak ditemukan.",
           });
           return;
         }
@@ -243,7 +243,7 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
             ctx.addIssue({
               code: "custom",
               path: ["detail", i, "supplierId"],
-              message: "Store is required for incoming transactions.",
+              message: "Toko ini diperlukan untuk Pengadaan Bahan Baku.",
             });
           }
         }
@@ -254,7 +254,7 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
             ctx.addIssue({
               code: "custom",
               path: ["detail", i, "quantityDetailTransaction"],
-              message: `Quantity exceeds available stock (${item.qty}).`,
+              message: `Quantity melebihi stok yang tersedia. (${item.qty}).`,
             });
           }
         }
@@ -265,7 +265,7 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
             ctx.addIssue({
               code: "custom",
               path: ["detail", i, "quantityDetailTransaction"],
-              message: `System stock must be ${item.qty}.`,
+              message: `Quantity sistem harus ${item.qty}.`,
             });
           }
 
@@ -273,7 +273,7 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
             ctx.addIssue({
               code: "custom",
               path: ["detail", i, "quantityDifference"],
-              message: "Difference does not match check - system.",
+              message: "Tidak sesuai dengan pengecekan sistem.",
             });
           }
         }
@@ -284,7 +284,7 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
             ctx.addIssue({
               code: "custom",
               path: ["detail", i, "note"],
-              message: "Note is required for this transactions.",
+              message: "Note diperlukan untuk transaksi ini.",
             });
           }
         }
@@ -298,7 +298,9 @@ export const DeleteTransactionSchema = z.object({
 export const UpdateTransactionSchema = z.object({
   idTransaction: transactionIdSchema,
   typeTransaction: z.enum(enumTypeTransaction),
-  statusTransaction: z.enum(enumStatusTransaction, { message: "Required" }),
+  statusTransaction: z.enum(enumStatusTransaction, {
+    message: "Kolom wajib diisi",
+  }),
 });
 
 export const AddTransactionDetailSchema = (items: TItemTrx[]) =>
@@ -308,7 +310,7 @@ export const AddTransactionDetailSchema = (items: TItemTrx[]) =>
       typeTransaction: z.enum(enumTypeTransaction),
       detail: z
         .array(transactionDetailSchema)
-        .min(1, "At least one transaction detail is required."),
+        .min(1, "Setidaknya satu detail transaksi diperlukan."),
     })
     .superRefine((data, ctx) => {
       data.detail.forEach((d, i) => {
@@ -318,7 +320,7 @@ export const AddTransactionDetailSchema = (items: TItemTrx[]) =>
           ctx.addIssue({
             code: "custom",
             path: ["detail", i, "itemId"],
-            message: "Item not found.",
+            message: "Bahan Baku tidak ditemukan.",
           });
           return;
         }
@@ -328,7 +330,7 @@ export const AddTransactionDetailSchema = (items: TItemTrx[]) =>
             ctx.addIssue({
               code: "custom",
               path: ["detail", i, "supplierId"],
-              message: "Store is required for incoming transactions.",
+              message: "Toko ini diperlukan untuk Pengadaan Bahan Baku.",
             });
           }
         }
@@ -338,7 +340,7 @@ export const AddTransactionDetailSchema = (items: TItemTrx[]) =>
             ctx.addIssue({
               code: "custom",
               path: ["detail", i, "quantityDetailTransaction"],
-              message: `Quantity exceeds available stock (${item.qty}).`,
+              message: `Quantity melebihi stok yang tersedia. (${item.qty}).`,
             });
           }
         }
@@ -349,7 +351,7 @@ export const AddTransactionDetailSchema = (items: TItemTrx[]) =>
             ctx.addIssue({
               code: "custom",
               path: ["detail", i, "note"],
-              message: "Note is required for this transactions.",
+              message: "Note diperlukan untuk transaksi ini.",
             });
           }
         }
@@ -359,7 +361,7 @@ export const AddTransactionDetailSchema = (items: TItemTrx[]) =>
 export const UpdateTransactionDetailSchema = (items: TItemTrx[]) =>
   transactionDetailSchema
     .extend({
-      idDetailTransaction: z.uuid("Invalid ID format.").min(5),
+      idDetailTransaction: z.uuid("Format ID tidak valid.").min(5),
       typeTransaction: z.enum(enumTypeTransaction),
       statusTransaction: z.enum(enumStatusTransaction),
     })
@@ -370,7 +372,7 @@ export const UpdateTransactionDetailSchema = (items: TItemTrx[]) =>
         ctx.addIssue({
           code: "custom",
           path: ["itemId"],
-          message: "Item not found.",
+          message: "Bahan Baku tidak ditemukan.",
         });
         return;
       }
@@ -380,7 +382,7 @@ export const UpdateTransactionDetailSchema = (items: TItemTrx[]) =>
           ctx.addIssue({
             code: "custom",
             path: ["supplierId"],
-            message: "Store is required for incoming transactions.",
+            message: "Toko ini diperlukan untuk Pengadaan Bahan Baku.",
           });
         }
 
@@ -389,7 +391,7 @@ export const UpdateTransactionDetailSchema = (items: TItemTrx[]) =>
             ctx.addIssue({
               code: "custom",
               path: ["note"],
-              message: "Note is required for damaged item.",
+              message: "Note diperlukan untuk barang yang rusak.",
             });
           }
         }
@@ -398,7 +400,7 @@ export const UpdateTransactionDetailSchema = (items: TItemTrx[]) =>
           ctx.addIssue({
             code: "custom",
             path: ["quantityCheck"],
-            message: `Checked quantity cannot exceed the ordered quantity (${data.quantityDetailTransaction}).`,
+            message: `Quantity yang diperiksa tidak boleh melebihi quantity yang dipesan. (${data.quantityDetailTransaction}).`,
           });
         }
 
@@ -407,7 +409,7 @@ export const UpdateTransactionDetailSchema = (items: TItemTrx[]) =>
           ctx.addIssue({
             code: "custom",
             path: ["quantityCheck"],
-            message: "Checked quantity cannot be less than -1.",
+            message: "Quantity yang diperiksa tidak boleh kurang dari -1.",
           });
         }
       }
@@ -417,7 +419,7 @@ export const UpdateTransactionDetailSchema = (items: TItemTrx[]) =>
           ctx.addIssue({
             code: "custom",
             path: ["quantityDetailTransaction"],
-            message: `Quantity exceeds available stock (${item.qty}).`,
+            message: `Quantity melebihi stok yang tersedia (${item.qty}).`,
           });
         }
 
@@ -425,24 +427,24 @@ export const UpdateTransactionDetailSchema = (items: TItemTrx[]) =>
           ctx.addIssue({
             code: "custom",
             path: ["note"],
-            message: "Note is required for damaged item.",
+            message: "Note diperlukan untuk barang yang rusak.",
           });
         }
       }
     });
 
 export const UpdateTrxDetailStatusSchema = z.object({
-  idDetailTransaction: z.uuid("Invalid ID format.").min(5),
+  idDetailTransaction: z.uuid("Format ID tidak valid.").min(5),
   statusDetailTransaction: z.enum(enumStatusTransaction),
 });
 
 export const DeleteTransactionDetailSchema = z.object({
-  idDetailTransaction: z.uuid("Invalid ID format.").min(5),
+  idDetailTransaction: z.uuid("Format ID tidak valid.").min(5),
 });
 
 export const ReportTransactionSchema = z
   .object({
-    type: z.enum(enumTypeTransaction, { message: "Required" }),
+    type: z.enum(enumTypeTransaction, { message: "Type wajib diisi" }),
     startDate: DateSchema,
     endDate: DateSchema,
   })
@@ -453,14 +455,14 @@ export const ReportTransactionSchema = z
       return start <= end;
     },
     {
-      message: "Start date must be earlier or equal to end date",
+      message: "Tanggal mulai harus lebih awal atau sama dengan tanggal akhir.",
       path: ["startDate"],
-    }
+    },
   );
 
 /* -------- NOTIFICATION --------  */
 export const NotificationSchema = z.object({
-  id: z.uuid("Invalid ID format."),
+  id: z.uuid("Format ID tidak valid."),
 });
 
 export const NotificationRoleSchema = z.object({
