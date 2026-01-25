@@ -125,7 +125,7 @@ export const TYPE_TRANSACTION = [
     value: "CHECK",
   },
   {
-    name: "Pemesanan Bahan Baku",
+    name: "Pengadaan Bahan Baku",
     value: "IN",
   },
   {

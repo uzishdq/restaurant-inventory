@@ -16,6 +16,7 @@ import { NavUser } from "./nav-user";
 import { ROUTES } from "@/lib/constant";
 import { ArrowRightLeft, Database, Files, ShoppingBasket } from "lucide-react";
 import { Session } from "next-auth";
+import Link from "next/link";
 
 export function AppSidebar({
   session,
@@ -65,7 +66,7 @@ export function AppSidebar({
             url: ROUTES.AUTH.TRANSACTION.INVENTORY_CHECK.INDEX,
           },
           {
-            title: "Pemesanan Bahan Baku",
+            title: "Pengadaan Bahan Baku",
             url: ROUTES.AUTH.TRANSACTION.STOCK_IN.INDEX,
           },
           {
@@ -104,12 +105,12 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="#">
+              <Link href="#">
                 <ShoppingBasket className="size-4" />
                 <span className="text-base font-semibold">
                   Gang Nikmat Inventory
                 </span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

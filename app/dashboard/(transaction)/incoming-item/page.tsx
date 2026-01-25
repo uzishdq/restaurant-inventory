@@ -38,7 +38,7 @@ export default async function StockInPage() {
         orderedTransaction: [] as TTransaction[],
         receiveTransaction: [] as TTransaction[],
         completedTransaction: [] as TTransaction[],
-      }
+      },
     ) || {};
 
   return (
@@ -66,8 +66,8 @@ export default async function StockInPage() {
         />
       </div>
       <TableDateWrapper
-        header="Pemesanan Bahan Baku"
-        description="Informasi pesanan bahan baku yang digunakan untuk memperbarui persediaan"
+        header="Pengadaan Bahan Baku"
+        description="Informasi pengadaan bahan baku yang digunakan untuk memperbarui persediaan"
         searchBy="nameUser"
         labelSearch="Nama"
         isFilterDate={true}

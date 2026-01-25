@@ -20,7 +20,7 @@ import { ROUTES } from "@/lib/constant";
 
 export function NavMain({
   items,
-}: {
+}: Readonly<{
   items: {
     title: string;
     url: string;
@@ -31,7 +31,7 @@ export function NavMain({
       url: string;
     }[];
   }[];
-}) {
+}>) {
   return (
     <SidebarGroup className="space-y-2">
       <SidebarMenu>

@@ -253,7 +253,7 @@ function CreateTransactionForm({
 
       // Hanya update jika ada perubahan → hindari infinite loop
       const currentQtySystem = form.getValues(
-        `detail.${index}.quantityDetailTransaction`
+        `detail.${index}.quantityDetailTransaction`,
       );
       const currentDiff = form.getValues(`detail.${index}.quantityDifference`);
 
@@ -311,7 +311,7 @@ function CreateTransactionForm({
     (index: number) => {
       if (fields.length > 1) remove(index);
     },
-    [fields.length, remove]
+    [fields.length, remove],
   );
 
   const onSubmit = (values: z.infer<typeof schema>) => {
@@ -332,7 +332,7 @@ function CreateTransactionForm({
       <CardHeader>
         <CardTitle className="text-xl">Buat Transaksi</CardTitle>
         <CardDescription className="text-base">
-          Pilih jenis transaksi (Cek, Pemesanan atau bahan baku keluar) lalu
+          Pilih jenis transaksi (Cek, Pengadaan atau bahan baku keluar) lalu
           tambahkan minimal satu bahan baku.
         </CardDescription>
       </CardHeader>
@@ -370,9 +370,6 @@ function CreateTransactionForm({
               <FormLabel>Detail Transaksi</FormLabel>
 
               {fields.map((field, index) => {
-                // const itemId = form.getValues(`detail.${index}.itemId`);
-                // const selectedItem = items.find((i) => i.idItem === itemId);
-
                 const currentDetail = watchDetails?.[index] || {};
                 const selectedItem = currentDetail.itemId
                   ? items.find((i) => i.idItem === currentDetail.itemId)
@@ -390,7 +387,7 @@ function CreateTransactionForm({
                           "grid p-0 grid-cols-1 gap-4",
                           watchType === "IN" && "md:grid-cols-3 mb-4",
                           watchType === "OUT" && "md:grid-cols-2 mb-4",
-                          watchType === "CHECK" && "md:grid-cols-4 mb-2"
+                          watchType === "CHECK" && "md:grid-cols-4 mb-2",
                         )}
                       >
                         {/* Item Select */}
@@ -449,7 +446,7 @@ function CreateTransactionForm({
 
                                         // selain itu → number
                                         qtyField.onChange(
-                                          e.target.valueAsNumber
+                                          e.target.valueAsNumber,
                                         );
                                       }}
                                       disabled={isDisable}
@@ -508,7 +505,7 @@ function CreateTransactionForm({
                                               0,
                                               {
                                                 shouldDirty: true,
-                                              }
+                                              },
                                             );
 
                                             return;
@@ -522,7 +519,7 @@ function CreateTransactionForm({
                                           // Ambil qty system
                                           const transQty =
                                             form.getValues(
-                                              `detail.${index}.quantityDetailTransaction`
+                                              `detail.${index}.quantityDetailTransaction`,
                                             ) || 0;
 
                                           // Hitung selisih
@@ -533,7 +530,7 @@ function CreateTransactionForm({
                                             diff,
                                             {
                                               shouldDirty: true,
-                                            }
+                                            },
                                           );
                                         }}
                                       />
@@ -584,15 +581,15 @@ function CreateTransactionForm({
                                       diffField.value > 0
                                         ? "text-green-600"
                                         : diffField.value < 0
-                                        ? "text-red-600"
-                                        : "text-muted-foreground"
+                                          ? "text-red-600"
+                                          : "text-muted-foreground",
                                     )}
                                   >
                                     {diffField.value > 0
                                       ? `+${diffField.value} lebih`
                                       : diffField.value < 0
-                                      ? `${diffField.value} kurang`
-                                      : "cocok"}
+                                        ? `${diffField.value} kurang`
+                                        : "cocok"}
                                   </FormDescription>
                                   <FormMessage />
                                 </FormItem>
@@ -666,7 +663,10 @@ function CreateTransactionForm({
   );
 }
 
-function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
+function DeleteTransactionForm({
+  onSuccess,
+  data,
+}: Readonly<IDeleteTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof DeleteTransactionSchema>>({
@@ -731,7 +731,10 @@ function DeleteTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
   );
 }
 
-function UpdateTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
+function UpdateTransactionForm({
+  onSuccess,
+  data,
+}: Readonly<IDeleteTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof UpdateTransactionSchema>>({
@@ -748,7 +751,7 @@ function UpdateTransactionForm({ onSuccess, data }: IDeleteTransactionForm) {
     data.typeTransaction === "IN"
       ? STATUS_TRANSACTION
       : STATUS_TRANSACTION.filter((s) =>
-          ["COMPLETED", "CANCELLED"].includes(s.value)
+          ["COMPLETED", "CANCELLED"].includes(s.value),
         );
 
   const onSubmit = (values: z.infer<typeof UpdateTransactionSchema>) => {
@@ -814,7 +817,7 @@ function AddDetailTransactionForm({
   data,
   items,
   supplier,
-}: IAddDetailTransactionForm) {
+}: Readonly<IAddDetailTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
 
   const schema = AddTransactionDetailSchema(items);
@@ -874,7 +877,7 @@ function AddDetailTransactionForm({
         // Update selisih
         form.setValue(
           `detail.${index}.quantityDifference`,
-          qtyCheck - qtySystem
+          qtyCheck - qtySystem,
         );
       }, 0);
     });
@@ -1016,7 +1019,7 @@ function AddDetailTransactionForm({
                                       0,
                                       {
                                         shouldDirty: true,
-                                      }
+                                      },
                                     );
 
                                     return;
@@ -1029,7 +1032,7 @@ function AddDetailTransactionForm({
                                   // Ambil qty system
                                   const transQty =
                                     form.getValues(
-                                      `detail.${index}.quantityDetailTransaction`
+                                      `detail.${index}.quantityDetailTransaction`,
                                     ) || 0;
 
                                   // Hitung selisih
@@ -1040,7 +1043,7 @@ function AddDetailTransactionForm({
                                     diff,
                                     {
                                       shouldDirty: true,
-                                    }
+                                    },
                                   );
                                 }}
                               />
@@ -1088,15 +1091,15 @@ function AddDetailTransactionForm({
                               diffField.value > 0
                                 ? "text-green-600"
                                 : diffField.value < 0
-                                ? "text-red-600"
-                                : "text-muted-foreground"
+                                  ? "text-red-600"
+                                  : "text-muted-foreground",
                             )}
                           >
                             {diffField.value > 0
                               ? `+${diffField.value} lebih`
                               : diffField.value < 0
-                              ? `${diffField.value} kurang`
-                              : "cocok"}
+                                ? `${diffField.value} kurang`
+                                : "cocok"}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -1181,7 +1184,7 @@ function AddDetailTransactionForm({
 function UpdateStatusDetailTransactionForm({
   onSuccess,
   data,
-}: IUpdateStatusDetailTransactionForm) {
+}: Readonly<IUpdateStatusDetailTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof UpdateTrxDetailStatusSchema>>({
@@ -1197,7 +1200,7 @@ function UpdateStatusDetailTransactionForm({
     data.typeTransaction === "IN"
       ? STATUS_TRANSACTION
       : STATUS_TRANSACTION.filter((s) =>
-          ["COMPLETED", "CANCELLED"].includes(s.value)
+          ["COMPLETED", "CANCELLED"].includes(s.value),
         );
 
   const onSubmit = (values: z.infer<typeof UpdateTrxDetailStatusSchema>) => {
@@ -1263,7 +1266,7 @@ function UpdateDetailTransactionForm({
   data,
   items,
   suppliers,
-}: IUpdateDetailTransactionForm) {
+}: Readonly<IUpdateDetailTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
 
   const schema = UpdateTransactionDetailSchema(items);
@@ -1405,7 +1408,7 @@ function UpdateDetailTransactionForm({
 
                         // Ambil qtyDetail dari form (sudah di-load dari data)
                         const qtyDetail = form.getValues(
-                          "quantityDetailTransaction"
+                          "quantityDetailTransaction",
                         );
 
                         // Hitung selisih
@@ -1414,7 +1417,7 @@ function UpdateDetailTransactionForm({
                         // Set hasilnya ke quantityDifference
                         form.setValue(
                           "quantityDifference",
-                          isNaN(diff) ? 0 : diff
+                          isNaN(diff) ? 0 : diff,
                         );
                       }}
                     />
@@ -1445,15 +1448,15 @@ function UpdateDetailTransactionForm({
                       field.value > 0
                         ? "text-green-600"
                         : field.value < 0
-                        ? "text-red-600"
-                        : "text-muted-foreground"
+                          ? "text-red-600"
+                          : "text-muted-foreground",
                     )}
                   >
                     {field.value > 0
                       ? `+${field.value} lebih`
                       : field.value < 0
-                      ? `${field.value} kurang`
-                      : "cocok"}
+                        ? `${field.value} kurang`
+                        : "cocok"}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -1489,7 +1492,7 @@ function UpdateDetailTransactionForm({
 function DeleteDetailTransactionForm({
   onSuccess,
   data,
-}: IDeleteDetailTransactionForm) {
+}: Readonly<IDeleteDetailTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof DeleteTransactionDetailSchema>>({

@@ -20,17 +20,17 @@ function TransactionCheckTableWrapper({
   data,
   items,
   suppliers,
-}: ITransactionTableWrapper) {
+}: Readonly<ITransactionTableWrapper>) {
   const columns = useMemo(
     () => columnDetailTransactionCheck({ items: items, suppliers: suppliers }),
-    [items, suppliers]
+    [items, suppliers],
   );
   return (
     <TableDateWrapper
-      header={`Stock Check Details ${data[0].idTransaction}`}
-      description="Compare system quantity with physical counts and identify shortages or excess during the stock audit"
+      header={`Detail Pemeriksaan ${data[0].idTransaction}`}
+      description="Bandingkan jumlah dalam sistem dengan jumlah fisik dan identifikasi kekurangan atau kelebihan selama audit stok"
       searchBy="nameItem"
-      labelSearch="item"
+      labelSearch="Bahan Baku"
       isFilterDate={false}
       filterDate=""
       data={data}
@@ -53,17 +53,17 @@ function TransactionInTableWrapper({
   data,
   items,
   suppliers,
-}: ITransactionTableWrapper) {
+}: Readonly<ITransactionTableWrapper>) {
   const columns = useMemo(
     () => columnDetailTransactionIn({ items: items, suppliers: suppliers }),
-    [items, suppliers]
+    [items, suppliers],
   );
   return (
     <TableDateWrapper
-      header={`Detail Transaction ${data[0].idTransaction}`}
-      description="Records detailed information about each received item"
+      header={`Detail Pengadaan ${data[0].idTransaction}`}
+      description="Mencatat informasi rinci setiap pengadaan barang"
       searchBy="nameItem"
-      labelSearch="item"
+      labelSearch="Bahan Baku"
       isFilterDate={false}
       filterDate=""
       data={data}
@@ -86,17 +86,17 @@ function TransactionOutTableWrapper({
   data,
   items,
   suppliers,
-}: ITransactionTableWrapper) {
+}: Readonly<ITransactionTableWrapper>) {
   const columns = useMemo(
     () => columnDetailTransactionOut({ items: items, suppliers: suppliers }),
-    [items, suppliers]
+    [items, suppliers],
   );
   return (
     <TableDateWrapper
-      header={`Detail Transaction ${data[0].idTransaction}`}
-      description="Records detailed information about each received item"
+      header={`Detail Bahan Keluar ${data[0].idTransaction}`}
+      description="Rincian bahan baku yang keluar"
       searchBy="nameItem"
-      labelSearch="item"
+      labelSearch="Bahan Baku"
       isFilterDate={false}
       filterDate=""
       data={data}
