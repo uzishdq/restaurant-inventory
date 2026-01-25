@@ -239,3 +239,21 @@ export type TColumnExcell = {
   header: string;
   value: string;
 };
+
+export type TStockReportItem = {
+  idItem: string;
+  nameItem: string;
+  currentStock: number;
+  minStock: number;
+  nameCategory: string;
+  nameUnit: string;
+  totalIn: number;
+  totalOut: number;
+  totalCheck: number;
+  netMovement: number;
+  stockAtPeriodStart: number;
+  stockAtPeriodEnd: number;
+  stockStatus: string;
+  utilizationRate: string;
+  totalTransactions: number;
+};

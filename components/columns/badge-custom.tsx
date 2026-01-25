@@ -6,7 +6,8 @@ interface BadgeCustomProps {
     | "role"
     | "statusDetailTransaction"
     | "typeTransaction"
-    | "statusTransaction";
+    | "statusTransaction"
+    | "stockStatus";
 }
 
 const statusStyleMap: Record<
@@ -51,9 +52,13 @@ const statusStyleMap: Record<
       className: "bg-red-100 text-red-800",
     },
   },
+  stockStatus: {
+    LOW_STOCK: { className: "bg-red-100 text-red-800" },
+    NORMAL: { className: "bg-green-100 text-green-800" },
+  },
 };
 
-export function BadgeCustom({ value, category }: BadgeCustomProps) {
+export function BadgeCustom({ value, category }: Readonly<BadgeCustomProps>) {
   const categoryMap = statusStyleMap[category] || {};
   const style = categoryMap[value] || { variant: "secondary" };
 

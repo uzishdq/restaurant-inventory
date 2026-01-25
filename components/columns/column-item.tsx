@@ -16,6 +16,7 @@ import {
   TCategory,
   TItem,
   TItemMovement,
+  TStockReportItem,
   TUnit,
 } from "@/lib/type-data";
 import { DeleteItemForm, UpdateItemForm } from "../item/item-form";
@@ -181,7 +182,7 @@ type TDialog = {
   category: TCategory[];
 };
 
-function DialogEdit({ value, unit, category }: TDialog) {
+function DialogEdit({ value, unit, category }: Readonly<TDialog>) {
   return (
     <FormDialog
       type="edit"
@@ -193,7 +194,7 @@ function DialogEdit({ value, unit, category }: TDialog) {
   );
 }
 
-function DialogDelete({ value }: { value: TItem }) {
+function DialogDelete({ value }: Readonly<{ value: TItem }>) {
   return (
     <FormDialog
       type="delete"
@@ -204,3 +205,107 @@ function DialogDelete({ value }: { value: TItem }) {
     </FormDialog>
   );
 }
+
+export const columnItemReport: ColumnDef<TStockReportItem>[] = [
+  {
+    accessorKey: "idItem",
+    header: "No Bahan Baku",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("idItem")}</div>
+    ),
+  },
+  {
+    accessorKey: "nameItem",
+    header: "Nama",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nameItem")}</div>
+    ),
+  },
+  {
+    accessorKey: "nameCategory",
+    header: "Kategori",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("nameCategory")}</div>
+    ),
+  },
+  {
+    accessorKey: "currentStock",
+    header: "Stok Saat Ini",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div>
+        {row.getValue("currentStock")} {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "minStock",
+    header: "Stok Minimum",
+    cell: ({ row }) => (
+      <div>
+        {row.getValue("minStock")} {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "totalIn",
+    header: "Total Masuk",
+    cell: ({ row }) => (
+      <div>
+        {row.getValue("totalIn")} {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "totalOut",
+    header: "Total Keluar",
+    cell: ({ row }) => (
+      <div>
+        {row.getValue("totalOut")} {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "netMovement",
+    header: "Pergerakan Bersih",
+    cell: ({ row }) => <div>{row.getValue("netMovement")}</div>,
+  },
+  {
+    accessorKey: "stockAtPeriodStart",
+    header: "Stok Awal",
+    cell: ({ row }) => (
+      <div>
+        {row.getValue("stockAtPeriodStart")} {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "stockAtPeriodEnd",
+    header: "Stok Akhir",
+    cell: ({ row }) => (
+      <div>
+        {row.getValue("stockAtPeriodEnd")} {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "stockStatus",
+    header: "Status Stok",
+    cell: ({ row }) => (
+      <BadgeCustom value={row.getValue("stockStatus")} category="stockStatus" />
+    ),
+  },
+  {
+    accessorKey: "utilizationRate",
+    header: "Utilisasi (%)",
+    cell: ({ row }) => <div>{row.getValue("utilizationRate")}</div>,
+  },
+  {
+    accessorKey: "totalTransactions",
+    header: "Total Transaksi",
+    cell: ({ row }) => <div>{row.getValue("totalTransactions")}</div>,
+  },
+];

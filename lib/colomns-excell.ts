@@ -34,3 +34,20 @@ export const columnsExcelTransactionCHECK: TColumnExcell[] = [
   { header: "Selisih", value: "quantityDifference" },
   { header: "Note", value: "note" },
 ];
+
+export const columnsExcelStockReport: TColumnExcell[] = [
+  { header: "No Bahan Baku", value: "idItem" },
+  { header: "Nama", value: "nameItem" },
+  { header: "Kategori", value: "nameCategory" },
+  { header: "Satuan", value: "nameUnit" },
+  { header: "Stok Saat Ini", value: "currentStock" },
+  { header: "Stok Minimum", value: "minStock" },
+  { header: "Total Masuk", value: "totalIn" },
+  { header: "Total Keluar", value: "totalOut" },
+  { header: "Pergerakan Bersih", value: "netMovement" },
+  { header: "Stok Awal Periode", value: "stockAtPeriodStart" },
+  { header: "Stok Akhir Periode", value: "stockAtPeriodEnd" },
+  { header: "Status Stok", value: "stockStatus" },
+  { header: "Tingkat Utilisasi", value: "utilizationRate" },
+  { header: "Total Transaksi", value: "totalTransactions" },
+];

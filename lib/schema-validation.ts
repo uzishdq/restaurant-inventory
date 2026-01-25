@@ -460,6 +460,23 @@ export const ReportTransactionSchema = z
     },
   );
 
+export const ReportItemSchema = z
+  .object({
+    startDate: DateSchema,
+    endDate: DateSchema,
+  })
+  .refine(
+    (data) => {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      return start <= end;
+    },
+    {
+      message: "Tanggal mulai harus lebih awal atau sama dengan tanggal akhir.",
+      path: ["startDate"],
+    },
+  );
+
 /* -------- NOTIFICATION --------  */
 export const NotificationSchema = z.object({
   id: z.uuid("Format ID tidak valid."),

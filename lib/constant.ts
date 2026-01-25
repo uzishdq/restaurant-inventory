@@ -29,8 +29,10 @@ export const ROUTES = {
     },
     REPORT: {
       TRANSACTION: "/dashboard/report-transaction",
-      FIND_LAPORAN: (query: string) => `/dashboard/report-transaction?${query}`,
+      FIND_LAPORAN_TRANSACTION: (query: string) =>
+        `/dashboard/report-transaction?${query}`,
       ITEM: "/dashboard/report-item",
+      FIND_LAPORAN_ITEM: (query: string) => `/dashboard/report-item?${query}`,
     },
     ACCOUNT: "/dashboard/account",
     NOTIFICATION: "/dashboard/notification",
@@ -101,6 +103,7 @@ export const tagsTransactionRevalidate = [
   "get-notification",
   "get-last-transactions",
   "get-report-transactions",
+  "get-report-items",
 ];
 
 //ENUM SELECT

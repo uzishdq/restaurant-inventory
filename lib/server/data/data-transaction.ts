@@ -74,8 +74,8 @@ export const getTransactions = unstable_cache(
           detailTransactionTable,
           eq(
             detailTransactionTable.transactionId,
-            transactionTable.idTransaction
-          )
+            transactionTable.idTransaction,
+          ),
         )
         .where(eq(transactionTable.typeTransaction, type))
         .groupBy(
@@ -83,7 +83,7 @@ export const getTransactions = unstable_cache(
           transactionTable.typeTransaction,
           transactionTable.userId,
           userTable.nameUser,
-          transactionTable.statusTransaction
+          transactionTable.statusTransaction,
         );
 
       if (result.length > 0) {
@@ -99,7 +99,7 @@ export const getTransactions = unstable_cache(
   ["get-transactions"],
   {
     tags: ["get-transactions"],
-  }
+  },
 );
 
 export const getDetailTransactions = unstable_cache(
@@ -134,17 +134,17 @@ export const getDetailTransactions = unstable_cache(
           transactionTable,
           eq(
             transactionTable.idTransaction,
-            detailTransactionTable.transactionId
-          )
+            detailTransactionTable.transactionId,
+          ),
         )
         .leftJoin(
           itemTable,
-          eq(itemTable.idItem, detailTransactionTable.itemId)
+          eq(itemTable.idItem, detailTransactionTable.itemId),
         )
         .leftJoin(unitTable, eq(unitTable.idUnit, itemTable.unitId))
         .leftJoin(
           supplierTable,
-          eq(supplierTable.idSupplier, detailTransactionTable.supplierId)
+          eq(supplierTable.idSupplier, detailTransactionTable.supplierId),
         )
         .where(eq(detailTransactionTable.transactionId, id))
         .orderBy(asc(itemTable.idItem));
@@ -170,7 +170,7 @@ export const getDetailTransactions = unstable_cache(
   ["get-detail-transactions"],
   {
     tags: ["get-detail-transactions"],
-  }
+  },
 );
 
 export const getOldDetailTransaction = unstable_cache(
@@ -201,14 +201,13 @@ export const getOldDetailTransaction = unstable_cache(
   ["get-old-detail-transaction"],
   {
     tags: ["get-old-detail-transaction"],
-  }
+  },
 );
 
 export const getReportTransactions = unstable_cache(
   async (values: z.infer<typeof ReportTransactionSchema>) => {
     try {
       const validateValue = ReportTransactionSchema.safeParse(values);
-      console.log(validateValue);
 
       if (!validateValue.success) {
         return { ok: false, data: null, message: LABEL.ERROR.INVALID_FIELD };
@@ -236,25 +235,25 @@ export const getReportTransactions = unstable_cache(
           transactionTable,
           eq(
             transactionTable.idTransaction,
-            detailTransactionTable.transactionId
-          )
+            detailTransactionTable.transactionId,
+          ),
         )
         .leftJoin(userTable, eq(userTable.idUser, transactionTable.userId))
         .leftJoin(
           itemTable,
-          eq(itemTable.idItem, detailTransactionTable.itemId)
+          eq(itemTable.idItem, detailTransactionTable.itemId),
         )
         .leftJoin(unitTable, eq(unitTable.idUnit, itemTable.unitId))
         .leftJoin(
           supplierTable,
-          eq(supplierTable.idSupplier, detailTransactionTable.supplierId)
+          eq(supplierTable.idSupplier, detailTransactionTable.supplierId),
         )
         .where(
           and(
             gte(transactionTable.dateTransaction, validateValue.data.startDate),
             lte(transactionTable.dateTransaction, validateValue.data.endDate),
-            eq(transactionTable.typeTransaction, validateValue.data.type)
-          )
+            eq(transactionTable.typeTransaction, validateValue.data.type),
+          ),
         )
         .orderBy(desc(transactionTable.dateTransaction));
 
@@ -279,7 +278,7 @@ export const getReportTransactions = unstable_cache(
   ["get-report-transactions"],
   {
     tags: ["get-report-transactions"],
-  }
+  },
 );
 
 export const getLastTransactions = unstable_cache(
@@ -296,8 +295,8 @@ export const getLastTransactions = unstable_cache(
         .where(
           and(
             eq(transactionTable.typeTransaction, type),
-            eq(transactionTable.statusTransaction, "COMPLETED")
-          )
+            eq(transactionTable.statusTransaction, "COMPLETED"),
+          ),
         )
         .orderBy(desc(transactionTable.dateTransaction))
         .limit(1);
@@ -318,11 +317,11 @@ export const getLastTransactions = unstable_cache(
         .from(detailTransactionTable)
         .leftJoin(
           itemTable,
-          eq(detailTransactionTable.itemId, itemTable.idItem)
+          eq(detailTransactionTable.itemId, itemTable.idItem),
         )
         .leftJoin(unitTable, eq(itemTable.unitId, unitTable.idUnit))
         .where(
-          eq(detailTransactionTable.transactionId, transaction.idTransaction)
+          eq(detailTransactionTable.transactionId, transaction.idTransaction),
         );
 
       const result = { ...transaction, details: detail };
@@ -336,5 +335,5 @@ export const getLastTransactions = unstable_cache(
   ["get-last-transactions"],
   {
     tags: ["get-last-transactions"],
-  }
+  },
 );
