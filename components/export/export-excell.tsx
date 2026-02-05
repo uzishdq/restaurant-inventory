@@ -22,11 +22,11 @@ export default function ExportExcell<T>({
   fileName,
   title,
   buttonLabel = "Download",
-}: IExportExcell<T>) {
+}: Readonly<IExportExcell<T>>) {
   const exportToExcel = async () => {
     if (data.length === 0) {
       toast.error(
-        `The file ${fileName} could not be downloaded because the data was not available.`
+        `The file ${fileName} could not be downloaded because the data was not available.`,
       );
 
       return;

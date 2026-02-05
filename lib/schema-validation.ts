@@ -473,7 +473,7 @@ export const ReportItemSchema = z
     },
     {
       message: "Tanggal mulai harus lebih awal atau sama dengan tanggal akhir.",
-      path: ["startDate"],
+      path: ["endDate"],
     },
   );
 
