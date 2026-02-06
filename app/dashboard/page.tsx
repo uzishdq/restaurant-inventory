@@ -1,4 +1,4 @@
-import { ChartBarMultiple } from "@/components/chart/chart-bar-multiple";
+import { ChartAreaInteractive } from "@/components/chart/chart-area-interactive";
 import LastStockCheckCard from "@/components/chart/last-check-inv-card";
 import LowItemCard from "@/components/chart/low-item-card";
 import SectionCard from "@/components/section/section-card";
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
         />
       </div>
 
-      {itemMovement.data && <ChartBarMultiple data={itemMovement.data} />}
+      {itemMovement.data && <ChartAreaInteractive data={itemMovement.data} />}
 
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <LastStockCheckCard data={lastCheck.data} />

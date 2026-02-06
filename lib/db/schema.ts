@@ -12,6 +12,7 @@ import {
 
 //USER
 export const userRoleEnum = pgEnum("user_role", [
+  "SUPER_ADMIN",
   "ADMIN",
   "HEADKITCHEN",
   "MANAGER",
@@ -91,7 +92,7 @@ export const transactionTable = pgTable("transaction", {
     .primaryKey()
     .notNull(),
   typeTransaction: typeTransaction("type_transaction").default("IN").notNull(),
-  dateTransaction: date("date_transaction").notNull().defaultNow(),
+  dateTransaction: timestamp("date_transaction").notNull().defaultNow(),
   userId: uuid("user_id")
     .notNull()
     .references(() => userTable.idUser, {
@@ -221,7 +222,7 @@ export const transactionRelations = relations(
     }),
     detailTransaction: many(detailTransactionTable),
     itemMovement: many(itemMovementTable),
-  })
+  }),
 );
 
 // RELATIONS DETAIL TRANSACTION
@@ -240,7 +241,7 @@ export const detailTransactionRelations = relations(
       fields: [detailTransactionTable.supplierId],
       references: [supplierTable.idSupplier],
     }),
-  })
+  }),
 );
 
 // RELATIONS ITEM MOVEMENT
@@ -255,5 +256,5 @@ export const itemMovementRelations = relations(
       fields: [itemMovementTable.itemId],
       references: [itemTable.idItem],
     }),
-  })
+  }),
 );

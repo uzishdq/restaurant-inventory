@@ -19,7 +19,7 @@ import {
   TTransaction,
 } from "@/lib/type-data";
 import { BadgeCustom } from "./badge-custom";
-import { formatDateToIndo } from "@/lib/utils";
+import { formatDateWIB } from "@/lib/utils";
 import Link from "next/link";
 import { transactionDetailRouteMap } from "@/lib/constant";
 import {
@@ -74,7 +74,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
       );
     },
     cell: ({ row }) => {
-      const formattedDate = formatDateToIndo(row.getValue("dateTransaction"));
+      const formattedDate = formatDateWIB(row.getValue("dateTransaction"));
       return <div className="capitalize">{formattedDate}</div>;
     },
   },
@@ -207,7 +207,7 @@ export const columnDetailTransactionIn = ({
   },
   {
     accessorKey: "quantityDetailTransaction",
-    header: "Jumlah Dipesan",
+    header: "Jumlah Pesanan",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -217,7 +217,7 @@ export const columnDetailTransactionIn = ({
   },
   {
     accessorKey: "quantityCheck",
-    header: "Jumlah Baik",
+    header: "Diterima",
     enableHiding: true,
     cell: ({ row }) => (
       <div className="capitalize">
@@ -227,7 +227,7 @@ export const columnDetailTransactionIn = ({
   },
   {
     accessorKey: "quantityDifference",
-    header: "Jumlah Rusak",
+    header: "Tidak Diterima",
     enableHiding: true,
     cell: ({ row }) => (
       <div className="capitalize">

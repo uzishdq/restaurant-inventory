@@ -2,7 +2,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, PackageSearch } from "lucide-react";
 import { TLastTransaction } from "@/lib/type-data";
-import { formatDateToIndo } from "@/lib/utils";
+import { formatDateWIB } from "@/lib/utils";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constant";
 import { Button } from "../ui/button";
@@ -47,7 +47,7 @@ export default function LastStockCheckCard({
           <p className="font-bold">{data.idTransaction}</p>
           <div className=" w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-1">
             <p>
-              <strong>Tanggal:</strong> {formatDateToIndo(data.dateTransaction)}
+              <strong>Tanggal:</strong> {formatDateWIB(data.dateTransaction)}
             </p>
             <p className="capitalize">
               <strong>Diperiksa Oleh:</strong> {data.nameUser ?? "Unknown"}

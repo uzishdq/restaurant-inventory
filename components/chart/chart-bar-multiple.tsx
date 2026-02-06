@@ -33,13 +33,13 @@ const chartConfig = {
 export function ChartBarMultiple({
   data,
 }: Readonly<{ data: TItemMovementChart[] }>) {
-  const chartData = data.map((item) => ({
-    ...item,
-    date: new Date(item.month).toLocaleDateString("id-ID", {
-      month: "short",
-      year: "numeric",
-    }),
-  }));
+  // const chartData = data.map((item) => ({
+  //   ...item,
+  //   date: new Date(item.month).toLocaleDateString("id-ID", {
+  //     month: "short",
+  //     year: "numeric",
+  //   }),
+  // }));
 
   return (
     <Card>
@@ -51,7 +51,7 @@ export function ChartBarMultiple({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        {/* <ChartContainer config={chartConfig}>
           <BarChart accessibilityLayer data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
@@ -68,7 +68,7 @@ export function ChartBarMultiple({
             <Bar dataKey="outgoing" fill="var(--color-outgoing)" radius={4} />
             <ChartLegend content={<ChartLegendContent />} />
           </BarChart>
-        </ChartContainer>
+        </ChartContainer> */}
       </CardContent>
     </Card>
   );

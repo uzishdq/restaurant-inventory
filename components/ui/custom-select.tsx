@@ -64,7 +64,7 @@ const ValueSelect = ({
           className={cn(
             "justify-between w-full font-normal text-left",
             disabled &&
-              "bg-muted text-muted-foreground opacity-70 cursor-not-allowed"
+              "bg-muted text-muted-foreground opacity-70 cursor-not-allowed",
           )}
         >
           {selectedItem ? selectedItem[labelKey] : placeholder}
@@ -89,7 +89,7 @@ const ValueSelect = ({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === item[valueKey] ? "opacity-100" : "opacity-0"
+                      value === item[valueKey] ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {item[labelKey]}
@@ -113,12 +113,14 @@ export default function CustomSelect({
   labelKey,
   placeholder,
   disabled = false,
-}: ICustomSelect) {
+}: Readonly<ICustomSelect>) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={name}>
-        {label} {required && <span className="text-red-500">*</span>}
-      </Label>
+      {label !== "" && (
+        <Label htmlFor={name}>
+          {label} {required && <span className="text-red-500">*</span>}
+        </Label>
+      )}
       <Controller
         name={name}
         control={control}

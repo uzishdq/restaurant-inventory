@@ -204,60 +204,89 @@ export const getItemMovementGrouped = unstable_cache(
     try {
       const now = new Date();
 
-      // awal bulan sekarang
+      // Awal bulan sekarang (tanggal 1)
       const startOfCurrentMonth = new Date(
         now.getFullYear(),
         now.getMonth(),
         1,
       );
 
-      // awal bulan 3 bulan sebelumnya
-      const startOfThreeMonthsAgo = new Date(
-        startOfCurrentMonth.getFullYear(),
-        startOfCurrentMonth.getMonth() - 3,
-        1,
+      // Akhir bulan sekarang (tanggal terakhir)
+      const endOfCurrentMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
       );
 
-      // akhir bulan sebelumnya
-      const endOfLastMonth = new Date(startOfCurrentMonth);
-      endOfLastMonth.setMilliseconds(-1);
-
-      const result = await db
+      const allItems = await db
         .select({
-          month: sql<string>`
-      TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM')
-    `,
+          idItem: itemTable.idItem,
+          name: itemTable.nameItem,
+        })
+        .from(itemTable)
+        .orderBy(itemTable.nameItem);
+
+      // Ambil data movement
+      const movements = await db
+        .select({
+          idItem: itemTable.idItem,
+          date: sql<string>`TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM-DD')`,
           incoming: sql<number>`
-      SUM(
-        CASE
-          WHEN ${itemMovementTable.typeMovement} = 'IN'
-          THEN ${itemMovementTable.quantityMovement}
-          ELSE 0
-        END
-      )
-    `,
+            SUM(
+              CASE
+                WHEN ${itemMovementTable.typeMovement} = 'IN'
+                THEN ${itemMovementTable.quantityMovement}
+                ELSE 0
+              END
+            )
+          `,
           outgoing: sql<number>`
-      SUM(
-        CASE
-          WHEN ${itemMovementTable.typeMovement} = 'OUT'
-          THEN ABS(${itemMovementTable.quantityMovement})
-          ELSE 0
-        END
-      )
-    `,
+            SUM(
+              CASE
+                WHEN ${itemMovementTable.typeMovement} = 'OUT'
+                THEN ABS(${itemMovementTable.quantityMovement})
+                ELSE 0
+              END
+            )
+          `,
         })
         .from(itemMovementTable)
+        .leftJoin(itemTable, eq(itemMovementTable.itemId, itemTable.idItem))
         .where(
           and(
             inArray(itemMovementTable.typeMovement, ["IN", "OUT"]),
-            gte(itemMovementTable.createdAt, startOfThreeMonthsAgo),
-            lte(itemMovementTable.createdAt, endOfLastMonth),
+            gte(itemMovementTable.createdAt, startOfCurrentMonth),
+            lte(itemMovementTable.createdAt, endOfCurrentMonth),
           ),
         )
-        .groupBy(sql`TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM')`)
-        .orderBy(sql`TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM')`);
+        .groupBy(
+          itemTable.idItem,
+          sql`TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM-DD')`,
+        )
+        .orderBy(sql`TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM-DD')`);
 
-      return { ok: true, data: result as TItemMovementChart[] };
+      // Gabungkan semua item dengan movement data
+      const groupedByItem: TItemMovementChart[] = allItems.map((item) => {
+        const itemMovements = movements.filter(
+          (movement) => movement.idItem === item.idItem,
+        );
+
+        return {
+          idItem: item.idItem,
+          name: item.name,
+          result: itemMovements.map((movement) => ({
+            date: movement.date,
+            incoming: Number(movement.incoming),
+            outgoing: Number(movement.outgoing),
+          })),
+        };
+      });
+
+      return { ok: true, data: groupedByItem };
     } catch (error) {
       console.error("error count item : ", error);
       return { ok: false, data: null };

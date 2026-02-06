@@ -1,5 +1,5 @@
 //ENUM
-export type roleType = "ADMIN" | "HEADKITCHEN" | "MANAGER";
+export type roleType = "SUPER_ADMIN" | "ADMIN" | "HEADKITCHEN" | "MANAGER";
 export type typeTransactionType = "IN" | "OUT" | "CHECK";
 
 //tambahkan APRROVED untuk setelah cek received ke tabel movement;
@@ -106,9 +106,13 @@ export type TItemMovement = {
 };
 
 export type TItemMovementChart = {
-  month: string;
-  incoming: number;
-  outgoing: number;
+  idItem: string;
+  name: string;
+  result: {
+    date: string;
+    incoming: number;
+    outgoing: number;
+  }[];
 };
 
 export type TItemTrx = {
@@ -118,10 +122,18 @@ export type TItemTrx = {
   qty: number;
 };
 
+export type TransactionDetailForm = {
+  itemId: string;
+  supplierId?: string;
+  quantityDetailTransaction: number;
+  quantityCheck: number;
+  quantityDifference: number;
+  note?: string;
+};
 export type TTransaction = {
   idTransaction: string;
   typeTransaction: typeTransactionType;
-  dateTransaction: string;
+  dateTransaction: Date;
   userId: string;
   nameUser: string;
   statusTransaction: statusTransactionType;
@@ -155,7 +167,7 @@ export type TLastTransaction = {
     note: string | null;
   }[];
   idTransaction: string;
-  dateTransaction: string;
+  dateTransaction: Date;
   nameUser: string | null;
 };
 

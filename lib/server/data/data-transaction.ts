@@ -253,8 +253,14 @@ export const getReportTransactions = unstable_cache(
         )
         .where(
           and(
-            gte(transactionTable.dateTransaction, validateValue.data.startDate),
-            lte(transactionTable.dateTransaction, validateValue.data.endDate),
+            gte(
+              transactionTable.dateTransaction,
+              new Date(validateValue.data.startDate),
+            ),
+            lte(
+              transactionTable.dateTransaction,
+              new Date(validateValue.data.endDate),
+            ),
             eq(transactionTable.typeTransaction, validateValue.data.type),
           ),
         )

@@ -27,7 +27,7 @@ export default async function InventoryCheckPage() {
       {
         pendingTransaction: [] as TTransaction[],
         completedTransaction: [] as TTransaction[],
-      }
+      },
     ) || {};
 
   return (
@@ -45,15 +45,26 @@ export default async function InventoryCheckPage() {
         />
       </div>
       <TableDateWrapper
-        header="Pemeriksaan Bahan Baku"
-        description="Periksa dan pastikan jumlah bahan baku yang tersedia sesuai dengan data di sistem"
+        header="Pemeriksaan Bahan Baku (Pending)"
+        description="Daftar pemeriksaan bahan baku yang belum selesai dan masih menunggu proses verifikasi"
         searchBy="nameUser"
         labelSearch="Nama"
         isFilterDate={true}
         filterDate="dateTransaction"
-        data={transactions.data}
+        data={pendingTransaction}
         columns={columnTransaction}
-      ></TableDateWrapper>
+      />
+
+      <TableDateWrapper
+        header="Pemeriksaan Bahan Baku (Selesai)"
+        description="Riwayat pemeriksaan bahan baku yang telah selesai dan diverifikasi"
+        searchBy="nameUser"
+        labelSearch="Nama"
+        isFilterDate={true}
+        filterDate="dateTransaction"
+        data={completedTransaction}
+        columns={columnTransaction}
+      />
     </div>
   );
 }

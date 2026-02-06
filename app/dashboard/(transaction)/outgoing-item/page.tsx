@@ -27,7 +27,7 @@ export default async function StockOutPage() {
       {
         pendingTransaction: [] as TTransaction[],
         completedTransaction: [] as TTransaction[],
-      }
+      },
     ) || {};
 
   return (
@@ -45,15 +45,26 @@ export default async function StockOutPage() {
         />
       </div>
       <TableDateWrapper
-        header="Bahan Baku Keluar"
-        description="Pencatatan bahan baku yang digunakan untuk keperluan dapur"
+        header="Bahan Baku Keluar (Pending)"
+        description="Pencatatan bahan baku yang akan digunakan dan masih menunggu proses persetujuan atau eksekusi"
         searchBy="nameUser"
         labelSearch="Nama"
-        isFilterDate={true}
+        isFilterDate
         filterDate="dateTransaction"
-        data={transactions.data}
+        data={pendingTransaction}
         columns={columnTransaction}
-      ></TableDateWrapper>
+      />
+
+      <TableDateWrapper
+        header="Bahan Baku Keluar (Completed)"
+        description="Riwayat pencatatan bahan baku yang telah digunakan untuk keperluan dapur"
+        searchBy="nameUser"
+        labelSearch="Nama"
+        isFilterDate
+        filterDate="dateTransaction"
+        data={completedTransaction}
+        columns={columnTransaction}
+      />
     </div>
   );
 }

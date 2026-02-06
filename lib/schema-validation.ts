@@ -83,7 +83,12 @@ const DateSchema = z
   }, "Tanggal tidak valid");
 
 /* -------- ENUM --------  */
-export const enumRole = ["ADMIN", "HEADKITCHEN", "MANAGER"] as const;
+export const enumRole = [
+  "SUPER_ADMIN",
+  "ADMIN",
+  "HEADKITCHEN",
+  "MANAGER",
+] as const;
 export const enumTypeTransaction = ["IN", "OUT", "CHECK"] as const;
 export const enumStatusTransaction = [
   "PENDING",
@@ -202,7 +207,7 @@ export const DeleteItemSchema = z.object({
 const transactionDetailSchema = z.object({
   itemId: itemIdSchema,
   supplierId: z.string().optional(),
-  quantityDetailTransaction: validatedStock(1, 5000),
+  quantityDetailTransaction: validatedStock(0, 5000),
   quantityCheck: validatedStock(-500, 500),
   quantityDifference: validatedStock(-500, 500),
   note: z
@@ -215,6 +220,81 @@ const transactionDetailSchema = z.object({
     .optional()
     .or(z.literal("")),
 });
+
+const validateIN = (
+  d: z.infer<typeof transactionDetailSchema>,
+  i: number,
+  ctx: z.RefinementCtx,
+) => {
+  if (!d.supplierId) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["detail", i, "supplierId"],
+      message: "Toko ini diperlukan untuk Pengadaan Bahan Baku.",
+    });
+  }
+  if (d.quantityDetailTransaction <= 0) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["detail", i, "quantityDetailTransaction"],
+      message: "Jumlah pesanan harus lebih dari 0.",
+    });
+  }
+};
+
+const validateOUT = (
+  d: z.infer<typeof transactionDetailSchema>,
+  item: TItemTrx,
+  i: number,
+  ctx: z.RefinementCtx,
+) => {
+  if (d.quantityDetailTransaction > item.qty) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["detail", i, "quantityDetailTransaction"],
+      message: `Quantity melebihi stok yang tersedia. (${item.qty}).`,
+    });
+  }
+
+  if (!d.note?.trim()) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["detail", i, "note"],
+      message: "Perlu diisi.",
+    });
+  }
+};
+
+const validateCHECK = (
+  d: z.infer<typeof transactionDetailSchema>,
+  item: TItemTrx,
+  i: number,
+  ctx: z.RefinementCtx,
+) => {
+  if (d.quantityDetailTransaction !== item.qty) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["detail", i, "quantityDetailTransaction"],
+      message: `Quantity sistem harus ${item.qty}.`,
+    });
+  }
+
+  if (d.quantityDifference !== d.quantityCheck - item.qty) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["detail", i, "quantityDifference"],
+      message: "Tidak sesuai dengan pengecekan sistem.",
+    });
+  }
+
+  if (!d.note?.trim()) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["detail", i, "note"],
+      message: "Perlu diisi.",
+    });
+  }
+};
 
 export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
   z
@@ -237,56 +317,18 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
           return;
         }
 
-        // Supplier wajib hanya jika IN
-        if (data.typeTransaction === "IN") {
-          if (!d.supplierId) {
-            ctx.addIssue({
-              code: "custom",
-              path: ["detail", i, "supplierId"],
-              message: "Toko ini diperlukan untuk Pengadaan Bahan Baku.",
-            });
-          }
-        }
+        switch (data.typeTransaction) {
+          case "IN":
+            validateIN(d, i, ctx);
+            break;
 
-        // Validasi stok untuk OUT
-        if (data.typeTransaction === "OUT") {
-          if (d.quantityDetailTransaction > item.qty) {
-            ctx.addIssue({
-              code: "custom",
-              path: ["detail", i, "quantityDetailTransaction"],
-              message: `Quantity melebihi stok yang tersedia. (${item.qty}).`,
-            });
-          }
-        }
+          case "OUT":
+            validateOUT(d, item, i, ctx);
+            break;
 
-        // Validasi CHECK
-        if (data.typeTransaction === "CHECK") {
-          if (d.quantityDetailTransaction !== item.qty) {
-            ctx.addIssue({
-              code: "custom",
-              path: ["detail", i, "quantityDetailTransaction"],
-              message: `Quantity sistem harus ${item.qty}.`,
-            });
-          }
-
-          if (d.quantityDifference !== d.quantityCheck - item.qty) {
-            ctx.addIssue({
-              code: "custom",
-              path: ["detail", i, "quantityDifference"],
-              message: "Tidak sesuai dengan pengecekan sistem.",
-            });
-          }
-        }
-
-        //Validasi note
-        if (["CHECK", "OUT"].includes(data.typeTransaction)) {
-          if (!d.note || d.note.trim() === "") {
-            ctx.addIssue({
-              code: "custom",
-              path: ["detail", i, "note"],
-              message: "Note diperlukan untuk transaksi ini.",
-            });
-          }
+          case "CHECK":
+            validateCHECK(d, item, i, ctx);
+            break;
         }
       });
     });

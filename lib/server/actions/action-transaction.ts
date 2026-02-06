@@ -40,6 +40,15 @@ import { TInputItemMovement } from "@/lib/type-data";
 
 export const createTransaction = async (values: unknown) => {
   try {
+    const session = await auth();
+
+    if (!session?.user.id) {
+      return {
+        ok: false,
+        message: LABEL.ERROR.NOT_LOGIN,
+      };
+    }
+
     const [items] = await Promise.all([getItemsTrx()]);
 
     if (!items.ok || !items.data) {
@@ -53,27 +62,24 @@ export const createTransaction = async (values: unknown) => {
       return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
     }
 
-    const session = await auth();
-
-    if (!session?.user.id) {
-      return {
-        ok: false,
-        message: LABEL.ERROR.NOT_LOGIN,
-      };
-    }
-
     const { typeTransaction, detail } = validateValues.data;
 
     const customId = await generateTransactionID(typeTransaction);
 
-    const payload = detail.map((item) => ({
-      ...item,
-      supplierId: item.supplierId || null,
-      transactionId: customId,
-      note: item.note || null,
-    }));
+    const payload = detail
+      .filter(
+        (item) =>
+          Number.isFinite(item.quantityDetailTransaction) &&
+          item.quantityDetailTransaction > 0,
+      )
+      .map((item) => ({
+        ...item,
+        supplierId: item.supplierId || null,
+        transactionId: customId,
+        note: item.note || null,
+      }));
 
-    if (payload.length < 0) {
+    if (payload.length <= 0) {
       return {
         ok: false,
         message: LABEL.INPUT.FAILED.SAVED,
@@ -109,7 +115,7 @@ export const createTransaction = async (values: unknown) => {
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {
@@ -127,7 +133,7 @@ export const createTransaction = async (values: unknown) => {
 
 //ubah qyt di table item dan movement jika completed
 export const updateTransaction = async (
-  values: z.infer<typeof UpdateTransactionSchema>
+  values: z.infer<typeof UpdateTransactionSchema>,
 ) => {
   try {
     const validateValues = UpdateTransactionSchema.safeParse(values);
@@ -159,7 +165,7 @@ export const updateTransaction = async (
           statusTransaction: validateValues.data.statusTransaction,
         })
         .where(
-          eq(transactionTable.idTransaction, validateValues.data.idTransaction)
+          eq(transactionTable.idTransaction, validateValues.data.idTransaction),
         );
 
       // update db nanti ambil status dari validateValues
@@ -171,8 +177,8 @@ export const updateTransaction = async (
         .where(
           eq(
             detailTransactionTable.transactionId,
-            validateValues.data.idTransaction
-          )
+            validateValues.data.idTransaction,
+          ),
         )
         .returning();
 
@@ -202,7 +208,7 @@ export const updateTransaction = async (
           if (type === "CHECK") {
             const diff = d.quantityDifference ?? 0;
 
-            qtyMovement = diff !== 0 ? diff : d.quantityCheck ?? 0;
+            qtyMovement = diff !== 0 ? diff : (d.quantityCheck ?? 0);
           }
 
           return {
@@ -211,7 +217,7 @@ export const updateTransaction = async (
             typeMovement: type,
             quantityMovement: qtyMovement,
           };
-        }
+        },
       );
 
       for (const chunk of chunkArray(movementPayload, 50)) {
@@ -238,7 +244,7 @@ export const updateTransaction = async (
       return updateDetailTransaction;
     });
 
-    if (result.length < 0) {
+    if (result.length <= 0) {
       return {
         ok: false,
         message: LABEL.INPUT.FAILED.UPDATE,
@@ -260,10 +266,10 @@ export const updateTransaction = async (
     }
 
     const tagsToRevalidate = Array.from(
-      new Set([...tagsTransactionRevalidate, ...tagsItemRevalidate])
+      new Set([...tagsTransactionRevalidate, ...tagsItemRevalidate]),
     );
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {
@@ -280,7 +286,7 @@ export const updateTransaction = async (
 };
 
 export const deleteTransaction = async (
-  values: z.infer<typeof DeleteTransactionSchema>
+  values: z.infer<typeof DeleteTransactionSchema>,
 ) => {
   try {
     const validateValues = DeleteTransactionSchema.safeParse(values);
@@ -309,7 +315,7 @@ export const deleteTransaction = async (
     const [result] = await db
       .delete(transactionTable)
       .where(
-        eq(transactionTable.idTransaction, validateValues.data.idTransaction)
+        eq(transactionTable.idTransaction, validateValues.data.idTransaction),
       )
       .returning();
 
@@ -322,7 +328,7 @@ export const deleteTransaction = async (
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {
@@ -398,7 +404,7 @@ export const addDetailTransaction = async (values: unknown) => {
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {
@@ -415,7 +421,7 @@ export const addDetailTransaction = async (values: unknown) => {
 };
 
 export const updateDetailTrxStatus = async (
-  values: z.infer<typeof UpdateTrxDetailStatusSchema>
+  values: z.infer<typeof UpdateTrxDetailStatusSchema>,
 ) => {
   try {
     const validateValues = UpdateTrxDetailStatusSchema.safeParse(values);
@@ -448,8 +454,8 @@ export const updateDetailTrxStatus = async (
       .where(
         eq(
           detailTransactionTable.idDetailTransaction,
-          validateValues.data.idDetailTransaction
-        )
+          validateValues.data.idDetailTransaction,
+        ),
       )
       .returning();
 
@@ -462,7 +468,7 @@ export const updateDetailTrxStatus = async (
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {
@@ -511,7 +517,7 @@ export const updateDetailTransaction = async (values: unknown) => {
     }
 
     const oldData = await getOldDetailTransaction(
-      validateValues.data.idDetailTransaction
+      validateValues.data.idDetailTransaction,
     );
 
     if (!oldData.ok || !oldData.data) {
@@ -551,8 +557,8 @@ export const updateDetailTransaction = async (values: unknown) => {
           .where(
             eq(
               detailTransactionTable.idDetailTransaction,
-              validateValues.data.idDetailTransaction
-            )
+              validateValues.data.idDetailTransaction,
+            ),
           )
           .returning();
 
@@ -599,8 +605,8 @@ export const updateDetailTransaction = async (values: unknown) => {
           .where(
             eq(
               detailTransactionTable.idDetailTransaction,
-              validateValues.data.idDetailTransaction
-            )
+              validateValues.data.idDetailTransaction,
+            ),
           )
           .returning();
 
@@ -648,8 +654,8 @@ export const updateDetailTransaction = async (values: unknown) => {
         .where(
           eq(
             detailTransactionTable.idDetailTransaction,
-            validateValues.data.idDetailTransaction
-          )
+            validateValues.data.idDetailTransaction,
+          ),
         )
         .returning();
 
@@ -687,8 +693,8 @@ export const updateDetailTransaction = async (values: unknown) => {
         .where(
           eq(
             detailTransactionTable.idDetailTransaction,
-            validateValues.data.idDetailTransaction
-          )
+            validateValues.data.idDetailTransaction,
+          ),
         )
         .returning();
 
@@ -702,7 +708,7 @@ export const updateDetailTransaction = async (values: unknown) => {
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {
@@ -719,7 +725,7 @@ export const updateDetailTransaction = async (values: unknown) => {
 };
 
 export const deleteDetailTransaction = async (
-  values: z.infer<typeof DeleteTransactionDetailSchema>
+  values: z.infer<typeof DeleteTransactionDetailSchema>,
 ) => {
   try {
     const validateValues = DeleteTransactionDetailSchema.safeParse(values);
@@ -749,8 +755,8 @@ export const deleteDetailTransaction = async (
       .where(
         eq(
           detailTransactionTable.idDetailTransaction,
-          validateValues.data.idDetailTransaction
-        )
+          validateValues.data.idDetailTransaction,
+        ),
       )
       .returning();
 
@@ -763,7 +769,7 @@ export const deleteDetailTransaction = async (
 
     const tagsToRevalidate = Array.from(new Set(tagsTransactionRevalidate));
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {

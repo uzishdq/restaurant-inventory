@@ -2,7 +2,7 @@ CREATE TYPE "public"."status_notification" AS ENUM('PENDING', 'ONPROGRESS', 'SEN
 CREATE TYPE "public"."status_transaction" AS ENUM('PENDING', 'ORDERED', 'RECEIVED', 'CANCELLED', 'COMPLETED');--> statement-breakpoint
 CREATE TYPE "public"."type_movement" AS ENUM('IN', 'OUT', 'CHECK');--> statement-breakpoint
 CREATE TYPE "public"."type_transaction" AS ENUM('IN', 'OUT', 'CHECK');--> statement-breakpoint
-CREATE TYPE "public"."user_role" AS ENUM('ADMIN', 'HEADKITCHEN', 'MANAGER');--> statement-breakpoint
+CREATE TYPE "public"."user_role" AS ENUM('SUPER_ADMIN', 'ADMIN', 'HEADKITCHEN', 'MANAGER');--> statement-breakpoint
 CREATE TABLE "category" (
 	"id_category" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name_category" varchar(255) NOT NULL,
@@ -11,12 +11,13 @@ CREATE TABLE "category" (
 --> statement-breakpoint
 CREATE TABLE "detail_transaction" (
 	"id_detail_transaction" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"transaction_id" varchar(225),
+	"transaction_id" varchar(20) NOT NULL,
 	"item_id" varchar(20) NOT NULL,
 	"supplier_id" uuid,
 	"quantity_detail_transaction" integer NOT NULL,
 	"quantity_check" integer,
 	"quantity_difference" integer,
+	"note" varchar(225),
 	"status_detail_transaction" "status_transaction" DEFAULT 'PENDING' NOT NULL
 );
 --> statement-breakpoint
@@ -63,7 +64,7 @@ CREATE TABLE "supplier" (
 CREATE TABLE "transaction" (
 	"id_transaction" varchar(20) PRIMARY KEY NOT NULL,
 	"type_transaction" "type_transaction" DEFAULT 'IN' NOT NULL,
-	"date_transaction" date DEFAULT now() NOT NULL,
+	"date_transaction" timestamp DEFAULT now() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"status_transaction" "status_transaction" DEFAULT 'PENDING' NOT NULL
 );

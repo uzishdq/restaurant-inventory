@@ -1,5 +1,5 @@
 {
-  "id": "33c7134e-0013-422b-827d-b126119eb556",
+  "id": "744b0f45-2005-404f-8f5b-d5e5249c357a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -51,9 +51,9 @@
         },
         "transaction_id": {
           "name": "transaction_id",
-          "type": "varchar(225)",
+          "type": "varchar(20)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "item_id": {
           "name": "item_id",
@@ -82,6 +82,12 @@
         "quantity_difference": {
           "name": "quantity_difference",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "note": {
+          "name": "note",
+          "type": "varchar(225)",
           "primaryKey": false,
           "notNull": false
         },
@@ -453,7 +459,7 @@
         },
         "date_transaction": {
           "name": "date_transaction",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -648,6 +654,7 @@
       "name": "user_role",
       "schema": "public",
       "values": [
+        "SUPER_ADMIN",
         "ADMIN",
         "HEADKITCHEN",
         "MANAGER"

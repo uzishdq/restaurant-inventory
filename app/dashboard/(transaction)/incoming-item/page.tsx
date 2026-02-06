@@ -45,36 +45,69 @@ export default async function StockInPage() {
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         <SectionCard
-          title="Pemesanan Pending"
+          title="Pengadaan Pending"
           value={pendingTransaction.length}
           Icon={Clock}
         />
         <SectionCard
-          title="Pemesanan Diproses / Dipesan"
+          title="Pengadaan Diproses / Dipesan"
           value={orderedTransaction.length}
           Icon={ShoppingCart}
         />
         <SectionCard
-          title="Pemesanan Diterima"
+          title="Pengadaan Diterima"
           value={receiveTransaction.length}
           Icon={PackageCheck}
         />
         <SectionCard
-          title="Pemesanan Selesai"
+          title="Pengadaan Selesai"
           value={completedTransaction.length}
           Icon={CheckCircle}
         />
       </div>
       <TableDateWrapper
-        header="Pengadaan Bahan Baku"
-        description="Informasi pengadaan bahan baku yang digunakan untuk memperbarui persediaan"
+        header="Pengadaan Bahan Baku (Pending)"
+        description="Pengajuan pengadaan bahan baku yang belum diproses atau menunggu persetujuan"
         searchBy="nameUser"
         labelSearch="Nama"
-        isFilterDate={true}
+        isFilterDate
         filterDate="dateTransaction"
-        data={transactions.data}
+        data={pendingTransaction}
         columns={columnTransaction}
-      ></TableDateWrapper>
+      />
+
+      <TableDateWrapper
+        header="Pengadaan Bahan Baku (Ordered)"
+        description="Pengadaan bahan baku yang sudah dipesan ke supplier dan menunggu pengiriman"
+        searchBy="nameUser"
+        labelSearch="Nama"
+        isFilterDate
+        filterDate="dateTransaction"
+        data={orderedTransaction}
+        columns={columnTransaction}
+      />
+
+      <TableDateWrapper
+        header="Pengadaan Bahan Baku (Receive)"
+        description="Pengadaan bahan baku yang telah diterima dan sedang dalam proses pengecekan"
+        searchBy="nameUser"
+        labelSearch="Nama"
+        isFilterDate
+        filterDate="dateTransaction"
+        data={receiveTransaction}
+        columns={columnTransaction}
+      />
+
+      <TableDateWrapper
+        header="Pengadaan Bahan Baku (Completed)"
+        description="Riwayat pengadaan bahan baku yang telah selesai dan stok sudah diperbarui"
+        searchBy="nameUser"
+        labelSearch="Nama"
+        isFilterDate
+        filterDate="dateTransaction"
+        data={completedTransaction}
+        columns={columnTransaction}
+      />
     </div>
   );
 }
