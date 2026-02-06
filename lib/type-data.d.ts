@@ -106,7 +106,7 @@ export type TItemMovement = {
 };
 
 export type TItemMovementChart = {
-  date: string;
+  month: string;
   incoming: number;
   outgoing: number;
 };
@@ -256,4 +256,10 @@ export type TStockReportItem = {
   stockStatus: string;
   utilizationRate: string;
   totalTransactions: number;
+};
+
+export type TNotifSideBar = {
+  in: number;
+  out: number;
+  check: number;
 };

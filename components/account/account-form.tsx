@@ -53,7 +53,7 @@ interface IAccountForm {
   data: TUser;
 }
 
-function AccountForm({ data }: IAccountForm) {
+function AccountForm({ data }: Readonly<IAccountForm>) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof ProfileUpdateSchema>>({
@@ -152,7 +152,9 @@ function AccountForm({ data }: IAccountForm) {
   );
 }
 
-function CreateAccountForm({ onSuccess }: { onSuccess?: () => void }) {
+function CreateAccountForm({
+  onSuccess,
+}: Readonly<{ onSuccess?: () => void }>) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof CreateAccountSchema>>({
@@ -246,7 +248,10 @@ function CreateAccountForm({ onSuccess }: { onSuccess?: () => void }) {
                   </FormControl>
                   <SelectContent>
                     {ROLE.map((item, index) => (
-                      <SelectItem key={index} value={item.value}>
+                      <SelectItem
+                        key={`role-${index}-${item.name}`}
+                        value={item.value}
+                      >
                         {item.name}
                       </SelectItem>
                     ))}
@@ -468,7 +473,7 @@ interface IAccountRoleUpdate {
   data: TUser;
 }
 
-function AccountRoleUpdate({ onSuccess, data }: IAccountRoleUpdate) {
+function AccountRoleUpdate({ onSuccess, data }: Readonly<IAccountRoleUpdate>) {
   const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<z.infer<typeof RoleUpdateSchema>>({
@@ -514,7 +519,10 @@ function AccountRoleUpdate({ onSuccess, data }: IAccountRoleUpdate) {
                   </FormControl>
                   <SelectContent>
                     {ROLE.map((item, index) => (
-                      <SelectItem key={index} value={item.value}>
+                      <SelectItem
+                        key={`role-${index}-${item.name}`}
+                        value={item.value}
+                      >
                         {item.name}
                       </SelectItem>
                     ))}

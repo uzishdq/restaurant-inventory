@@ -3,12 +3,12 @@ import { TLowItem } from "@/lib/type-data";
 import { AlertTriangle, CheckCircle2, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function LowItemCard({ data }: { data: TLowItem[] }) {
+export default function LowItemCard({ data }: Readonly<{ data: TLowItem[] }>) {
   return (
     <Card className="rounded-2xl shadow-sm border border-gray-200">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <CardTitle className="text-lg font-semibold">
-          Bahan Baku Persediaan Rendah
+          Persediaan Bahan Baku Rendah
         </CardTitle>
         <AlertTriangle className="h-6 w-6" />
       </CardHeader>
@@ -39,7 +39,7 @@ function EmptyState() {
 // Item List
 // ----------------------------------------------------
 
-function ItemList({ data }: { data: TLowItem[] }) {
+function ItemList({ data }: Readonly<{ data: TLowItem[] }>) {
   return (
     <div className="space-y-3">
       {data.map((item) => {
@@ -47,15 +47,15 @@ function ItemList({ data }: { data: TLowItem[] }) {
           item.stockQuantity < item.minStock
             ? "LOW"
             : item.stockQuantity === item.minStock
-            ? "WARN"
-            : "SAFE";
+              ? "WARN"
+              : "SAFE";
 
         const statusColor =
           status === "LOW"
             ? "text-red-500"
             : status === "WARN"
-            ? "text-yellow-500"
-            : "text-green-500";
+              ? "text-yellow-500"
+              : "text-green-500";
 
         const statusIcon =
           status === "LOW" ? (
@@ -107,8 +107,8 @@ function ItemList({ data }: { data: TLowItem[] }) {
                   status === "LOW"
                     ? "bg-red-500"
                     : status === "WARN"
-                    ? "bg-yellow-500"
-                    : "bg-green-500"
+                      ? "bg-yellow-500"
+                      : "bg-green-500",
                 )}
                 style={{ width: `${percent}%` }}
               />

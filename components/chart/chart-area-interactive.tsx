@@ -41,7 +41,9 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartAreaInteractive({ data }: { data: TItemMovementChart[] }) {
+export function ChartAreaInteractive({
+  data,
+}: Readonly<{ data: TItemMovementChart[] }>) {
   const [timeRange, setTimeRange] = React.useState("90d");
 
   const filteredData = data.filter((item) => {

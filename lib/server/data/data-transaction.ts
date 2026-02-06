@@ -18,6 +18,7 @@ import {
 import {
   TDetailTransaction,
   TLastTransaction,
+  TNotifSideBar,
   TOldDetailTransaction,
   TReportTransaction,
   TTransaction,
@@ -81,10 +82,12 @@ export const getTransactions = unstable_cache(
         .groupBy(
           transactionTable.idTransaction,
           transactionTable.typeTransaction,
+          transactionTable.dateTransaction,
           transactionTable.userId,
           userTable.nameUser,
           transactionTable.statusTransaction,
-        );
+        )
+        .orderBy(desc(transactionTable.dateTransaction));
 
       if (result.length > 0) {
         return { ok: true, data: result as TTransaction[] };
@@ -335,5 +338,46 @@ export const getLastTransactions = unstable_cache(
   ["get-last-transactions"],
   {
     tags: ["get-last-transactions"],
+  },
+);
+
+export const getNotifSideBar = unstable_cache(
+  async () => {
+    try {
+      const transaction = await db
+        .select({
+          type: transactionTable.typeTransaction,
+          count: count().as("count"),
+        })
+        .from(transactionTable)
+        .where(eq(transactionTable.statusTransaction, "PENDING"))
+        .groupBy(transactionTable.typeTransaction);
+
+      const summary: Record<typeTransactionType, number> = {
+        IN: 0,
+        OUT: 0,
+        CHECK: 0,
+      };
+
+      transaction.forEach(({ type, count }) => {
+        summary[type] = count;
+      });
+
+      return {
+        ok: true,
+        data: {
+          in: summary.IN,
+          out: summary.OUT,
+          check: summary.CHECK,
+        } as TNotifSideBar,
+      };
+    } catch (error) {
+      console.error("error notif sidebar data : ", error);
+      return { ok: false, data: null };
+    }
+  },
+  ["get-notif-sidebar"],
+  {
+    tags: ["get-notif-sidebar"],
   },
 );

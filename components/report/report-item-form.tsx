@@ -31,11 +31,14 @@ export default function ReportItemForm() {
   const router = useRouter();
   const [isPending, startTransition] = React.useTransition();
 
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+
   const form = useForm<z.infer<typeof ReportItemSchema>>({
     resolver: zodResolver(ReportItemSchema),
     defaultValues: {
-      startDate: "",
-      endDate: "",
+      startDate: startDate.toISOString().slice(0, 10),
+      endDate: now.toISOString().slice(0, 10),
     },
     mode: "onChange",
   });

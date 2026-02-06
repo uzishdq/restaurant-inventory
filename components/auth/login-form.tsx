@@ -48,21 +48,19 @@ export default function LoginForm() {
       password: values.password,
     })
       .then((data) => {
-        if (!data?.error) {
+        if (data?.error) {
+          setStatus(false);
+          setMessage("Username atau password salah.");
+        } else {
           setStatus(true);
-          setMessage("You’re now signed in.");
+          setMessage("Berhasil login.");
           form.reset();
           router.push(ROUTES.AUTH.DASHBOARD);
-        } else {
-          setStatus(false);
-          setMessage("Incorrect username or password.");
         }
       })
       .catch((err) => {
         setStatus(false);
-        setMessage(
-          "Something went wrong while signing in. Please try again later."
-        );
+        setMessage("Terjadi kesalahan saat login. Silakan coba lagi nanti.");
         console.error(err);
       });
   }

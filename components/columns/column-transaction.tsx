@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { List, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, List, MoreHorizontal } from "lucide-react";
 import {
   columnTrxProps,
   TDetailTransaction,
@@ -21,7 +21,7 @@ import {
 import { BadgeCustom } from "./badge-custom";
 import { formatDateToIndo } from "@/lib/utils";
 import Link from "next/link";
-import { ROUTES } from "@/lib/constant";
+import { transactionDetailRouteMap } from "@/lib/constant";
 import {
   DeleteDetailTransactionForm,
   DeleteTransactionForm,
@@ -61,14 +61,24 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
   },
   {
     accessorKey: "dateTransaction",
-    header: "Tanggal",
     enableHiding: false,
-    cell: ({ row }) => (
-      <div className="capitalize">
-        {formatDateToIndo(row.getValue("dateTransaction"))}
-      </div>
-    ),
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tanggal
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const formattedDate = formatDateToIndo(row.getValue("dateTransaction"));
+      return <div className="capitalize">{formattedDate}</div>;
+    },
   },
+
   {
     accessorKey: "totalItems",
     header: "Total Bahan Baku",
@@ -95,6 +105,10 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
     cell: ({ row }) => {
       const dataRows = row.original;
       const isPending = dataRows.statusTransaction === "PENDING";
+      const detailHref = transactionDetailRouteMap[dataRows.typeTransaction]?.(
+        dataRows.idTransaction,
+      );
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -121,21 +135,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Button asChild size="icon" variant="ghost" className="w-full">
-                <Link
-                  href={
-                    dataRows.typeTransaction === "IN"
-                      ? ROUTES.AUTH.TRANSACTION.STOCK_IN.DETAIL(
-                          dataRows.idTransaction
-                        )
-                      : dataRows.typeTransaction === "OUT"
-                      ? ROUTES.AUTH.TRANSACTION.STOCK_OUT.DETAIL(
-                          dataRows.idTransaction
-                        )
-                      : ROUTES.AUTH.TRANSACTION.INVENTORY_CHECK.DETAIL(
-                          dataRows.idTransaction
-                        )
-                  }
-                >
+                <Link href={detailHref}>
                   <List className="mr-2 h-4 w-4" />
                   Detail Transaksi
                 </Link>
@@ -152,7 +152,7 @@ type TDialog = {
   value: TTransaction;
 };
 
-function DialogDelete({ value }: TDialog) {
+function DialogDelete({ value }: Readonly<TDialog>) {
   return (
     <FormDialog
       type="delete"
@@ -164,13 +164,15 @@ function DialogDelete({ value }: TDialog) {
   );
 }
 
-function DialogEdit({ value }: TDialog) {
-  const description =
-    value.typeTransaction === "IN"
-      ? "Sebelum update status pemesanan bahan baku, harap pastikan semua detail bahan baku yang diterima—telah ditinjau dan diverifikasi."
-      : value.typeTransaction === "OUT"
-      ? "Sebelum update status bahan baku keluar, pastikan semua bahan baku telah diperiksa dan dikonfirmasi."
-      : "Sebelum update status, verifikasi bahwa semua hitungan fisik dan rincian bahan baku telah diperiksa dengan cermat untuk memastikan hasil audit yang akurat.";
+function DialogEdit({ value }: Readonly<TDialog>) {
+  const descriptions: Record<string, string> = {
+    IN: "Sebelum memperbarui status pemesanan bahan baku, pastikan seluruh detail bahan baku yang diterima telah ditinjau dan diverifikasi.",
+    OUT: "Sebelum memperbarui status bahan baku keluar, pastikan seluruh bahan baku telah diperiksa dan dikonfirmasi.",
+    CHECK:
+      "Sebelum memperbarui status, verifikasi bahwa seluruh perhitungan fisik dan rincian bahan baku telah diperiksa dengan cermat untuk memastikan hasil audit yang akurat.",
+  };
+
+  const description = descriptions[value.typeTransaction];
 
   return (
     <FormDialog
@@ -465,7 +467,11 @@ type TDetailDialog = {
   suppliers: TSupplierTrx[];
 };
 
-function DetailDialogEdit({ value, items, suppliers }: TDetailDialog) {
+function DetailDialogEdit({
+  value,
+  items,
+  suppliers,
+}: Readonly<TDetailDialog>) {
   return (
     <FormDialog
       type="edit"
@@ -481,7 +487,9 @@ function DetailDialogEdit({ value, items, suppliers }: TDetailDialog) {
   );
 }
 
-function DetailDialogDelete({ value }: { value: TDetailTransaction }) {
+function DetailDialogDelete({
+  value,
+}: Readonly<{ value: TDetailTransaction }>) {
   return (
     <FormDialog
       type="delete"
@@ -493,13 +501,17 @@ function DetailDialogDelete({ value }: { value: TDetailTransaction }) {
   );
 }
 
-function DetailDialogStatus({ value }: { value: TDetailTransaction }) {
-  const description =
-    value.typeTransaction === "IN"
-      ? "Sebelum update status pemesanan bahan baku, harap pastikan semua detail bahan baku yang diterima—telah ditinjau dan diverifikasi."
-      : value.typeTransaction === "OUT"
-      ? "Sebelum update status bahan baku keluar, pastikan semua bahan baku telah diperiksa dan dikonfirmasi."
-      : "Sebelum update status, verifikasi bahwa semua hitungan fisik dan rincian bahan baku telah diperiksa dengan cermat untuk memastikan hasil audit yang akurat.";
+function DetailDialogStatus({
+  value,
+}: Readonly<{ value: TDetailTransaction }>) {
+  const descriptions: Record<string, string> = {
+    IN: "Sebelum update status pemesanan bahan baku, harap pastikan semua detail bahan baku yang diterima—telah ditinjau dan diverifikasi.",
+    OUT: "Sebelum update status bahan baku keluar, pastikan semua bahan baku telah diperiksa dan dikonfirmasi.",
+    CHECK:
+      "Sebelum update status, verifikasi bahwa semua hitungan fisik dan rincian bahan baku telah diperiksa dengan cermat untuk memastikan hasil audit yang akurat.",
+  };
+
+  const description = descriptions[value.typeTransaction];
 
   return (
     <FormDialog

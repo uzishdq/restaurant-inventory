@@ -64,6 +64,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import { Textarea } from "../ui/textarea";
+import { useNotiSideStore } from "@/store/notif-side-store";
 
 interface ICreateTransactionForm {
   items: TItemTrx[];
@@ -122,6 +123,8 @@ function CreateTransactionForm({
   supplier,
 }: Readonly<ICreateTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
+
+  const { fetchNotifications } = useNotiSideStore();
 
   const schema = CreateTransactionTestSchema(items);
 
@@ -319,6 +322,7 @@ function CreateTransactionForm({
       createTransaction(values).then((data) => {
         if (data.ok) {
           form.reset();
+          fetchNotifications();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -669,6 +673,8 @@ function DeleteTransactionForm({
 }: Readonly<IDeleteTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
 
+  const { fetchNotifications } = useNotiSideStore();
+
   const form = useForm<z.infer<typeof DeleteTransactionSchema>>({
     resolver: zodResolver(DeleteTransactionSchema),
     defaultValues: {
@@ -683,6 +689,7 @@ function DeleteTransactionForm({
         if (data.ok) {
           form.reset();
           onSuccess?.();
+          fetchNotifications();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -737,6 +744,8 @@ function UpdateTransactionForm({
 }: Readonly<IDeleteTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
 
+  const { fetchNotifications } = useNotiSideStore();
+
   const form = useForm<z.infer<typeof UpdateTransactionSchema>>({
     resolver: zodResolver(UpdateTransactionSchema),
     defaultValues: {
@@ -760,6 +769,7 @@ function UpdateTransactionForm({
         if (data.ok) {
           form.reset();
           onSuccess?.();
+          fetchNotifications();
           toast.success(data.message);
         } else {
           toast.error(data.message);
@@ -790,7 +800,7 @@ function UpdateTransactionForm({
                   <SelectContent>
                     {valueSelect.map((item, index) => (
                       <SelectItem
-                        key={index}
+                        key={`status-${item.name}-${index}`}
                         className={statusColor[item.value]}
                         value={item.value}
                       >

@@ -20,13 +20,13 @@ import { RevalidateButton } from "./revalidate-button";
 
 export function NavUser({
   user,
-}: {
+}: Readonly<{
   user: {
     name: string;
     email: string;
     avatar: string;
   };
-}) {
+}>) {
   const { isMobile } = useSidebar();
 
   return (

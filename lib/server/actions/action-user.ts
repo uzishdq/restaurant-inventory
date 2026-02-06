@@ -17,7 +17,7 @@ import { revalidateTag } from "next/cache";
 import bcrypt from "bcryptjs";
 
 export const createAccount = async (
-  values: z.infer<typeof CreateAccountSchema>
+  values: z.infer<typeof CreateAccountSchema>,
 ) => {
   try {
     const validateValues = CreateAccountSchema.safeParse(values);
@@ -44,8 +44,8 @@ export const createAccount = async (
       .where(
         or(
           eq(userTable.username, validateValues.data.username),
-          eq(userTable.phoneNumber, validateValues.data.phoneNumber)
-        )
+          eq(userTable.phoneNumber, validateValues.data.phoneNumber),
+        ),
       )
       .limit(1);
 
@@ -88,7 +88,7 @@ export const createAccount = async (
 
     const tagsToRevalidate = Array.from(new Set(tagsUserRevalidate));
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {
@@ -105,7 +105,7 @@ export const createAccount = async (
 };
 
 export const updateAccount = async (
-  values: z.infer<typeof ProfileUpdateSchema>
+  values: z.infer<typeof ProfileUpdateSchema>,
 ) => {
   try {
     const validateValues = ProfileUpdateSchema.safeParse(values);
@@ -141,7 +141,7 @@ export const updateAccount = async (
 
     const tagsToRevalidate = Array.from(new Set(tagsUserRevalidate));
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {
@@ -158,7 +158,7 @@ export const updateAccount = async (
 };
 
 export const updateUsername = async (
-  values: z.infer<typeof UsernameUpdateSchema>
+  values: z.infer<typeof UsernameUpdateSchema>,
 ) => {
   try {
     const validateValues = UsernameUpdateSchema.safeParse(values);
@@ -229,7 +229,7 @@ export const updateUsername = async (
 };
 
 export const updatePassword = async (
-  values: z.infer<typeof PasswordUpdateSchema>
+  values: z.infer<typeof PasswordUpdateSchema>,
 ) => {
   try {
     const session = await auth();
@@ -293,7 +293,7 @@ export const updatePassword = async (
     if (result.length > 0) {
       const tagsToRevalidate = Array.from(new Set(tagsUserRevalidate));
       await Promise.all(
-        tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+        tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
       );
 
       return {
@@ -328,7 +328,7 @@ export const updateRole = async (values: z.infer<typeof RoleUpdateSchema>) => {
     if (!session?.user.id || session?.user.role !== "ADMIN") {
       return {
         ok: false,
-        message: LABEL.ERROR.NOT_LOGIN,
+        message: LABEL.ERROR.UNAUTHORIZED,
       };
     }
 
@@ -347,7 +347,7 @@ export const updateRole = async (values: z.infer<typeof RoleUpdateSchema>) => {
 
     const tagsToRevalidate = Array.from(new Set([...tagsUserRevalidate]));
     await Promise.all(
-      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 }))
+      tagsToRevalidate.map((tag) => revalidateTag(tag, { expire: 0 })),
     );
 
     return {

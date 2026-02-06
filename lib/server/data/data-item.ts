@@ -28,7 +28,7 @@ export async function generateItemID() {
     .limit(1);
 
   const maxID = result.maxNo || "BB-0000";
-  const currentNumber = parseInt(maxID.split("-")[1], 10);
+  const currentNumber = Number.parseInt(maxID.split("-")[1], 10);
   const nextNumber = currentNumber + 1;
   const nextID = `BB-${nextNumber.toString().padStart(4, "0")}`;
 
@@ -203,25 +203,59 @@ export const getItemMovementGrouped = unstable_cache(
   async () => {
     try {
       const now = new Date();
-      const lastMonth = new Date();
-      lastMonth.setDate(now.getDate() - 90);
+
+      // awal bulan sekarang
+      const startOfCurrentMonth = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1,
+      );
+
+      // awal bulan 3 bulan sebelumnya
+      const startOfThreeMonthsAgo = new Date(
+        startOfCurrentMonth.getFullYear(),
+        startOfCurrentMonth.getMonth() - 3,
+        1,
+      );
+
+      // akhir bulan sebelumnya
+      const endOfLastMonth = new Date(startOfCurrentMonth);
+      endOfLastMonth.setMilliseconds(-1);
 
       const result = await db
         .select({
-          date: sql<string>`DATE(${itemMovementTable.createdAt})`,
-          incoming: sql<number>`SUM(CASE WHEN ${itemMovementTable.typeMovement} = 'IN' THEN ${itemMovementTable.quantityMovement} ELSE 0 END)`,
-          outgoing: sql<number>`SUM(CASE WHEN ${itemMovementTable.typeMovement} = 'OUT' THEN ${itemMovementTable.quantityMovement} ELSE 0 END)`,
+          month: sql<string>`
+      TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM')
+    `,
+          incoming: sql<number>`
+      SUM(
+        CASE
+          WHEN ${itemMovementTable.typeMovement} = 'IN'
+          THEN ${itemMovementTable.quantityMovement}
+          ELSE 0
+        END
+      )
+    `,
+          outgoing: sql<number>`
+      SUM(
+        CASE
+          WHEN ${itemMovementTable.typeMovement} = 'OUT'
+          THEN ABS(${itemMovementTable.quantityMovement})
+          ELSE 0
+        END
+      )
+    `,
         })
         .from(itemMovementTable)
         .where(
           and(
             inArray(itemMovementTable.typeMovement, ["IN", "OUT"]),
-            gte(itemMovementTable.createdAt, lastMonth),
-            lte(itemMovementTable.createdAt, now),
+            gte(itemMovementTable.createdAt, startOfThreeMonthsAgo),
+            lte(itemMovementTable.createdAt, endOfLastMonth),
           ),
         )
-        .groupBy(sql`DATE(${itemMovementTable.createdAt})`)
-        .orderBy(sql`DATE(${itemMovementTable.createdAt})`);
+        .groupBy(sql`TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM')`)
+        .orderBy(sql`TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM')`);
 
       return { ok: true, data: result as TItemMovementChart[] };
     } catch (error) {

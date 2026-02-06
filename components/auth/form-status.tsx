@@ -6,7 +6,10 @@ type FromStatusProps = {
   message?: string;
 };
 
-export default function FormStatus({ status, message }: FromStatusProps) {
+export default function FormStatus({
+  status,
+  message,
+}: Readonly<FromStatusProps>) {
   if (!message) return null;
 
   let bgColor = "";

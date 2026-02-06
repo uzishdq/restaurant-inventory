@@ -38,12 +38,15 @@ export default function ReportTransactionForm() {
   const router = useRouter();
   const [isPending, startTransition] = React.useTransition();
 
+  const now = new Date();
+  const startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+
   const form = useForm<z.infer<typeof ReportTransactionSchema>>({
     resolver: zodResolver(ReportTransactionSchema),
     defaultValues: {
       type: undefined,
-      startDate: "",
-      endDate: "",
+      startDate: startDate.toISOString().slice(0, 10),
+      endDate: now.toISOString().slice(0, 10),
     },
     mode: "onChange",
   });
@@ -68,7 +71,7 @@ export default function ReportTransactionForm() {
       <CardHeader>
         <CardTitle className="text-xl">Laporan Transaksi</CardTitle>
         <CardDescription className="text-base">
-          Pilih jenis transaksi (Pembelian, Keluar, atau Cek) untuk menghasilkan
+          Pilih jenis transaksi (Cek, Pengadaan, atau Keluar) untuk menghasilkan
           laporan transaksi.
         </CardDescription>
       </CardHeader>

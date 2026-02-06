@@ -44,33 +44,108 @@ export const PUBLIC_API_URL = "/api/notifications";
 export const DEFAULT_AUTH = "/api/auth";
 export const PUBLIC_ROUTES = [ROUTES.PUBLIC.LOGIN];
 
+export const transactionDetailRouteMap = {
+  IN: ROUTES.AUTH.TRANSACTION.STOCK_IN.DETAIL,
+  OUT: ROUTES.AUTH.TRANSACTION.STOCK_OUT.DETAIL,
+  CHECK: ROUTES.AUTH.TRANSACTION.INVENTORY_CHECK.DETAIL,
+} as const;
+
+export const ROUTE_TITLES: { pattern: RegExp; title: string }[] = [
+  // Public
+  { pattern: /^\/$/, title: "Login" },
+
+  // Dashboard
+  { pattern: /^\/dashboard$/, title: "Dashboard" },
+
+  // Master Data
+  { pattern: /^\/dashboard\/users$/, title: "Manajemen Pengguna" },
+  { pattern: /^\/dashboard\/supplier$/, title: "Supplier" },
+  { pattern: /^\/dashboard\/items$/, title: "Bahan Baku" },
+  { pattern: /^\/dashboard\/unit$/, title: "Satuan" },
+  { pattern: /^\/dashboard\/category$/, title: "Kategori" },
+
+  // Transaction
+  { pattern: /^\/dashboard\/create-transaction$/, title: "Buat Transaksi" },
+  { pattern: /^\/dashboard\/item-movement$/, title: "Pergerakan Bahan Baku" },
+
+  // Stock In
+  {
+    pattern: /^\/dashboard\/incoming-item$/,
+    title: "Pengadaan Bahan Baku",
+  },
+  {
+    pattern: /^\/dashboard\/incoming-item\/detail\/.+$/,
+    title: "Detail Pengadaan Bahan Baku",
+  },
+
+  // Stock Out
+  {
+    pattern: /^\/dashboard\/outgoing-item$/,
+    title: "Bahan Baku Keluar",
+  },
+  {
+    pattern: /^\/dashboard\/outgoing-item\/detail\/.+$/,
+    title: "Detail Bahan Baku Keluar",
+  },
+
+  // Inventory Check
+  {
+    pattern: /^\/dashboard\/inventory-check$/,
+    title: "Pemeriksaan Bahan Baku",
+  },
+  {
+    pattern: /^\/dashboard\/inventory-check\/detail\/.+$/,
+    title: "Detail Pemeriksaan Bahan Baku",
+  },
+
+  // Report
+  {
+    pattern: /^\/dashboard\/report-transaction$/,
+    title: "Laporan Transaksi",
+  },
+  {
+    pattern: /^\/dashboard\/report-item$/,
+    title: "Laporan Bahan Baku",
+  },
+
+  // Account & Notification
+  {
+    pattern: /^\/dashboard\/account$/,
+    title: "Akun Saya",
+  },
+  {
+    pattern: /^\/dashboard\/notification$/,
+    title: "Notifikasi",
+  },
+];
+
 export const LABEL = {
   INPUT: {
     SUCCESS: {
-      SAVED: "Saved successfully.",
-      UPDATE: "Updated successfully.",
-      DELETE: "Deleted successfully.",
+      SAVED: "Berhasil menyimpan data.",
+      UPDATE: "Berhasil memperbarui data.",
+      DELETE: "Berhasil menghapus data.",
     },
     FAILED: {
-      SAVED: "Couldn’t save data.",
-      UPDATE: "Couldn’t update data.",
-      DELETE: "Couldn’t delete data.",
+      SAVED: "Gagal menyimpan data.",
+      UPDATE: "Gagal memperbarui data.",
+      DELETE: "Gagal menghapus data.",
     },
   },
   SUCCESS: {
-    REVALIDATE: "Data is now fresh and updated.",
-    DATA_FOUND: "Data found",
+    REVALIDATE: "Data berhasil diperbarui.",
+    DATA_FOUND: "Data ditemukan.",
   },
   ERROR: {
-    404: "Page Not Found",
-    CHECK_DATA: "No changes detected.",
-    DATA_NOT_FOUND: "Data not found.",
-    INVALID_FIELD: "Invalid input. Please check your data.",
-    DESCRIPTION: "We’re having some connection issues. Try again shortly.",
-    SERVER: "Something went wrong on our server. Please try again later.",
-    NOT_LOGIN: "You need to sign in to continue.",
-    NOT_ID_USER: "Access denied. Invalid member ID.",
-    UNAUTHORIZED: "You’re not authorized to perform this action.",
+    404: "Halaman tidak ditemukan.",
+    CHECK_DATA: "Tidak ada perubahan data.",
+    DATA_NOT_FOUND: "Data tidak ditemukan.",
+    INVALID_FIELD: "Input tidak valid. Silakan periksa kembali data Anda.",
+    DESCRIPTION: "Terjadi gangguan koneksi. Silakan coba lagi nanti.",
+    SERVER: "Terjadi kesalahan pada server. Silakan coba lagi nanti.",
+    NOT_LOGIN: "Silakan masuk untuk melanjutkan.",
+    NOT_ID_USER: "Akses ditolak. ID pengguna tidak valid.",
+    UNAUTHORIZED: "Anda tidak memiliki izin untuk melakukan tindakan ini.",
   },
 };
 
@@ -101,6 +176,7 @@ export const tagsTransactionRevalidate = [
   "get-detail-transactions",
   "get-old-detail-transaction",
   "get-notification",
+  "get-notif-sidebar",
   "get-last-transactions",
   "get-report-transactions",
   "get-report-items",

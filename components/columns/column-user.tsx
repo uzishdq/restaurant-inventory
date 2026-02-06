@@ -89,7 +89,7 @@ type TDialog = {
   value: TUser;
 };
 
-function DialogEdit({ value }: TDialog) {
+function DialogEdit({ value }: Readonly<TDialog>) {
   return (
     <FormDialog
       type="edit"
