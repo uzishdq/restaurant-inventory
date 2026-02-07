@@ -39,7 +39,7 @@ export default function ExportExcell<T>({
     // Merge & Title
     worksheet.mergeCells(1, 1, 1, columns.length);
     const titleCell = worksheet.getCell(1, 1);
-    titleCell.value = `${title} - ${dateNow}`;
+    titleCell.value = title;
     titleCell.font = { bold: true };
     titleCell.alignment = { horizontal: "center" };
 
@@ -79,7 +79,7 @@ export default function ExportExcell<T>({
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
-    saveAs(blob, `${fileName}-${dateNow}.xlsx`);
+    saveAs(blob, `${fileName}\nTanggal Unduh: ${dateNow}.xlsx`);
     toast.success(`File ${fileName} was downloaded successfully.`);
   };
   return (

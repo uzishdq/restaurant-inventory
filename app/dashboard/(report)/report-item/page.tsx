@@ -8,6 +8,7 @@ import { LABEL } from "@/lib/constant";
 import { ReportItemSchema } from "@/lib/schema-validation";
 import { getStockReport } from "@/lib/server/data/data-item";
 import { TStockReportItem } from "@/lib/type-data";
+import { formatDateToIndo } from "@/lib/utils";
 import React from "react";
 
 export default async function ReportItemPage({
@@ -29,7 +30,13 @@ export default async function ReportItemPage({
   let messageReport: string | undefined;
   let statusReportItem = false;
 
+  let header: string = "";
+
   if (validate.success) {
+    const { startDate, endDate } = validate.data;
+
+    header = `Laporan Bahan Baku \nPeriode: ${formatDateToIndo(startDate)} - ${formatDateToIndo(endDate)}`;
+
     const response = await getStockReport(validate.data);
 
     statusReportItem = response.ok;
@@ -46,7 +53,7 @@ export default async function ReportItemPage({
       <ReportItemForm />
       {reportItem ? (
         <TableDateWrapper
-          header="Laporan Bahan Baku"
+          header={header}
           description="Ringkasan kondisi stok, pergerakan masuk–keluar, serta status ketersediaan bahan baku dalam periode tertentu"
           searchBy="nameItem"
           labelSearch="Name Item"
@@ -59,8 +66,8 @@ export default async function ReportItemPage({
           <ExportExcell
             data={reportItem}
             columns={columnsExcelStockReport}
-            title="Laporan Bahan Baku"
-            fileName="Laporan Bahan Baku"
+            title={header}
+            fileName={header}
             buttonLabel="Download"
           />
         </TableDateWrapper>

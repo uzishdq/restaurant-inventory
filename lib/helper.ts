@@ -1,4 +1,6 @@
 import { ROUTE_TITLES } from "./constant";
+import { TReportTransaction } from "./type-data";
+import { formatDateWIB } from "./utils";
 
 export function getPageTitle(pathname: string): string {
   const title =
@@ -21,4 +23,19 @@ export function extractNotification(message: string) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function hasChanges(oldObj: any, newObj: any, fields: string[]) {
   return fields.some((f) => oldObj[f] !== newObj[f]);
+}
+
+export function formatReportTransactionDates(
+  data: TReportTransaction[] | null,
+): TReportTransaction[] {
+  if (!data) {
+    return [];
+  }
+
+  return data.map((item) => ({
+    ...item,
+    dateTransaction: item.dateTransaction
+      ? formatDateWIB(item.dateTransaction)
+      : null,
+  }));
 }

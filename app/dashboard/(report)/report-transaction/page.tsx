@@ -13,27 +13,37 @@ import {
   columnsExcelTransactionOUT,
 } from "@/lib/colomns-excell";
 import { LABEL } from "@/lib/constant";
+import { formatReportTransactionDates } from "@/lib/helper";
 import { ReportTransactionSchema } from "@/lib/schema-validation";
 import { getReportTransactions } from "@/lib/server/data/data-transaction";
 import { TReportTransaction } from "@/lib/type-data";
+import { formatDateToIndo } from "@/lib/utils";
+
+interface IConfigDate {
+  start: Date | string;
+  end: Date | string;
+}
 
 const REPORT_CONFIG = {
   IN: {
-    header: "Laporan Pembelian Bahan Baku",
+    header: ({ start, end }: IConfigDate) =>
+      `Laporan Pembelian Bahan Baku \nPeriode: ${formatDateToIndo(start)} - ${formatDateToIndo(end)}`,
     description:
       "Laporan rinci tentang semua barang yang diterima dari pemasok, termasuk kuantitas, tanggal, dan rincian barang untuk memastikan pembaruan inventaris yang akurat",
     columns: columnTransactionReportIN,
     excel: columnsExcelTransactionIn,
   },
   OUT: {
-    header: "Laporan Bahan Baku Keluar",
+    header: ({ start, end }: IConfigDate) =>
+      `Laporan Bahan Baku Keluar \nPeriode: ${formatDateToIndo(start)} - ${formatDateToIndo(end)}`,
     description:
       "Laporan lengkap tentang semua barang keluar, termasuk penggunaan, pemindahan, atau penjualan. Ini membantu melacak pengurangan stok dan menjaga tingkat inventaris yang akurat",
     columns: columnTransactionReportOUT,
     excel: columnsExcelTransactionOUT,
   },
   CHECK: {
-    header: "Laporan Pengecekan Bahan Baku",
+    header: ({ start, end }: IConfigDate) =>
+      `Laporan Pengecekan Bahan Baku \nPeriode: ${formatDateToIndo(start)} - ${formatDateToIndo(end)}`,
     description:
       "Laporan perbandingan antara jumlah sistem dan hitungan fisik. Berguna untuk mendeteksi ketidaksesuaian dan memvalidasi keakuratan inventaris",
     columns: columnTransactionReportCHECK,
@@ -59,21 +69,28 @@ export default async function ReportTransactionPage({
   });
 
   let reportTransaction: TReportTransaction[] | null = null;
+  let reportTransactionExcell: TReportTransaction[] | null = null;
   let messageReport: string | undefined;
   let statusReportTransaction = false;
 
   let config;
+  let header: string = "";
 
   if (validate.success) {
-    const { type } = validate.data;
+    const { type, startDate, endDate } = validate.data;
 
     config = REPORT_CONFIG[type];
+
+    header = config.header({ start: startDate, end: endDate });
 
     const response = await getReportTransactions(validate.data);
 
     statusReportTransaction = response.ok;
     messageReport = response.message;
     reportTransaction = response.ok ? response.data : null;
+    reportTransactionExcell = response.ok
+      ? formatReportTransactionDates(response.data)
+      : null;
   }
 
   return (
@@ -83,9 +100,9 @@ export default async function ReportTransactionPage({
           <FormStatus status={false} message={LABEL.ERROR.INVALID_FIELD} />
         ))}
       <ReportTransactionForm />
-      {config && reportTransaction ? (
+      {config && reportTransaction && reportTransactionExcell ? (
         <TableDateWrapper
-          header={config.header}
+          header={header}
           description={config.description}
           searchBy="nameItem"
           labelSearch="Name Item"
@@ -95,10 +112,10 @@ export default async function ReportTransactionPage({
           columns={config.columns}
         >
           <ExportExcell
-            data={reportTransaction}
+            data={reportTransactionExcell}
             columns={config.excel}
-            title={config.header}
-            fileName={config.header}
+            title={header}
+            fileName={header}
             buttonLabel="Download"
           />
         </TableDateWrapper>
