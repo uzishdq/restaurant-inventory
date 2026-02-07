@@ -15,7 +15,7 @@ import {
   TLowItem,
   TStockReportItem,
 } from "@/lib/type-data";
-import { and, asc, count, eq, gte, inArray, lte, sql } from "drizzle-orm";
+import { and, asc, count, eq, gte, inArray, lt, lte, sql } from "drizzle-orm";
 import * as z from "zod";
 import { unstable_cache } from "next/cache";
 import { ReportItemSchema } from "@/lib/schema-validation";
@@ -309,6 +309,10 @@ export const getStockReport = unstable_cache(
 
       const { startDate, endDate } = validateValue.data;
 
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setDate(end.getDate() + 1);
+
       const report = await db
         .select({
           idItem: itemTable.idItem,
@@ -367,8 +371,8 @@ export const getStockReport = unstable_cache(
           itemMovementTable,
           and(
             eq(itemTable.idItem, itemMovementTable.itemId),
-            gte(itemMovementTable.createdAt, new Date(startDate)),
-            lte(itemMovementTable.createdAt, new Date(endDate)),
+            gte(itemMovementTable.createdAt, start),
+            lt(itemMovementTable.createdAt, end),
           ),
         )
         .leftJoin(

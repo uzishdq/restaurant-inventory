@@ -3,7 +3,7 @@
 import { TReportTransaction } from "@/lib/type-data";
 import { ColumnDef } from "@tanstack/react-table";
 import { BadgeCustom } from "./badge-custom";
-import { formatDateToIndo } from "@/lib/utils";
+import { formatDateWIB } from "@/lib/utils";
 
 export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
   {
@@ -28,7 +28,7 @@ export const columnTransactionReportIN: ColumnDef<TReportTransaction>[] = [
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
-        {formatDateToIndo(row.getValue("dateTransaction"))}
+        {formatDateWIB(row.getValue("dateTransaction"))}
       </div>
     ),
   },
@@ -124,7 +124,7 @@ export const columnTransactionReportOUT: ColumnDef<TReportTransaction>[] = [
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
-        {formatDateToIndo(row.getValue("dateTransaction"))}
+        {formatDateWIB(row.getValue("dateTransaction"))}
       </div>
     ),
   },
@@ -196,7 +196,7 @@ export const columnTransactionReportCHECK: ColumnDef<TReportTransaction>[] = [
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
-        {formatDateToIndo(row.getValue("dateTransaction"))}
+        {formatDateWIB(row.getValue("dateTransaction"))}
       </div>
     ),
   },

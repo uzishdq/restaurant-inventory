@@ -24,7 +24,18 @@ import {
   TTransaction,
   typeTransactionType,
 } from "@/lib/type-data";
-import { and, asc, count, desc, eq, gte, like, lte, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  like,
+  lt,
+  lte,
+  sql,
+} from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import * as z from "zod";
 
@@ -216,6 +227,12 @@ export const getReportTransactions = unstable_cache(
         return { ok: false, data: null, message: LABEL.ERROR.INVALID_FIELD };
       }
 
+      const { type, startDate, endDate } = validateValue.data;
+
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      end.setDate(end.getDate() + 1);
+
       const result = await db
         .select({
           idTransaction: detailTransactionTable.transactionId,
@@ -253,15 +270,9 @@ export const getReportTransactions = unstable_cache(
         )
         .where(
           and(
-            gte(
-              transactionTable.dateTransaction,
-              new Date(validateValue.data.startDate),
-            ),
-            lte(
-              transactionTable.dateTransaction,
-              new Date(validateValue.data.endDate),
-            ),
-            eq(transactionTable.typeTransaction, validateValue.data.type),
+            gte(transactionTable.dateTransaction, start),
+            lt(transactionTable.dateTransaction, end),
+            eq(transactionTable.typeTransaction, type),
           ),
         )
         .orderBy(desc(transactionTable.dateTransaction));
