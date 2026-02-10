@@ -42,11 +42,11 @@ const chartConfig = {
   },
   incoming: {
     label: "Masuk",
-    color: "var(--chart-1)",
+    color: "var(--chart-2)",
   },
   outgoing: {
     label: "Keluar",
-    color: "var(--chart-2)",
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 

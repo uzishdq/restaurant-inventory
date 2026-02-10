@@ -383,7 +383,7 @@ export const addDetailTransaction = async (values: unknown) => {
       supplierId: item.supplierId || null,
     }));
 
-    if (payload.length < 0) {
+    if (payload.length <= 0) {
       return {
         ok: false,
         message: LABEL.INPUT.FAILED.SAVED,

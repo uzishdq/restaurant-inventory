@@ -31,7 +31,7 @@ export const isUser = async (values: z.infer<typeof LoginSchema>) => {
 
     const isValid = await bcrypt.compare(
       validateValues.data.password,
-      user.password
+      user.password,
     );
 
     if (!isValid) {
@@ -83,7 +83,7 @@ export const getAccount = unstable_cache(
   ["get-account"],
   {
     tags: ["get-account"],
-  }
+  },
 );
 
 export const getUsers = unstable_cache(
@@ -114,7 +114,7 @@ export const getUsers = unstable_cache(
   ["get-users"],
   {
     tags: ["get-users"],
-  }
+  },
 );
 
 export const getUsersNumberByRole = unstable_cache(
@@ -149,5 +149,5 @@ export const getUsersNumberByRole = unstable_cache(
   ["get-users-numberByRole"],
   {
     tags: ["get-users-numberByRole"],
-  }
+  },
 );

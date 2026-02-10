@@ -62,7 +62,6 @@ export default async function ReportItemPage({
           data={reportItem}
           columns={columnItemReport}
         >
-          {" "}
           <ExportExcell
             data={reportItem}
             columns={columnsExcelStockReport}

@@ -23,5 +23,5 @@ export const getUnits = unstable_cache(
   ["get-units"],
   {
     tags: ["get-units"],
-  }
+  },
 );

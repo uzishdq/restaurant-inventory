@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import {
   columnProps,
   TCategory,
@@ -156,13 +156,22 @@ export const columnItemMovement: ColumnDef<TItemMovement>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: "Tanggal",
     enableHiding: false,
-    cell: ({ row }) => (
-      <div className="capitalize">
-        {formatDateWIB(row.getValue("createdAt"))}
-      </div>
-    ),
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tanggal
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const formattedDate = formatDateWIB(row.getValue("createdAt"));
+      return <div className="capitalize">{formattedDate}</div>;
+    },
   },
   {
     accessorKey: "stockQuantity",
