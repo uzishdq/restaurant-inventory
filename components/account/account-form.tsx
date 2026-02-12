@@ -81,10 +81,10 @@ function AccountForm({ data }: Readonly<IAccountForm>) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Account</CardTitle>
+        <CardTitle>Informasi Akun</CardTitle>
         <CardDescription>
-          Make sure your data is correct. If it is already accurate, there is no
-          need to edit or change it.
+          Periksa kembali data akun Anda. Jika sudah benar, tidak perlu
+          melakukan pengeditan.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -117,7 +117,7 @@ function AccountForm({ data }: Readonly<IAccountForm>) {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>Nama</FormLabel>
                       <FormControl>
                         <Input {...field} type="text" />
                       </FormControl>
@@ -132,7 +132,7 @@ function AccountForm({ data }: Readonly<IAccountForm>) {
                   name="phoneNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>No. Telp</FormLabel>
                       <FormControl>
                         <Input {...field} type="number" />
                       </FormControl>
@@ -302,9 +302,10 @@ function AccountResetPassword() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Change Password</CardTitle>
+        <CardTitle>Ubah Password</CardTitle>
         <CardDescription>
-          Enter your current and new password to update your credentials.
+          Masukkan password saat ini dan password baru untuk memperbarui
+          keamanan akun Anda.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -316,7 +317,7 @@ function AccountResetPassword() {
                 name="oldPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Current Password</FormLabel>
+                    <FormLabel>Password saat ini</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -335,7 +336,7 @@ function AccountResetPassword() {
                   name="newPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>New Password</FormLabel>
+                      <FormLabel>Password baru</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -353,7 +354,7 @@ function AccountResetPassword() {
                   name="newConfirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm New Password</FormLabel>
+                      <FormLabel>Konfirmasi Password Baru</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -374,7 +375,7 @@ function AccountResetPassword() {
                 onChange={(e) => setShowPasswords(e.target.checked)}
               />
               <Label htmlFor="show-password" className="text-sm">
-                Show password
+                Tampilkan password
               </Label>
             </div>
 
@@ -418,9 +419,10 @@ function AccountResetUsername() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Change Username</CardTitle>
+        <CardTitle>Ubah Username</CardTitle>
         <CardDescription>
-          Enter your current and new username to update your account details.
+          Masukkan username saat ini dan username baru untuk memperbarui
+          informasi akun Anda.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -433,7 +435,7 @@ function AccountResetUsername() {
                   name="oldUsername"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Current Username</FormLabel>
+                      <FormLabel>Username Saat ini</FormLabel>
                       <FormControl>
                         <Input {...field} type="text" />
                       </FormControl>
@@ -448,7 +450,7 @@ function AccountResetUsername() {
                   name="newUsername"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>New Username</FormLabel>
+                      <FormLabel>Username Baru</FormLabel>
                       <FormControl>
                         <Input {...field} type="text" />
                       </FormControl>
