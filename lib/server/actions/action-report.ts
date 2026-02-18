@@ -29,7 +29,7 @@ export const findReportTransaction = async (
 
     return {
       ok: true,
-      message: "transaction report validation was successful",
+      message: "validasi laporan transaksi berhasil.",
     };
   } catch (error) {
     console.error("error find transaction report : ", error);
@@ -61,7 +61,7 @@ export const findReportItem = async (
 
     return {
       ok: true,
-      message: "item report validation was successful",
+      message: "validasi laporan bahan baku berhasil.",
     };
   } catch (error) {
     console.error("error find item report : ", error);

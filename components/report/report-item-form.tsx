@@ -99,7 +99,7 @@ export default function ReportItemForm() {
             />
 
             <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Loading..." : "View Report"}
+              {isPending ? "Loading..." : "Cari Laporan"}
             </Button>
           </form>
         </Form>

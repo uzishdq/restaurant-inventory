@@ -15,7 +15,9 @@ export type statusDetailTransactionType =
   | "RECEIVED"
   | "CANCELLED"
   | "COMPLETED";
+
 export type statusNotificationType = "PENDING" | "SENT" | "FAILED";
+export type stockStatusType = "LOW_STOCK" | "NORMAL";
 
 export type columnProps = {
   unit: TUnit[];
@@ -255,19 +257,22 @@ export type TColumnExcell = {
 export type TStockReportItem = {
   idItem: string;
   nameItem: string;
-  currentStock: number;
-  minStock: number;
   nameCategory: string;
   nameUnit: string;
-  totalIn: number;
-  totalOut: number;
-  totalCheck: number;
-  netMovement: number;
-  stockAtPeriodStart: number;
-  stockAtPeriodEnd: number;
-  stockStatus: string;
-  utilizationRate: string;
-  totalTransactions: number;
+
+  // Stok
+  stokAwal: number; // stok sebelum periode
+  stokAkhir: number; // stok saat ini (real time)
+  stokMinimum: number; // batas minimum stok
+  statusStok: "LOW_STOCK" | "NORMAL";
+
+  // Pergerakan
+  totalMasuk: number; // total barang masuk (IN)
+  totalKeluar: number; // total barang keluar (OUT)
+  totalPerubahan: number; // totalMasuk - totalKeluar - totalKoreksi
+
+  // Analisis
+  totalTransaksi: number; // jumlah transaksi selama periode
 };
 
 export type TNotifSideBar = {

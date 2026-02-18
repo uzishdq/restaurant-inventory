@@ -317,69 +317,44 @@ export const getStockReport = unstable_cache(
         .select({
           idItem: itemTable.idItem,
           nameItem: itemTable.nameItem,
-          currentStock: itemTable.stockQuantity,
-          minStock: itemTable.minStock,
+          stokAkhir: itemTable.stockQuantity,
+          stokMinimum: itemTable.minStock,
           nameCategory: categoryTable.nameCategory,
           nameUnit: unitTable.nameUnit,
 
-          // ✅ Return as string (karena numeric di PostgreSQL)
-          totalIn: sql<string>`
-            COALESCE(
-              SUM(
-                CASE 
-                  WHEN ${itemMovementTable.typeMovement} = 'IN' 
-                  THEN ${itemMovementTable.quantityMovement} 
-                  ELSE 0 
-                END
-              ), 
-              0
-            )
-          `.as("total_in"),
+          totalMasuk: sql<string>`
+      COALESCE(SUM(CASE WHEN ${itemMovementTable.typeMovement} = 'IN' THEN ${itemMovementTable.quantityMovement} ELSE 0 END), 0)
+    `.as("total_masuk"),
 
-          totalOut: sql<string>`
-            COALESCE(
-              SUM(
-                CASE 
-                  WHEN ${itemMovementTable.typeMovement} = 'OUT' 
-                  THEN ${itemMovementTable.quantityMovement} 
-                  ELSE 0 
-                END
-              ), 
-              0
-            )
-          `.as("total_out"),
+          totalKeluar: sql<string>`
+      COALESCE(SUM(CASE WHEN ${itemMovementTable.typeMovement} = 'OUT' THEN ${itemMovementTable.quantityMovement} ELSE 0 END), 0)
+    `.as("total_keluar"),
 
-          totalCheck: sql<string>`
-            COALESCE(
-              SUM(
-                CASE 
-                  WHEN ${itemMovementTable.typeMovement} = 'CHECK' 
-                  THEN ${itemMovementTable.quantityMovement} 
-                  ELSE 0 
-                END
-              ), 
-              0
-            )
-          `.as("total_check"),
+          totalKoreksi: sql<string>`
+      COALESCE(SUM(CASE WHEN ${itemMovementTable.typeMovement} = 'CHECK' THEN ${itemMovementTable.quantityMovement} ELSE 0 END), 0)
+    `.as("total_koreksi"),
 
-          totalTransactions: sql<number>`
-            COUNT(${itemMovementTable.idMovement})
-          `.as("total_transactions"),
+          totalTransaksi: sql<number>`
+      COUNT(${itemMovementTable.idMovement})
+    `.as("total_transaksi"),
         })
         .from(itemTable)
-        .leftJoin(
+        .innerJoin(
+          // <-- GANTI KE INNER JOIN
           itemMovementTable,
-          and(
-            eq(itemTable.idItem, itemMovementTable.itemId),
-            gte(itemMovementTable.createdAt, start),
-            lt(itemMovementTable.createdAt, end),
-          ),
+          eq(itemTable.idItem, itemMovementTable.itemId),
         )
         .leftJoin(
           categoryTable,
           eq(categoryTable.idCategory, itemTable.categoryId),
         )
         .leftJoin(unitTable, eq(unitTable.idUnit, itemTable.unitId))
+        .where(
+          and(
+            gte(itemMovementTable.createdAt, start),
+            lt(itemMovementTable.createdAt, end),
+          ),
+        )
         .groupBy(
           itemTable.idItem,
           itemTable.nameItem,
@@ -390,48 +365,58 @@ export const getStockReport = unstable_cache(
         )
         .orderBy(asc(itemTable.idItem));
 
-      const result = report.map((item) => {
-        // ✅ Convert string ke number, lalu sanitasi
-        const totalIn = Math.max(0, Number(item.totalIn) || 0);
-        const totalOut = Math.abs(Number(item.totalOut) || 0); // ✅ ABS untuk OUT yang negatif
-        const currentStock = Math.max(0, Number(item.currentStock) || 0);
-        const minStock = Math.max(0, Number(item.minStock) || 0);
-        const totalCheck = Math.abs(Number(item.totalCheck) || 0);
+      const result = report.map((item): TStockReportItem => {
+        const totalMasukDB = Number(item.totalMasuk) || 0; // selalu ≥ 0 dari DB
+        const totalKeluarDB = Number(item.totalKeluar) || 0; // biasanya ≤ 0 dari DB
+        const totalKoreksiDB = Number(item.totalKoreksi) || 0; // bisa positif atau negatif
 
-        const netMovement = totalIn - totalOut;
-        const stockAtPeriodStart = Math.max(0, currentStock - netMovement);
-        const totalAvailable = stockAtPeriodStart + totalIn;
+        const stokAkhir = Math.max(0, Number(item.stokAkhir) || 0);
+        const stokMinimum = Math.max(0, Number(item.stokMinimum) || 0);
 
-        const utilizationRate =
-          totalAvailable > 0
-            ? ((totalOut / totalAvailable) * 100).toFixed(2)
-            : "0.00";
+        // Pisahkan koreksi berdasarkan tanda
+        let koreksiMasuk = 0;
+        let koreksiKeluar = 0;
 
-        const stockStatus = currentStock <= minStock ? "LOW_STOCK" : "NORMAL";
+        if (totalKoreksiDB >= 0) {
+          koreksiMasuk = totalKoreksiDB;
+        } else {
+          koreksiKeluar = totalKoreksiDB; // tetap negatif di sini
+        }
+
+        // Gabungkan ke masing-masing bucket
+        const totalMasuk = totalMasukDB + koreksiMasuk; // ≥ 0
+        const totalKeluar = totalKeluarDB + koreksiKeluar; // ≤ 0
+
+        // Total perubahan stok selama periode
+        const totalPerubahan = totalMasuk + totalKeluar; // masuk + keluar (negatif)
+
+        // Stok sebelum periode dimulai
+        const stokAwal = Math.max(0, stokAkhir - totalPerubahan);
+
+        const statusStok = stokAkhir <= stokMinimum ? "LOW_STOCK" : "NORMAL";
 
         return {
           idItem: item.idItem,
           nameItem: item.nameItem,
-          nameCategory: item.nameCategory,
-          nameUnit: item.nameUnit,
-          currentStock,
-          minStock,
-          totalIn,
-          totalOut,
-          totalCheck,
-          totalTransactions: item.totalTransactions,
-          netMovement,
-          stockAtPeriodStart,
-          stockAtPeriodEnd: currentStock,
-          stockStatus,
-          utilizationRate,
+          nameCategory: item.nameCategory ?? "-",
+          nameUnit: item.nameUnit ?? "-",
+
+          stokAwal,
+          stokAkhir,
+          stokMinimum,
+          statusStok,
+
+          totalMasuk, // sudah termasuk koreksi positif
+          totalKeluar: Math.abs(totalKeluar), // tampilkan nilai absolut di frontend
+          totalPerubahan,
+          totalTransaksi: item.totalTransaksi,
         };
       });
 
       if (result.length > 0) {
         return {
           ok: true,
-          data: result as TStockReportItem[],
+          data: result,
           message: LABEL.SUCCESS.DATA_FOUND,
         };
       } else {

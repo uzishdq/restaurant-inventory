@@ -1,73 +1,33 @@
 import { Badge } from "@/components/ui/badge";
+import { BadgeCategory, getBadgeConfig } from "@/lib/badge-config";
+import { cn } from "@/lib/utils";
 
 interface BadgeCustomProps {
   value: string;
-  category:
-    | "role"
-    | "statusDetailTransaction"
-    | "typeTransaction"
-    | "statusTransaction"
-    | "stockStatus";
+  category: BadgeCategory;
+  className?: string;
 }
 
-const statusStyleMap: Record<
-  BadgeCustomProps["category"],
-  Record<
-    string,
-    {
-      variant?: "default" | "secondary" | "destructive" | "outline";
-      className?: string;
-    }
-  >
-> = {
-  role: {
-    ADMIN: { variant: "outline" },
-    HEADKITCHEN: { variant: "default" },
-    MANAGER: { variant: "destructive" },
-  },
-  statusDetailTransaction: {
-    PENDING: { variant: "default" },
-    ACCEPTED: { variant: "secondary" },
-    CANCELLED: { variant: "destructive" },
-  },
-  typeTransaction: {
-    CHECK: { variant: "secondary" },
-    IN: { variant: "default" },
-    OUT: { variant: "destructive" },
-  },
-  statusTransaction: {
-    PENDING: {
-      className: "bg-gray-100 text-gray-800",
-    },
-    ORDERED: {
-      className: "bg-blue-100 text-blue-800",
-    },
-    RECEIVED: {
-      className: "bg-yellow-100 text-yellow-800",
-    },
-    COMPLETED: {
-      className: "bg-green-100 text-green-800",
-    },
-    CANCELLED: {
-      className: "bg-red-100 text-red-800",
-    },
-  },
-  stockStatus: {
-    LOW_STOCK: { className: "bg-red-100 text-red-800" },
-    NORMAL: { className: "bg-green-100 text-green-800" },
-  },
-};
+export function BadgeCustom({
+  value,
+  category,
+  className,
+}: Readonly<BadgeCustomProps>) {
+  const badgeConfig = getBadgeConfig(category, value);
 
-export function BadgeCustom({ value, category }: Readonly<BadgeCustomProps>) {
-  const categoryMap = statusStyleMap[category] || {};
-  const style = categoryMap[value] || { variant: "secondary" };
+  if (!badgeConfig) {
+    return (
+      <Badge variant="outline" className={className}>
+        {value}
+      </Badge>
+    );
+  }
 
   return (
-    <Badge
-      variant={style.variant}
-      className={`capitalize ${style.className ?? ""}`}
-    >
-      {value}
+    <Badge className={cn(badgeConfig.color, "text-white", className)}>
+      <div className="flex items-center gap-1">
+        <span>{badgeConfig.label}</span>
+      </div>
     </Badge>
   );
 }

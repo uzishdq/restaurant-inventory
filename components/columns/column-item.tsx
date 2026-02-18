@@ -220,13 +220,11 @@ export const columnItemReport: ColumnDef<TStockReportItem>[] = [
     accessorKey: "idItem",
     header: "No Bahan Baku",
     enableHiding: false,
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("idItem")}</div>
-    ),
+    cell: ({ row }) => <div>{row.getValue("idItem")}</div>,
   },
   {
     accessorKey: "nameItem",
-    header: "Nama",
+    header: "Nama Bahan Baku",
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameItem")}</div>
@@ -235,86 +233,78 @@ export const columnItemReport: ColumnDef<TStockReportItem>[] = [
   {
     accessorKey: "nameCategory",
     header: "Kategori",
-    enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("nameCategory")}</div>
     ),
   },
   {
-    accessorKey: "currentStock",
-    header: "Stok Saat Ini",
-    enableHiding: false,
-    cell: ({ row }) => (
-      <div>
-        {row.getValue("currentStock")} {row.original.nameUnit}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "minStock",
-    header: "Stok Minimum",
-    cell: ({ row }) => (
-      <div>
-        {row.getValue("minStock")} {row.original.nameUnit}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "totalIn",
-    header: "Total Masuk",
-    cell: ({ row }) => (
-      <div>
-        {row.getValue("totalIn")} {row.original.nameUnit}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "totalOut",
-    header: "Total Keluar",
-    cell: ({ row }) => (
-      <div>
-        {row.getValue("totalOut")} {row.original.nameUnit}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "netMovement",
-    header: "Pergerakan Bersih",
-    cell: ({ row }) => <div>{row.getValue("netMovement")}</div>,
-  },
-  {
-    accessorKey: "stockAtPeriodStart",
+    accessorKey: "stokAwal",
     header: "Stok Awal",
     cell: ({ row }) => (
       <div>
-        {row.getValue("stockAtPeriodStart")} {row.original.nameUnit}
+        {row.getValue("stokAwal")} {row.original.nameUnit}
       </div>
     ),
   },
   {
-    accessorKey: "stockAtPeriodEnd",
+    accessorKey: "totalMasuk",
+    header: "Barang Masuk",
+    cell: ({ row }) => (
+      <div className="text-green-600">
+        +{row.getValue("totalMasuk")} {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "totalKeluar",
+    header: "Barang Keluar",
+    cell: ({ row }) => (
+      <div className="text-red-500">
+        -{row.getValue("totalKeluar")} {row.original.nameUnit}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "totalPerubahan",
+    header: "Total Perubahan",
+    cell: ({ row }) => {
+      const val = row.getValue("totalPerubahan") as number;
+      return (
+        <div className={val >= 0 ? "text-green-600" : "text-red-500"}>
+          {val >= 0 ? "+" : ""}
+          {val} {row.original.nameUnit}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "stokAkhir",
     header: "Stok Akhir",
     cell: ({ row }) => (
       <div>
-        {row.getValue("stockAtPeriodEnd")} {row.original.nameUnit}
+        {row.getValue("stokAkhir")} {row.original.nameUnit}
       </div>
     ),
   },
   {
-    accessorKey: "stockStatus",
-    header: "Status Stok",
+    accessorKey: "stokMinimum",
+    header: "Stok Minimum",
     cell: ({ row }) => (
-      <BadgeCustom value={row.getValue("stockStatus")} category="stockStatus" />
+      <div>
+        {row.getValue("stokMinimum")} {row.original.nameUnit}
+      </div>
     ),
   },
   {
-    accessorKey: "utilizationRate",
-    header: "Utilisasi (%)",
-    cell: ({ row }) => <div>{row.getValue("utilizationRate")}</div>,
+    accessorKey: "statusStok",
+    header: "Status Stok",
+    cell: ({ row }) => (
+      <BadgeCustom value={row.getValue("statusStok")} category="stockStatus" />
+    ),
   },
   {
-    accessorKey: "totalTransactions",
-    header: "Total Transaksi",
-    cell: ({ row }) => <div>{row.getValue("totalTransactions")}</div>,
+    accessorKey: "totalTransaksi",
+    header: "Jumlah Transaksi",
+    cell: ({ row }) => <div>{row.getValue("totalTransaksi")} transaksi</div>,
   },
 ];
