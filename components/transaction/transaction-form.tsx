@@ -1607,7 +1607,7 @@ function CreateTransactionForm({
               className="w-full"
               disabled={isPending || fields.length === 0}
             >
-              {isPending ? "Creating..." : "Create Transaction"}
+              {isPending ? "Loading..." : "Buat Transaksi"}
             </Button>
           </form>
         </Form>

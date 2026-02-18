@@ -185,14 +185,14 @@ export const updateUsername = async (
     if (isExisting) {
       return {
         ok: false,
-        message: "Username is already taken. Please choose another one.",
+        message: "Username sudah digunakan. Silakan pilih username lain.",
       };
     }
 
     if (session.user.email !== validateValues.data.oldUsername) {
       return {
         ok: false,
-        message: "Current username does not match our records.",
+        message: "Username saat ini tidak sesuai dengan catatan kami.",
       };
     }
 
@@ -273,14 +273,14 @@ export const updatePassword = async (
     if (!isMatchPrev) {
       return {
         ok: false,
-        message: "The current password is incorrect.",
+        message: "Password saat ini salah.",
       };
     }
 
     if (isSameAsOld) {
       return {
         ok: false,
-        message: "New password must be different from the current password",
+        message: "Password baru harus berbeda dari password saat ini.",
       };
     }
 
@@ -298,12 +298,12 @@ export const updatePassword = async (
 
       return {
         ok: true,
-        message: "Password reset successfully.",
+        message: "Reset password berhasil.",
       };
     } else {
       return {
         ok: false,
-        message: "Password reset failed.",
+        message: "Reset password gagal.",
       };
     }
   } catch (error) {

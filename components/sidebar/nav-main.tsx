@@ -93,7 +93,7 @@ export function NavMain({
           <SidebarMenuButton asChild>
             <Link href={ROUTES.AUTH.DASHBOARD}>
               <Home />
-              <span>Dashboard</span>
+              <span>Beranda</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>

@@ -206,7 +206,7 @@ export default function TableDateWrapper<T>({
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      No Results
+                      Tidak Ada Data
                     </TableCell>
                   </TableRow>
                 )}
@@ -216,12 +216,12 @@ export default function TableDateWrapper<T>({
           <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center justify-between w-full">
               <div className="flex-1 text-sm text-muted-foreground">
-                Page {pagination.pageIndex + 1} of{" "}
+                Halaman {pagination.pageIndex + 1} of{" "}
                 {table.getPageCount().toLocaleString()}
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
-                  Data / Page:
+                  Data / Halaman:
                 </span>
                 <Select
                   value={`${table.getState().pagination.pageSize}`}

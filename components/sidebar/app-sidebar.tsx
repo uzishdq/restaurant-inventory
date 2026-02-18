@@ -47,7 +47,7 @@ export function AppSidebar({
             url: ROUTES.AUTH.MASTER.ITEMS,
           },
           {
-            title: "User",
+            title: "Pengguna",
             url: ROUTES.AUTH.MASTER.USERS,
           },
           {
