@@ -206,9 +206,7 @@ export const updateTransaction = async (
           }
 
           if (type === "CHECK") {
-            const diff = d.quantityDifference ?? 0;
-
-            qtyMovement = diff !== 0 ? diff : (d.quantityCheck ?? 0);
+            qtyMovement = d.quantityDifference ?? 0;
           }
 
           return {
@@ -233,6 +231,8 @@ export const updateTransaction = async (
 
       // Update semua item berdasarkan movement final
       for (const [itemId, qtyMove] of Object.entries(totalMovementByItem)) {
+        if (qtyMove === 0) continue;
+
         await tx
           .update(itemTable)
           .set({
