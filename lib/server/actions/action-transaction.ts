@@ -151,7 +151,7 @@ export const updateTransaction = async (
       };
     }
 
-    if (session?.user.role !== "ADMIN") {
+    if (session?.user.role === "MANAGER") {
       return {
         ok: false,
         message: LABEL.ERROR.UNAUTHORIZED,
