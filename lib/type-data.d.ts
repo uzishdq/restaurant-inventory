@@ -121,6 +121,7 @@ export type TItemTrx = {
   idItem: string;
   nameItem: string;
   nameUnit: string;
+  minStock: number;
   qty: number;
 };
 
@@ -134,6 +135,7 @@ export type TransactionDetailForm = {
 };
 export type TTransaction = {
   idTransaction: string;
+  condition: string;
   typeTransaction: typeTransactionType;
   dateTransaction: Date;
   userId: string;

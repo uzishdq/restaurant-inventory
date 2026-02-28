@@ -66,7 +66,9 @@ CREATE TABLE "transaction" (
 	"type_transaction" "type_transaction" DEFAULT 'IN' NOT NULL,
 	"date_transaction" timestamp DEFAULT now() NOT NULL,
 	"user_id" uuid NOT NULL,
-	"status_transaction" "status_transaction" DEFAULT 'PENDING' NOT NULL
+	"condition" varchar(255) NOT NULL,
+	"status_transaction" "status_transaction" DEFAULT 'PENDING' NOT NULL,
+	CONSTRAINT "transaction_condition_unique" UNIQUE("condition")
 );
 --> statement-breakpoint
 CREATE TABLE "unit" (

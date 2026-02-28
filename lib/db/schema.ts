@@ -99,6 +99,7 @@ export const transactionTable = pgTable("transaction", {
       onUpdate: "cascade",
       onDelete: "cascade",
     }),
+  condition: varchar("condition", { length: 255 }).unique().notNull(),
   statusTransaction: statusTransaction("status_transaction")
     .default("PENDING")
     .notNull(),

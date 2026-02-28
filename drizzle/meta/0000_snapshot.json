@@ -1,5 +1,5 @@
 {
-  "id": "744b0f45-2005-404f-8f5b-d5e5249c357a",
+  "id": "bd81294d-2b11-4ef4-a01a-2bf984920637",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -470,6 +470,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "condition": {
+          "name": "condition",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "status_transaction": {
           "name": "status_transaction",
           "type": "status_transaction",
@@ -496,7 +502,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "transaction_condition_unique": {
+          "name": "transaction_condition_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "condition"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

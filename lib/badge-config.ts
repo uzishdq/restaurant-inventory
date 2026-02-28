@@ -36,7 +36,7 @@ export const BADGE_CONFIG = {
   } satisfies Record<statusDetailTransactionType, BadgeConfig>,
 
   typeTransaction: {
-    CHECK: { label: "Audit", color: "bg-blue-500" },
+    CHECK: { label: "Pengecekan", color: "bg-blue-500" },
     IN: { label: "Masuk", color: "bg-green-500" },
     OUT: { label: "Keluar", color: "bg-red-500" },
   } satisfies Record<typeTransactionType, BadgeConfig>,

@@ -41,6 +41,14 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
     ),
   },
   {
+    accessorKey: "condition",
+    header: "Kondisi",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("condition")}</div>
+    ),
+  },
+  {
     accessorKey: "nameUser",
     header: "Dibuat Oleh",
     enableHiding: false,
@@ -105,6 +113,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
     cell: ({ row }) => {
       const dataRows = row.original;
       const isPending = dataRows.statusTransaction === "PENDING";
+      const isDeleted = ["OUT", "CHECK"].includes(dataRows.typeTransaction);
       const detailHref = transactionDetailRouteMap[dataRows.typeTransaction]?.(
         dataRows.idTransaction,
       );
@@ -127,7 +136,7 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
                 </DropdownMenuItem>
               </>
             )}
-            {isPending && (
+            {isPending && !isDeleted && (
               <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
                 <DialogDelete value={dataRows} />
               </DropdownMenuItem>
@@ -165,24 +174,7 @@ function DialogDelete({ value }: Readonly<TDialog>) {
 }
 
 function DialogEdit({ value }: Readonly<TDialog>) {
-  const descriptions: Record<string, string> = {
-    IN: "Sebelum memperbarui status pemesanan bahan baku, pastikan seluruh detail bahan baku yang diterima telah ditinjau dan diverifikasi.",
-    OUT: "Sebelum memperbarui status bahan baku keluar, pastikan seluruh bahan baku telah diperiksa dan dikonfirmasi.",
-    CHECK:
-      "Sebelum memperbarui status, verifikasi bahwa seluruh perhitungan fisik dan rincian bahan baku telah diperiksa dengan cermat untuk memastikan hasil audit yang akurat.",
-  };
-
-  const description = descriptions[value.typeTransaction];
-
-  return (
-    <FormDialog
-      type="edit_status"
-      title="Update Status Transaksi"
-      description={description}
-    >
-      <UpdateTransactionForm data={value} />
-    </FormDialog>
-  );
+  return <UpdateTransactionForm data={value} />;
 }
 
 export const columnDetailTransactionIn = ({
@@ -231,7 +223,8 @@ export const columnDetailTransactionIn = ({
     enableHiding: true,
     cell: ({ row }) => (
       <div className="capitalize">
-        {row.original.quantityDifference} / {row.original.nameUnit}
+        {Math.abs(Number(row.original.quantityDifference ?? 0))} /{" "}
+        {row.original.nameUnit}
       </div>
     ),
   },
@@ -404,7 +397,8 @@ export const columnDetailTransactionCheck = ({
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
-        {row.original.quantityDifference} / {row.original.nameUnit}
+        {Math.abs(Number(row.original.quantityDifference ?? 0))} /{" "}
+        {row.original.nameUnit}
       </div>
     ),
   },

@@ -62,7 +62,7 @@ export const createTransaction = async (values: unknown) => {
       return { ok: false, message: LABEL.ERROR.INVALID_FIELD };
     }
 
-    const { typeTransaction, detail } = validateValues.data;
+    const { typeTransaction, condition, detail } = validateValues.data;
 
     const customId = await generateTransactionID(typeTransaction);
 
@@ -92,6 +92,7 @@ export const createTransaction = async (values: unknown) => {
         .values({
           idTransaction: customId,
           typeTransaction: typeTransaction,
+          condition: typeTransaction === "IN" ? "-" : (condition ?? "-"),
           userId: session.user.id,
         })
         .returning();
@@ -158,22 +159,129 @@ export const updateTransaction = async (
       };
     }
 
+    //     const result = await db.transaction(async (tx) => {
+    //       await tx
+    //         .update(transactionTable)
+    //         .set({
+    //           statusTransaction: validateValues.data.statusTransaction,
+    //         })
+    //         .where(
+    //           eq(transactionTable.idTransaction, validateValues.data.idTransaction),
+    //         );
+
+    //       // update db nanti ambil status dari validateValues
+    //       const updateDetailTransaction = await tx
+    //         .update(detailTransactionTable)
+    //         .set({
+    //           statusDetailTransaction: validateValues.data.statusTransaction,
+    //         })
+    //         .where(
+    //           eq(
+    //             detailTransactionTable.transactionId,
+    //             validateValues.data.idTransaction,
+    //           ),
+    //         )
+    //         .returning();
+
+    //       if (validateValues.data.statusTransaction !== "COMPLETED") {
+    //         return updateDetailTransaction;
+    //       }
+
+    //       const type = validateValues.data.typeTransaction;
+
+    //       if (type === "IN") {
+    //         const hasNegativeDiff = updateDetailTransaction.some(
+    //   (item) => (item.quantityDifference ?? 0) < 0,
+    // );
+
+    // if (hasNegativeDiff) {
+
+    //       const customId = await generateTransactionID("IN");
+    //   const payloadIN = {
+    //     typeTransaction: "IN" as const,
+    //     condition: "Tidak sesuai",
+    //     detail: updateDetailTransaction
+    //       .filter((item) => (item.quantityDifference ?? 0) < 0)
+    //       .map((item) => ({
+    //         itemId: item.itemId,
+    //         supplierId: item.supplierId ?? undefined,
+    //         quantityDetailTransaction: Math.abs(item.quantityDifference ?? 0),
+    //         quantityCheck: 0,
+    //         quantityDifference: 0,
+    //         note: item.note ?? undefined,
+    //       })),
+    //   };
+
+    // }
+    //       }
+
+    //       const movementPayload: TInputItemMovement[] = updateDetailTransaction.map(
+    //         (d) => {
+    //           let qtyMovement = 0;
+
+    //           if (type === "IN") {
+    //             const check = d.quantityCheck ?? 0;
+
+    //             qtyMovement =
+    //               check === 0
+    //                 ? Math.abs(d.quantityDetailTransaction ?? 0)
+    //                 : Math.abs(check);
+    //           }
+
+    //           if (type === "OUT") {
+    //             qtyMovement = -Math.abs(d.quantityDetailTransaction);
+    //           }
+
+    //           if (type === "CHECK") {
+    //             qtyMovement = d.quantityDifference ?? 0;
+    //           }
+
+    //           return {
+    //             transactionId: validateValues.data.idTransaction,
+    //             itemId: d.itemId,
+    //             typeMovement: type,
+    //             quantityMovement: qtyMovement,
+    //           };
+    //         },
+    //       );
+
+    //       for (const chunk of chunkArray(movementPayload, 50)) {
+    //         await tx.insert(itemMovementTable).values(chunk).onConflictDoNothing();
+    //       }
+
+    //       const totalMovementByItem: Record<string, number> = {};
+
+    //       for (const mv of movementPayload) {
+    //         totalMovementByItem[mv.itemId] =
+    //           (totalMovementByItem[mv.itemId] || 0) + mv.quantityMovement;
+    //       }
+
+    //       // Update semua item berdasarkan movement final
+    //       for (const [itemId, qtyMove] of Object.entries(totalMovementByItem)) {
+    //         if (qtyMove === 0) continue;
+
+    //         await tx
+    //           .update(itemTable)
+    //           .set({
+    //             stockQuantity: sql`${itemTable.stockQuantity} + ${qtyMove}`,
+    //           })
+    //           .where(eq(itemTable.idItem, itemId));
+    //       }
+
+    //       return updateDetailTransaction;
+    //     });
+
     const result = await db.transaction(async (tx) => {
       await tx
         .update(transactionTable)
-        .set({
-          statusTransaction: validateValues.data.statusTransaction,
-        })
+        .set({ statusTransaction: validateValues.data.statusTransaction })
         .where(
           eq(transactionTable.idTransaction, validateValues.data.idTransaction),
         );
 
-      // update db nanti ambil status dari validateValues
       const updateDetailTransaction = await tx
         .update(detailTransactionTable)
-        .set({
-          statusDetailTransaction: validateValues.data.statusTransaction,
-        })
+        .set({ statusDetailTransaction: validateValues.data.statusTransaction })
         .where(
           eq(
             detailTransactionTable.transactionId,
@@ -188,13 +296,47 @@ export const updateTransaction = async (
 
       const type = validateValues.data.typeTransaction;
 
+      if (type === "IN") {
+        const negativeDiffItems = updateDetailTransaction.filter(
+          (item) => (item.quantityDifference ?? 0) < 0,
+        );
+
+        if (negativeDiffItems.length > 0) {
+          const customId = await generateTransactionID("IN");
+
+          await tx.insert(transactionTable).values({
+            idTransaction: customId,
+            typeTransaction: "IN",
+            condition: "Tidak sesuai",
+            userId: session.user.id,
+          });
+
+          const detailPayload = negativeDiffItems.map((item) => ({
+            itemId: item.itemId,
+            supplierId: item.supplierId ?? null,
+            transactionId: customId,
+            quantityDetailTransaction: Math.abs(item.quantityDifference ?? 0),
+            quantityCheck: 0,
+            quantityDifference: 0,
+            note: item.note ?? null,
+          }));
+
+          for (const chunk of chunkArray(detailPayload, 50)) {
+            await tx
+              .insert(detailTransactionTable)
+              .values(chunk)
+              .onConflictDoNothing();
+          }
+        }
+      }
+
+      // Movement payload
       const movementPayload: TInputItemMovement[] = updateDetailTransaction.map(
         (d) => {
           let qtyMovement = 0;
 
           if (type === "IN") {
             const check = d.quantityCheck ?? 0;
-
             qtyMovement =
               check === 0
                 ? Math.abs(d.quantityDetailTransaction ?? 0)
@@ -222,23 +364,25 @@ export const updateTransaction = async (
         await tx.insert(itemMovementTable).values(chunk).onConflictDoNothing();
       }
 
+      // Update stock per item
       const totalMovementByItem: Record<string, number> = {};
-
       for (const mv of movementPayload) {
         totalMovementByItem[mv.itemId] =
           (totalMovementByItem[mv.itemId] || 0) + mv.quantityMovement;
       }
 
-      // Update semua item berdasarkan movement final
-      for (const [itemId, qtyMove] of Object.entries(totalMovementByItem)) {
-        if (qtyMove === 0) continue;
-
-        await tx
-          .update(itemTable)
-          .set({
-            stockQuantity: sql`${itemTable.stockQuantity} + ${qtyMove}`,
-          })
-          .where(eq(itemTable.idItem, itemId));
+      const stockUpdates = Object.entries(totalMovementByItem).filter(
+        ([, qtyMove]) => qtyMove !== 0,
+      );
+      for (const chunk of chunkArray(stockUpdates, 50)) {
+        for (const [itemId, qtyMove] of chunk) {
+          await tx
+            .update(itemTable)
+            .set({
+              stockQuantity: sql`${itemTable.stockQuantity} + ${qtyMove}`,
+            })
+            .where(eq(itemTable.idItem, itemId));
+        }
       }
 
       return updateDetailTransaction;

@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import {
+  CO_TRANSACTION,
   STATUS_TRANSACTION,
   statusColor,
   TYPE_TRANSACTION,
@@ -45,6 +46,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import {
+  statusTransactionType,
   TDetailTransaction,
   TItemTrx,
   TransactionDetailForm,
@@ -63,13 +65,17 @@ import {
   updateTransaction,
 } from "@/lib/server/actions/action-transaction";
 import { cn } from "@/lib/utils";
-import { Plus, Trash2 } from "lucide-react";
+import { Check, Plus, Trash2 } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { useNotiSideStore } from "@/store/notif-side-store";
 
 interface ICreateTransactionForm {
   items: TItemTrx[];
   supplier: TSupplierTrx[];
+}
+interface IItemList {
+  items: TItemTrx[];
+  selectedItemIds?: string[];
 }
 
 interface IAddDetailTransactionForm {
@@ -688,6 +694,44 @@ const getAvailableItems = (
   });
 };
 
+export function ItemListIN({ items, selectedItemIds = [] }: IItemList) {
+  const availableItems = items.filter(
+    (item) =>
+      !selectedItemIds.includes(item.idItem) && item.qty <= item.minStock,
+  );
+
+  if (availableItems.length === 0) {
+    return (
+      <p className="text-sm text-center text-muted-foreground py-4">
+        Semua item sudah dipilih.
+      </p>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
+      {availableItems.map((item) => (
+        <div
+          key={item.idItem}
+          className="flex items-center justify-between rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 px-4 py-3"
+        >
+          <div>
+            <p className="text-sm font-medium">{item.nameItem}</p>
+            <p className="text-xs text-muted-foreground">
+              {item.nameUnit} · stok: {item.qty} / min: {item.minStock}
+            </p>
+          </div>
+          {item.minStock - item.qty > 0 && (
+            <span className="text-xs font-semibold text-red-500">
+              -{item.minStock - item.qty}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CreateTransactionForm({
   items,
   supplier,
@@ -703,6 +747,7 @@ function CreateTransactionForm({
     resolver: zodResolver(schema),
     defaultValues: {
       typeTransaction: "IN",
+      condition: "",
       detail: [],
     },
     mode: "onChange",
@@ -722,6 +767,10 @@ function CreateTransactionForm({
     control: form.control,
     name: "detail",
   });
+
+  const filteredCoTransaction = CO_TRANSACTION.filter(
+    (co) => co.type === watchType,
+  );
 
   const prevTypeRef = useRef<string | undefined>(undefined);
   const hasInitializedRef = useRef(false);
@@ -1084,7 +1133,7 @@ function CreateTransactionForm({
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select type" />
+                        <SelectValue placeholder="Pilih Jenis" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -1099,6 +1148,43 @@ function CreateTransactionForm({
                 </FormItem>
               )}
             />
+
+            {/* Transaction Condition */}
+            {watchType !== "IN" && (
+              <FormField
+                control={form.control}
+                name="condition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kondisi</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Pilih Kondisi" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredCoTransaction.map((item) => (
+                          <SelectItem key={item.value} value={item.value}>
+                            {item.value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {watchType === "IN" && (
+              <ItemListIN
+                items={items}
+                selectedItemIds={
+                  watchDetails?.map((d) => d.itemId).filter(Boolean) ?? []
+                }
+              />
+            )}
 
             {/* Supplier Selection untuk type IN */}
             {watchType === "IN" && (
@@ -1687,87 +1773,58 @@ function DeleteTransactionForm({
   );
 }
 
-function UpdateTransactionForm({
-  onSuccess,
-  data,
-}: Readonly<IDeleteTransactionForm>) {
+function UpdateTransactionForm({ data }: Readonly<IDeleteTransactionForm>) {
   const [isPending, startTransition] = React.useTransition();
-
   const { fetchNotifications } = useNotiSideStore();
 
-  const form = useForm<z.infer<typeof UpdateTransactionSchema>>({
-    resolver: zodResolver(UpdateTransactionSchema),
-    defaultValues: {
-      idTransaction: data.idTransaction,
-      typeTransaction: data.typeTransaction,
-      statusTransaction: undefined,
-    },
-    mode: "onChange",
-  });
+  const valueSelect = React.useMemo(() => {
+    const STATUS_ORDER_IN = ["PENDING", "ORDERED", "RECEIVED", "COMPLETED"];
 
-  const valueSelect =
-    data.typeTransaction === "IN"
-      ? STATUS_TRANSACTION
-      : STATUS_TRANSACTION.filter((s) =>
-          ["COMPLETED", "CANCELLED"].includes(s.value),
-        );
+    if (data.typeTransaction !== "IN") {
+      return STATUS_TRANSACTION.filter((s) => s.value === "COMPLETED");
+    }
 
-  const onSubmit = (values: z.infer<typeof UpdateTransactionSchema>) => {
+    const currentIndex = STATUS_ORDER_IN.indexOf(data.statusTransaction);
+    const nextStatus = STATUS_ORDER_IN[currentIndex + 1];
+
+    return STATUS_TRANSACTION.filter((s) => {
+      if (s.value === "CANCELLED") return data.statusTransaction === "PENDING";
+      return s.value === nextStatus;
+    });
+  }, [data.typeTransaction, data.statusTransaction]);
+
+  const handleClick = (status: string) => {
     startTransition(() => {
-      updateTransaction(values).then((data) => {
-        if (data.ok) {
-          form.reset();
-          onSuccess?.();
+      updateTransaction({
+        idTransaction: data.idTransaction,
+        typeTransaction: data.typeTransaction,
+        statusTransaction: status as statusTransactionType,
+      }).then((res) => {
+        if (res.ok) {
           fetchNotifications();
-          toast.success(data.message);
+          toast.success(res.message);
         } else {
-          toast.error(data.message);
+          toast.error(res.message);
         }
       });
     });
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="space-y-4">
-          <FormField
-            control={form.control}
-            name="statusTransaction"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status Transaksi</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value?.toString() ?? ""}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Pilih Status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {valueSelect.map((item, index) => (
-                      <SelectItem
-                        key={`status-${item.name}-${index}`}
-                        className={statusColor[item.value]}
-                        value={item.value}
-                      >
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <Button type="submit" className="w-full mt-2" disabled={isPending}>
-          {isPending ? "Loading..." : "Update"}
+    <div className="flex flex-col flex-wrap gap-2">
+      {valueSelect.map((s) => (
+        <Button
+          key={s.value}
+          type="button"
+          variant="outline"
+          disabled={isPending}
+          className={cn(statusColor[s.value])}
+          onClick={() => handleClick(s.value)}
+        >
+          {isPending ? "Loading..." : s.name}
         </Button>
-      </form>
-    </Form>
+      ))}
+    </div>
   );
 }
 

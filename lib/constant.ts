@@ -213,21 +213,44 @@ export const TYPE_TRANSACTION = [
   },
 ];
 
+export const CO_TRANSACTION = [
+  {
+    type: "CHECK",
+    value: "Sebelum Operasional",
+  },
+  {
+    type: "CHECK",
+    value: "Setelah Operasional",
+  },
+  {
+    type: "IN",
+    value: "Tidak sesuai",
+  },
+  {
+    type: "OUT",
+    value: "Kebutuhan Operasional",
+  },
+  {
+    type: "OUT",
+    value: "Diluar Operasional",
+  },
+];
+
 export const STATUS_TRANSACTION = [
   {
-    name: "Ordered",
+    name: "Dalam Proses",
     value: "ORDERED",
   },
   {
-    name: "Receive",
+    name: "Diterima",
     value: "RECEIVED",
   },
   {
-    name: "Completed",
+    name: "Selesai",
     value: "COMPLETED",
   },
   {
-    name: "Cancelled",
+    name: "Dibatalkan",
     value: "CANCELLED",
   },
 ];

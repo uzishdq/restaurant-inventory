@@ -35,6 +35,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TItemMovementChart } from "@/lib/type-data";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const chartConfig = {
   item: {
@@ -52,7 +60,41 @@ const chartConfig = {
 
 export function ChartAreaInteractive({
   data,
-}: Readonly<{ data: TItemMovementChart[] }>) {
+  month,
+  year,
+}: Readonly<{
+  data: TItemMovementChart[];
+  month: number;
+  year: number;
+}>) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const MONTHS = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 3 }, (_, i) => currentYear - i);
+
+  const handleChange = (newMonth: number, newYear: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("month", String(newMonth));
+    params.set("year", String(newYear));
+    router.push(`?${params.toString()}`);
+  };
+
   const [open, setOpen] = React.useState(false);
   const [selectedItemId, setSelectedItemId] = React.useState<string>("");
 
@@ -124,9 +166,46 @@ export function ChartAreaInteractive({
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <CardTitle className="text-lg">Transaksi Bahan Baku</CardTitle>
-          <CardDescription>Aktivitas stok bulan {currentMonth}</CardDescription>
+          <CardDescription>
+            Aktivitas stok {MONTHS[month - 1]} {year}
+          </CardDescription>
         </div>
 
+        <div className="flex gap-2">
+          {/* Month Selector */}
+          <Select
+            value={String(month)}
+            onValueChange={(val) => handleChange(Number(val), year)}
+          >
+            <SelectTrigger className="w-[130px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {MONTHS.map((m, i) => (
+                <SelectItem key={i + 1} value={String(i + 1)}>
+                  {m}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Year Selector */}
+          <Select
+            value={String(year)}
+            onValueChange={(val) => handleChange(month, Number(val))}
+          >
+            <SelectTrigger className="w-[90px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {years.map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         {/* Searchable Select */}
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>

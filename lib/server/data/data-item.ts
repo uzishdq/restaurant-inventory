@@ -127,6 +127,7 @@ export const getItemsTrx = unstable_cache(
           idItem: itemTable.idItem,
           nameItem: itemTable.nameItem,
           nameUnit: unitTable.nameUnit,
+          minStock: itemTable.minStock,
           qty: itemTable.stockQuantity,
         })
         .from(itemTable)
@@ -200,27 +201,10 @@ export const getLowItem = unstable_cache(
 );
 
 export const getItemMovementGrouped = unstable_cache(
-  async () => {
+  async (month: number, year: number) => {
     try {
-      const now = new Date();
-
-      // Awal bulan sekarang (tanggal 1)
-      const startOfCurrentMonth = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        1,
-      );
-
-      // Akhir bulan sekarang (tanggal terakhir)
-      const endOfCurrentMonth = new Date(
-        now.getFullYear(),
-        now.getMonth() + 1,
-        0,
-        23,
-        59,
-        59,
-        999,
-      );
+      const startOfMonth = new Date(year, month - 1, 1);
+      const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
 
       const allItems = await db
         .select({
@@ -230,7 +214,6 @@ export const getItemMovementGrouped = unstable_cache(
         .from(itemTable)
         .orderBy(itemTable.nameItem);
 
-      // Ambil data movement
       const movements = await db
         .select({
           idItem: itemTable.idItem,
@@ -259,8 +242,8 @@ export const getItemMovementGrouped = unstable_cache(
         .where(
           and(
             inArray(itemMovementTable.typeMovement, ["IN", "OUT"]),
-            gte(itemMovementTable.createdAt, startOfCurrentMonth),
-            lte(itemMovementTable.createdAt, endOfCurrentMonth),
+            gte(itemMovementTable.createdAt, startOfMonth),
+            lte(itemMovementTable.createdAt, endOfMonth),
           ),
         )
         .groupBy(
@@ -269,19 +252,15 @@ export const getItemMovementGrouped = unstable_cache(
         )
         .orderBy(sql`TO_CHAR(${itemMovementTable.createdAt}, 'YYYY-MM-DD')`);
 
-      // Gabungkan semua item dengan movement data
       const groupedByItem: TItemMovementChart[] = allItems.map((item) => {
-        const itemMovements = movements.filter(
-          (movement) => movement.idItem === item.idItem,
-        );
-
+        const itemMovements = movements.filter((m) => m.idItem === item.idItem);
         return {
           idItem: item.idItem,
           name: item.name,
-          result: itemMovements.map((movement) => ({
-            date: movement.date,
-            incoming: Number(movement.incoming),
-            outgoing: Number(movement.outgoing),
+          result: itemMovements.map((m) => ({
+            date: m.date,
+            incoming: Number(m.incoming),
+            outgoing: Number(m.outgoing),
           })),
         };
       });
@@ -293,9 +272,7 @@ export const getItemMovementGrouped = unstable_cache(
     }
   },
   ["get-item-movement-grouped"],
-  {
-    tags: ["get-item-movement-grouped"],
-  },
+  { tags: ["get-item-movement-grouped"] },
 );
 
 export const getStockReport = unstable_cache(

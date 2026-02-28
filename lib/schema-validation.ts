@@ -287,11 +287,11 @@ const validateCHECK = (
     });
   }
 
-  if (!d.note?.trim()) {
+  if (d.quantityCheck !== d.quantityDetailTransaction && !d.note?.trim()) {
     ctx.addIssue({
       code: "custom",
       path: ["detail", i, "note"],
-      message: "Perlu diisi.",
+      message: "Perlu diisi jika terdapat selisih.",
     });
   }
 };
@@ -300,11 +300,23 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
   z
     .object({
       typeTransaction: z.enum(enumTypeTransaction),
+      condition: z.string().max(50).optional(),
       detail: z
         .array(transactionDetailSchema)
         .min(1, "Setidaknya satu detail transaksi diperlukan."),
     })
     .superRefine((data, ctx) => {
+      if (
+        (data.typeTransaction === "OUT" || data.typeTransaction === "CHECK") &&
+        !data.condition?.trim()
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["condition"],
+          message: "Kondisi wajib diisi.",
+        });
+      }
+
       data.detail.forEach((d, i) => {
         const item = items.find((it) => it.idItem === d.itemId);
 

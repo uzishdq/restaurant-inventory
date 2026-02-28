@@ -73,6 +73,7 @@ export const getTransactions = unstable_cache(
       const result = await db
         .select({
           idTransaction: transactionTable.idTransaction,
+          condition: transactionTable.condition,
           typeTransaction: transactionTable.typeTransaction,
           dateTransaction: transactionTable.dateTransaction,
           userId: transactionTable.userId,
