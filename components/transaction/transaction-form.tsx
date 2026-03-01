@@ -732,16 +732,1002 @@ export function ItemListIN({ items, selectedItemIds = [] }: IItemList) {
   );
 }
 
+// function CreateTransactionForm({
+//   items,
+//   supplier,
+// }: Readonly<ICreateTransactionForm>) {
+//   const [isPending, startTransition] = React.useTransition();
+//   const [selectedSupplier, setSelectedSupplier] = React.useState<string>("");
+
+//   const { fetchNotifications } = useNotiSideStore();
+
+//   const schema = CreateTransactionTestSchema(items);
+
+//   const form = useForm<z.infer<typeof schema>>({
+//     resolver: zodResolver(schema),
+//     defaultValues: {
+//       typeTransaction: "IN",
+//       condition: "",
+//       detail: [],
+//     },
+//     mode: "onChange",
+//   });
+
+//   const { fields, append, remove } = useFieldArray({
+//     control: form.control,
+//     name: "detail",
+//   });
+
+//   const watchType = useWatch({
+//     control: form.control,
+//     name: "typeTransaction",
+//   });
+
+//   const watchDetails = useWatch({
+//     control: form.control,
+//     name: "detail",
+//   });
+
+//   const filteredCoTransaction = CO_TRANSACTION.filter(
+//     (co) => co.type === watchType,
+//   );
+
+//   const prevTypeRef = useRef<string | undefined>(undefined);
+//   const hasInitializedRef = useRef(false);
+
+//   // Auto-populate logic
+//   React.useEffect(() => {
+//     if (!watchType || items.length === 0) return;
+
+//     // Pertama kali render
+//     if (!hasInitializedRef.current) {
+//       hasInitializedRef.current = true;
+//       prevTypeRef.current = watchType;
+
+//       // Untuk type IN, mulai dengan array kosong
+//       if (watchType === "IN") {
+//         form.setValue("detail", [], {
+//           shouldValidate: true,
+//           shouldDirty: false,
+//         });
+//         return;
+//       }
+
+//       // Untuk OUT dan CHECK, auto-populate
+//       const newDetails = items.map((item) => ({
+//         itemId: item.idItem,
+//         supplierId: "",
+//         quantityDetailTransaction: watchType === "CHECK" ? item.qty : 0,
+//         quantityCheck: 0,
+//         quantityDifference: 0,
+//         note: "",
+//       }));
+
+//       form.setValue("detail", newDetails, {
+//         shouldValidate: true,
+//         shouldDirty: false,
+//       });
+//       return;
+//     }
+
+//     // Jika tipe tidak berubah, skip
+//     if (watchType === prevTypeRef.current) {
+//       return;
+//     }
+
+//     // Cek apakah ada data yang sudah diisi
+//     const currentDetails = form.getValues("detail") || [];
+
+//     const hasFilledData = currentDetails.some((item) => {
+//       return (
+//         item?.supplierId ||
+//         (item?.quantityDetailTransaction ?? 0) > 0 ||
+//         (item?.quantityCheck ?? 0) > 0 ||
+//         (item?.note?.trim() ?? "") !== ""
+//       );
+//     });
+
+//     // Jika belum ada data penting, langsung ganti
+//     if (!hasFilledData) {
+//       prevTypeRef.current = watchType;
+
+//       // Reset untuk type IN
+//       if (watchType === "IN") {
+//         form.setValue("detail", [], {
+//           shouldValidate: true,
+//           shouldDirty: false,
+//         });
+//         setSelectedSupplier("");
+//         return;
+//       }
+
+//       // Auto-populate untuk OUT dan CHECK
+//       const newDetails = items.map((item) => ({
+//         itemId: item.idItem,
+//         supplierId: "",
+//         quantityDetailTransaction: watchType === "CHECK" ? item.qty : 0,
+//         quantityCheck: 0,
+//         quantityDifference: 0,
+//         note: "",
+//       }));
+
+//       form.setValue("detail", newDetails, {
+//         shouldValidate: true,
+//         shouldDirty: false,
+//       });
+//       return;
+//     }
+
+//     // Ada data penting, konfirmasi dulu
+//     const oldType = prevTypeRef.current as typeTransactionType;
+//     const oldDetails = structuredClone(currentDetails);
+
+//     form.setValue("typeTransaction", oldType, { shouldValidate: false });
+
+//     toast("Jenis Transaksi Diubah", {
+//       description: "Semua data detail akan direset jika Anda melanjutkan.",
+//       duration: 15000,
+//       action: {
+//         label: "Undo",
+//         onClick: () => {
+//           form.setValue("typeTransaction", oldType);
+//           form.setValue("detail", oldDetails);
+//           prevTypeRef.current = oldType;
+//           toast.success("Perubahan telah dibatalkan.");
+//         },
+//       },
+//       cancel: {
+//         label: "Ok",
+//         onClick: () => {
+//           prevTypeRef.current = watchType;
+//           form.setValue("typeTransaction", watchType);
+
+//           if (watchType === "IN") {
+//             form.setValue("detail", [], {
+//               shouldValidate: true,
+//               shouldDirty: true,
+//             });
+//             setSelectedSupplier("");
+//           } else {
+//             const newDetails = items.map((item) => ({
+//               itemId: item.idItem,
+//               supplierId: "",
+//               quantityDetailTransaction: watchType === "CHECK" ? item.qty : 0,
+//               quantityCheck: 0,
+//               quantityDifference: 0,
+//               note: "",
+//             }));
+
+//             form.setValue("detail", newDetails, {
+//               shouldValidate: true,
+//               shouldDirty: true,
+//             });
+//           }
+
+//           toast.success("Jenis transaksi berhasil diperbarui.");
+//         },
+//       },
+//     });
+//   }, [watchType, form, items]);
+
+//   // Effect untuk auto-fill saat type = "CHECK"
+//   React.useEffect(() => {
+//     if (watchType !== "CHECK" || !watchDetails) return;
+
+//     watchDetails.forEach((detail, index) => {
+//       if (detail === undefined) return;
+
+//       const itemId = detail.itemId;
+//       const qtyCheck = detail.quantityCheck ?? 0;
+
+//       const selectedItem = itemId
+//         ? items.find((i) => i.idItem === itemId)
+//         : null;
+//       const qtySystem = selectedItem?.qty ?? 0;
+
+//       const currentQtySystem = form.getValues(
+//         `detail.${index}.quantityDetailTransaction`,
+//       );
+//       const currentDiff = form.getValues(`detail.${index}.quantityDifference`);
+
+//       if (currentQtySystem !== qtySystem) {
+//         form.setValue(`detail.${index}.quantityDetailTransaction`, qtySystem, {
+//           shouldValidate: true,
+//           shouldDirty: true,
+//           shouldTouch: true,
+//         });
+//       }
+
+//       const newDiff = qtyCheck - qtySystem;
+//       if (currentDiff !== newDiff) {
+//         form.setValue(`detail.${index}.quantityDifference`, newDiff, {
+//           shouldDirty: true,
+//         });
+//       }
+//     });
+//   }, [watchType, watchDetails, items, form]);
+
+//   const handleRemove = useCallback(
+//     (index: number) => {
+//       remove(index);
+//     },
+//     [remove],
+//   );
+
+//   // Handler untuk add item di type IN (1 item kosong)
+//   const handleAddItem = useCallback(() => {
+//     if (!selectedSupplier) {
+//       toast.error("Pilih toko terlebih dahulu");
+//       return;
+//     }
+
+//     const currentDetails = form.getValues("detail") || [];
+//     const addedItemIds = new Set(currentDetails.map((d) => d.itemId));
+//     const availableItems = items.filter(
+//       (item) => !addedItemIds.has(item.idItem),
+//     );
+
+//     if (availableItems.length === 0) {
+//       toast.error("Semua item sudah ditambahkan");
+//       return;
+//     }
+
+//     // Tambahkan item kosong untuk dipilih manual
+//     append({
+//       itemId: "",
+//       supplierId: selectedSupplier,
+//       quantityDetailTransaction: 0,
+//       quantityCheck: 0,
+//       quantityDifference: 0,
+//       note: "",
+//     });
+
+//     // Reset selected supplier setelah menambahkan item
+//     // Sehingga user bisa pilih toko lain untuk item berikutnya
+//     setSelectedSupplier("");
+
+//     toast.success(
+//       "Item baru ditambahkan. Silakan pilih toko lagi untuk menambahkan item dari toko lain.",
+//     );
+//   }, [selectedSupplier, append, form, items]);
+
+//   // Handler untuk add semua item available dari toko yang dipilih
+//   const handleAddAllItems = useCallback(() => {
+//     if (!selectedSupplier) {
+//       toast.error("Pilih toko terlebih dahulu");
+//       return;
+//     }
+
+//     const currentDetails = form.getValues("detail") || [];
+//     const addedItemIds = new Set(currentDetails.map((d) => d.itemId));
+//     const availableItems = items.filter(
+//       (item) => !addedItemIds.has(item.idItem),
+//     );
+
+//     if (availableItems.length === 0) {
+//       toast.error("Semua item sudah ditambahkan");
+//       return;
+//     }
+
+//     const newItems = availableItems.map((item) => ({
+//       itemId: item.idItem,
+//       supplierId: selectedSupplier,
+//       quantityDetailTransaction: 0,
+//       quantityCheck: 0,
+//       quantityDifference: 0,
+//       note: "",
+//     }));
+
+//     form.setValue("detail", [...currentDetails, ...newItems], {
+//       shouldValidate: true,
+//       shouldDirty: true,
+//     });
+
+//     const storeName = supplier.find(
+//       (s) => s.idSupplier === selectedSupplier,
+//     )?.store_name;
+//     toast.success(
+//       `${availableItems.length} item ditambahkan dari ${storeName}`,
+//     );
+
+//     // Reset selected supplier setelah menambahkan semua item
+//     setSelectedSupplier("");
+//   }, [selectedSupplier, form, items, supplier]);
+
+//   const onSubmit = (values: z.infer<typeof schema>) => {
+//     startTransition(() => {
+//       createTransaction(values).then((data) => {
+//         if (data.ok) {
+//           form.reset();
+//           hasInitializedRef.current = false;
+//           setSelectedSupplier("");
+//           fetchNotifications();
+//           toast.success(data.message);
+//         } else {
+//           toast.error(data.message);
+//         }
+//       });
+//     });
+//   };
+
+//   // Group items by supplier untuk tampilan yang lebih jelas (untuk type IN)
+//   // FIX: Include field.id to enable stable indexing when items are deleted
+//   const groupedBySupplier = React.useMemo(() => {
+//     if (watchType !== "IN" || !watchDetails || !fields) return {};
+
+//     type GroupedItem = (typeof watchDetails)[number] & {
+//       originalIndex: number;
+//       fieldId: string;
+//     };
+
+//     return watchDetails.reduce(
+//       (acc, detail, index) => {
+//         if (!detail?.supplierId) return acc;
+
+//         if (!acc[detail.supplierId]) {
+//           acc[detail.supplierId] = [];
+//         }
+//         acc[detail.supplierId].push({
+//           ...detail,
+//           originalIndex: index,
+//           fieldId: fields[index]?.id || "",
+//         });
+//         return acc;
+//       },
+//       {} as Record<string, GroupedItem[]>,
+//     );
+//   }, [watchType, watchDetails, fields]);
+
+//   // Handler untuk add item ke supplier tertentu
+//   const handleAddItemToSupplier = useCallback(
+//     (supplierId: string) => {
+//       const currentDetails = form.getValues("detail") || [];
+//       const addedItemIds = new Set(currentDetails.map((d) => d.itemId));
+//       const availableItems = items.filter(
+//         (item) => !addedItemIds.has(item.idItem),
+//       );
+
+//       if (availableItems.length === 0) {
+//         toast.error("Semua item sudah ditambahkan");
+//         return;
+//       }
+
+//       // Tambahkan item kosong untuk dipilih manual
+//       append({
+//         itemId: "",
+//         supplierId: supplierId,
+//         quantityDetailTransaction: 0,
+//         quantityCheck: 0,
+//         quantityDifference: 0,
+//         note: "",
+//       });
+
+//       const storeName = supplier.find(
+//         (s) => s.idSupplier === supplierId,
+//       )?.store_name;
+//       toast.success(`Item baru ditambahkan ke ${storeName}`);
+//     },
+//     [append, form, items, supplier],
+//   );
+
+//   return (
+//     <Card>
+//       <CardHeader>
+//         <CardTitle className="text-xl">Buat Transaksi</CardTitle>
+//         <CardDescription className="text-base">
+//           {watchType === "IN"
+//             ? "Pilih toko → tambahkan item → ulangi untuk toko lain. Anda bisa membeli dari beberapa toko sekaligus dalam satu transaksi."
+//             : "Pilih jenis transaksi (Cek atau bahan baku keluar). Semua item akan ditambahkan otomatis, hapus yang tidak diperlukan."}
+//         </CardDescription>
+//       </CardHeader>
+//       <CardContent>
+//         <Form {...form}>
+//           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+//             {/* Transaction Type */}
+//             <FormField
+//               control={form.control}
+//               name="typeTransaction"
+//               render={({ field }) => (
+//                 <FormItem>
+//                   <FormLabel>Jenis Transaksi</FormLabel>
+//                   <Select onValueChange={field.onChange} value={field.value}>
+//                     <FormControl>
+//                       <SelectTrigger className="w-full">
+//                         <SelectValue placeholder="Pilih Jenis" />
+//                       </SelectTrigger>
+//                     </FormControl>
+//                     <SelectContent>
+//                       {TYPE_TRANSACTION.map((item) => (
+//                         <SelectItem key={item.value} value={item.value}>
+//                           {item.name}
+//                         </SelectItem>
+//                       ))}
+//                     </SelectContent>
+//                   </Select>
+//                   <FormMessage />
+//                 </FormItem>
+//               )}
+//             />
+
+//             {/* Transaction Condition */}
+//             {watchType !== "IN" && (
+//               <FormField
+//                 control={form.control}
+//                 name="condition"
+//                 render={({ field }) => (
+//                   <FormItem>
+//                     <FormLabel>Kondisi</FormLabel>
+//                     <Select onValueChange={field.onChange} value={field.value}>
+//                       <FormControl>
+//                         <SelectTrigger className="w-full">
+//                           <SelectValue placeholder="Pilih Kondisi" />
+//                         </SelectTrigger>
+//                       </FormControl>
+//                       <SelectContent>
+//                         {filteredCoTransaction.map((item) => (
+//                           <SelectItem key={item.value} value={item.value}>
+//                             {item.value}
+//                           </SelectItem>
+//                         ))}
+//                       </SelectContent>
+//                     </Select>
+//                     <FormMessage />
+//                   </FormItem>
+//                 )}
+//               />
+//             )}
+
+//             {watchType === "IN" && (
+//               <ItemListIN
+//                 items={items}
+//                 selectedItemIds={
+//                   watchDetails?.map((d) => d.itemId).filter(Boolean) ?? []
+//                 }
+//               />
+//             )}
+
+//             {/* Supplier Selection untuk type IN */}
+//             {watchType === "IN" && (
+//               <div className="space-y-4">
+//                 <div className="space-y-2">
+//                   <FormLabel>Pilih Toko</FormLabel>
+//                   <Select
+//                     onValueChange={setSelectedSupplier}
+//                     value={selectedSupplier}
+//                   >
+//                     <SelectTrigger className="w-full">
+//                       <SelectValue placeholder="Pilih toko untuk menambahkan item" />
+//                     </SelectTrigger>
+//                     <SelectContent>
+//                       {supplier.map((sup) => (
+//                         <SelectItem key={sup.idSupplier} value={sup.idSupplier}>
+//                           {sup.store_name}
+//                         </SelectItem>
+//                       ))}
+//                     </SelectContent>
+//                   </Select>
+//                   <p className="text-xs text-muted-foreground">
+//                     💡 Tip: Anda bisa menambahkan bahan baku dari toko yang sama
+//                     dengan klik tombol + di grup toko, atau pilih toko baru
+//                     untuk membeli dari toko lain.
+//                   </p>
+//                 </div>
+
+//                 {selectedSupplier && (
+//                   <Button
+//                     type="button"
+//                     variant="outline"
+//                     onClick={handleAddItem}
+//                     className="w-full"
+//                   >
+//                     <Plus className="mr-2 h-4 w-4" />
+//                     Tambah Detail Transaksi
+//                   </Button>
+//                 )}
+//               </div>
+//             )}
+
+//             {/* Transaction Details - Grouped by Supplier for IN type */}
+//             {watchType === "IN" && fields.length > 0 && (
+//               <div className="space-y-6">
+//                 <div className="flex items-center justify-between">
+//                   <FormLabel>
+//                     Detail Transaksi ({fields.length} item dari{" "}
+//                     {Object.keys(groupedBySupplier).length} toko)
+//                   </FormLabel>
+//                 </div>
+
+//                 {Object.entries(groupedBySupplier).map(
+//                   ([supplierId, supplierItems]) => {
+//                     const storeName = supplier.find(
+//                       (s) => s.idSupplier === supplierId,
+//                     )?.store_name;
+
+//                     return (
+//                       <div
+//                         key={supplierId}
+//                         className="border rounded-lg overflow-hidden"
+//                       >
+//                         <div className="bg-primary/10 px-4 py-3 border-b flex items-center justify-between">
+//                           <h3 className="font-semibold text-sm">
+//                             🏪 {storeName} ({supplierItems.length} item)
+//                           </h3>
+//                           <Button
+//                             type="button"
+//                             size="sm"
+//                             onClick={() => handleAddItemToSupplier(supplierId)}
+//                             className="h-8"
+//                           >
+//                             <Plus className="mr-1 h-3 w-3" />
+//                             Bahan Baku
+//                           </Button>
+//                         </div>
+
+//                         <div className="overflow-x-auto">
+//                           <table className="w-full">
+//                             <thead className="bg-muted">
+//                               <tr>
+//                                 <th className="px-4 py-3 text-left text-sm font-medium w-12">
+//                                   No
+//                                 </th>
+//                                 <th className="px-4 py-3 text-left text-sm font-medium min-w-[200px]">
+//                                   Bahan Baku
+//                                 </th>
+//                                 <th className="px-4 py-3 text-left text-sm font-medium min-w-[150px]">
+//                                   Jumlah Pesanan
+//                                 </th>
+//                                 <th className="px-4 py-3 text-center text-sm font-medium w-20 sticky right-0">
+//                                   Aksi
+//                                 </th>
+//                               </tr>
+//                             </thead>
+//                             <tbody className="divide-y">
+//                               {supplierItems.map((supplierItem, idx) => {
+//                                 // FIX: Find current index using stable field.id instead of stale originalIndex
+//                                 const index = fields.findIndex(
+//                                   (f) => f.id === supplierItem.fieldId,
+//                                 );
+
+//                                 // Safety check: skip if field not found
+//                                 if (index === -1) return null;
+
+//                                 const field = fields[index];
+//                                 const currentDetail =
+//                                   watchDetails?.[index] || {};
+//                                 const selectedItem = currentDetail.itemId
+//                                   ? items.find(
+//                                       (i) => i.idItem === currentDetail.itemId,
+//                                     )
+//                                   : null;
+
+//                                 // Use helper function to reduce nesting
+//                                 const availableItems = getAvailableItems(
+//                                   items,
+//                                   watchDetails,
+//                                   index,
+//                                 );
+
+//                                 return (
+//                                   <tr
+//                                     key={field.id}
+//                                     className="hover:bg-muted/30 transition-colors"
+//                                   >
+//                                     {/* No */}
+//                                     <td className="px-4 py-3 text-sm text-muted-foreground">
+//                                       {idx + 1}
+//                                     </td>
+
+//                                     {/* Bahan Baku */}
+//                                     <td className="px-4 py-3">
+//                                       <CustomSelect
+//                                         name={`detail.${index}.itemId`}
+//                                         label=""
+//                                         control={form.control}
+//                                         data={availableItems}
+//                                         valueKey="idItem"
+//                                         labelKey="nameItem"
+//                                       />
+//                                       {/* Hidden supplier field - moved inside td */}
+//                                       <FormField
+//                                         control={form.control}
+//                                         name={`detail.${index}.supplierId`}
+//                                         render={({ field }) => (
+//                                           <input type="hidden" {...field} />
+//                                         )}
+//                                       />
+//                                     </td>
+
+//                                     {/* Quantity */}
+//                                     <td className="px-4 py-3">
+//                                       <FormField
+//                                         control={form.control}
+//                                         name={`detail.${index}.quantityDetailTransaction`}
+//                                         render={({ field: qtyField }) => (
+//                                           <FormItem>
+//                                             <div className="flex items-center gap-2">
+//                                               <FormControl>
+//                                                 <Input
+//                                                   type="number"
+//                                                   step="0.01"
+//                                                   {...qtyField}
+//                                                   value={qtyField.value ?? ""}
+//                                                   onChange={(e) => {
+//                                                     const raw = e.target.value;
+//                                                     if (raw === "") {
+//                                                       qtyField.onChange(null);
+//                                                       return;
+//                                                     }
+//                                                     qtyField.onChange(
+//                                                       Number.parseFloat(raw) ||
+//                                                         0,
+//                                                     );
+//                                                   }}
+//                                                   className="h-9"
+//                                                 />
+//                                               </FormControl>
+//                                               {selectedItem && (
+//                                                 <span className="text-xs text-muted-foreground min-w-10 capitalize">
+//                                                   {selectedItem.nameUnit}
+//                                                 </span>
+//                                               )}
+//                                             </div>
+//                                             <FormMessage className="text-xs" />
+//                                           </FormItem>
+//                                         )}
+//                                       />
+//                                     </td>
+
+//                                     {/* Action */}
+//                                     <td className="px-4 py-3 text-center sticky right-0 bg-background">
+//                                       <Button
+//                                         type="button"
+//                                         variant="ghost"
+//                                         size="sm"
+//                                         onClick={() => handleRemove(index)}
+//                                         className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+//                                       >
+//                                         <Trash2 className="h-4 w-4" />
+//                                       </Button>
+//                                     </td>
+//                                   </tr>
+//                                 );
+//                               })}
+//                             </tbody>
+//                           </table>
+//                         </div>
+//                       </div>
+//                     );
+//                   },
+//                 )}
+
+//                 {/* Global Error */}
+//                 {form.formState.errors.detail?.message && (
+//                   <p className="text-sm text-destructive">
+//                     {form.formState.errors.detail.message}
+//                   </p>
+//                 )}
+//               </div>
+//             )}
+
+//             {/* Transaction Details - Regular Table for OUT/CHECK */}
+//             {watchType !== "IN" && fields.length > 0 && (
+//               <div className="space-y-4">
+//                 <div className="flex items-center justify-between">
+//                   <FormLabel>Detail Transaksi ({fields.length} item)</FormLabel>
+//                 </div>
+
+//                 <div className="border rounded-lg overflow-hidden">
+//                   <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
+//                     <table className="w-full">
+//                       <thead className="bg-muted sticky top-0 z-10">
+//                         <tr>
+//                           <th className="px-4 py-3 text-left text-sm font-medium w-12">
+//                             No
+//                           </th>
+//                           <th className="px-4 py-3 text-left text-sm font-medium min-w-[200px]">
+//                             Bahan Baku
+//                           </th>
+//                           <th className="px-4 py-3 text-left text-sm font-medium min-w-[150px]">
+//                             {labelMap[watchType]?.quantityDetailTransaction ??
+//                               "Quantity"}
+//                           </th>
+//                           {watchType === "CHECK" && (
+//                             <>
+//                               <th className="px-4 py-3 text-left text-sm font-medium min-w-[150px]">
+//                                 {labelMap[watchType]?.quantityCheck ??
+//                                   "Qty Fisik"}
+//                               </th>
+//                               <th className="px-4 py-3 text-left text-sm font-medium min-w-[150px]">
+//                                 {labelMap[watchType]?.quantityDifference ??
+//                                   "Selisih"}
+//                               </th>
+//                             </>
+//                           )}
+//                           <th className="px-4 py-3 text-left text-sm font-medium min-w-[200px]">
+//                             Note
+//                           </th>
+//                           <th className="px-4 py-3 text-center text-sm font-medium w-20 sticky right-0 bg-muted">
+//                             Aksi
+//                           </th>
+//                         </tr>
+//                       </thead>
+//                       <tbody className="divide-y">
+//                         {fields.map((field, index) => {
+//                           const currentDetail = watchDetails?.[index] || {};
+//                           const selectedItem = currentDetail.itemId
+//                             ? items.find(
+//                                 (i) => i.idItem === currentDetail.itemId,
+//                               )
+//                             : null;
+//                           const isDisable = watchType === "CHECK";
+
+//                           return (
+//                             <tr
+//                               key={field.id}
+//                               className="hover:bg-muted/30 transition-colors"
+//                             >
+//                               {/* No */}
+//                               <td className="px-4 py-3 text-sm text-muted-foreground">
+//                                 {index + 1}
+//                               </td>
+
+//                               {/* Bahan Baku */}
+//                               <td className="px-4 py-3">
+//                                 <div className="flex items-center gap-2">
+//                                   <span className="font-medium text-sm">
+//                                     {selectedItem?.nameItem || "-"}
+//                                   </span>
+//                                   {watchType === "OUT" && selectedItem && (
+//                                     <span className="text-xs text-muted-foreground">
+//                                       (Stok: {selectedItem.qty})
+//                                     </span>
+//                                   )}
+//                                 </div>
+//                                 <FormField
+//                                   control={form.control}
+//                                   name={`detail.${index}.itemId`}
+//                                   render={({ field }) => (
+//                                     <input type="hidden" {...field} />
+//                                   )}
+//                                 />
+//                               </td>
+
+//                               {/* Quantity Detail */}
+//                               <td className="px-4 py-3">
+//                                 <FormField
+//                                   control={form.control}
+//                                   name={`detail.${index}.quantityDetailTransaction`}
+//                                   render={({ field: qtyField }) => (
+//                                     <FormItem>
+//                                       <div className="flex items-center gap-2">
+//                                         <FormControl>
+//                                           <Input
+//                                             type="number"
+//                                             step="0.01"
+//                                             {...qtyField}
+//                                             value={qtyField.value ?? ""}
+//                                             onChange={(e) => {
+//                                               const raw = e.target.value;
+//                                               if (raw === "") {
+//                                                 qtyField.onChange(null);
+//                                                 return;
+//                                               }
+//                                               qtyField.onChange(
+//                                                 Number.parseFloat(raw) || 0,
+//                                               );
+//                                             }}
+//                                             disabled={isDisable}
+//                                             className="h-9"
+//                                           />
+//                                         </FormControl>
+//                                         {selectedItem && (
+//                                           <span className="text-xs text-muted-foreground min-w-10 capitalize">
+//                                             {selectedItem.nameUnit}
+//                                           </span>
+//                                         )}
+//                                       </div>
+//                                       <FormMessage className="text-xs" />
+//                                     </FormItem>
+//                                   )}
+//                                 />
+//                               </td>
+
+//                               {/* Quantity Check */}
+//                               {watchType === "CHECK" && (
+//                                 <td className="px-4 py-3">
+//                                   <FormField
+//                                     control={form.control}
+//                                     name={`detail.${index}.quantityCheck`}
+//                                     render={({ field: checkField }) => (
+//                                       <FormItem>
+//                                         <div className="flex items-center gap-2">
+//                                           <FormControl>
+//                                             <Input
+//                                               type="number"
+//                                               step="0.01"
+//                                               {...checkField}
+//                                               value={checkField.value ?? ""}
+//                                               onChange={(e) => {
+//                                                 const raw = e.target.value;
+//                                                 if (raw === "") {
+//                                                   checkField.onChange(null);
+//                                                   form.setValue(
+//                                                     `detail.${index}.quantityDifference`,
+//                                                     0,
+//                                                     { shouldDirty: true },
+//                                                   );
+//                                                   return;
+//                                                 }
+//                                                 const checkVal =
+//                                                   Number.parseFloat(raw) || 0;
+//                                                 checkField.onChange(checkVal);
+//                                                 const transQty =
+//                                                   form.getValues(
+//                                                     `detail.${index}.quantityDetailTransaction`,
+//                                                   ) || 0;
+//                                                 const diff =
+//                                                   checkVal - transQty;
+//                                                 form.setValue(
+//                                                   `detail.${index}.quantityDifference`,
+//                                                   diff,
+//                                                   { shouldDirty: true },
+//                                                 );
+//                                               }}
+//                                               className="h-9"
+//                                             />
+//                                           </FormControl>
+//                                           {selectedItem && (
+//                                             <span className="text-xs text-muted-foreground min-w-10 capitalize">
+//                                               {selectedItem.nameUnit}
+//                                             </span>
+//                                           )}
+//                                         </div>
+//                                         <FormMessage className="text-xs" />
+//                                       </FormItem>
+//                                     )}
+//                                   />
+//                                 </td>
+//                               )}
+
+//                               {/* Quantity Difference */}
+//                               {watchType === "CHECK" && (
+//                                 <td className="px-4 py-3">
+//                                   <FormField
+//                                     control={form.control}
+//                                     name={`detail.${index}.quantityDifference`}
+//                                     render={({ field: diffField }) => (
+//                                       <FormItem>
+//                                         <div className="flex items-center gap-2">
+//                                           <FormControl>
+//                                             <Input
+//                                               type="number"
+//                                               step="0.01"
+//                                               {...diffField}
+//                                               className="h-9 bg-muted font-medium"
+//                                               readOnly
+//                                               disabled
+//                                             />
+//                                           </FormControl>
+//                                           {selectedItem && (
+//                                             <span className="text-xs text-muted-foreground min-w-10 capitalize">
+//                                               {selectedItem.nameUnit}
+//                                             </span>
+//                                           )}
+//                                           <p
+//                                             className={cn(
+//                                               "text-xs mt-0 font-medium",
+//                                               diffField.value > 0
+//                                                 ? "text-green-600"
+//                                                 : diffField.value < 0
+//                                                   ? "text-red-600"
+//                                                   : "text-muted-foreground",
+//                                             )}
+//                                           >
+//                                             {diffField.value > 0
+//                                               ? `+${diffField.value} lebih`
+//                                               : diffField.value < 0
+//                                                 ? `${diffField.value} kurang`
+//                                                 : "cocok"}
+//                                           </p>
+//                                         </div>
+
+//                                         <FormMessage className="text-xs" />
+//                                       </FormItem>
+//                                     )}
+//                                   />
+//                                 </td>
+//                               )}
+
+//                               {/* Note */}
+//                               <td className="px-4 py-3">
+//                                 <FormField
+//                                   control={form.control}
+//                                   name={`detail.${index}.note`}
+//                                   render={({ field }) => (
+//                                     <FormItem>
+//                                       <FormControl>
+//                                         <Textarea
+//                                           {...field}
+//                                           className="h-20 min-h-9"
+//                                           rows={1}
+//                                         />
+//                                       </FormControl>
+//                                       <FormMessage className="text-xs" />
+//                                     </FormItem>
+//                                   )}
+//                                 />
+//                               </td>
+
+//                               {/* Action */}
+//                               <td className="px-4 py-3 text-center sticky right-0 bg-background">
+//                                 <Button
+//                                   type="button"
+//                                   variant="ghost"
+//                                   size="sm"
+//                                   onClick={() => handleRemove(index)}
+//                                   className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+//                                 >
+//                                   <Trash2 className="h-4 w-4" />
+//                                 </Button>
+//                               </td>
+//                             </tr>
+//                           );
+//                         })}
+//                       </tbody>
+//                     </table>
+//                   </div>
+//                 </div>
+
+//                 {/* Global Error */}
+//                 {form.formState.errors.detail?.message && (
+//                   <p className="text-sm text-destructive">
+//                     {form.formState.errors.detail.message}
+//                   </p>
+//                 )}
+//               </div>
+//             )}
+
+//             {/* Submit */}
+//             <Button
+//               type="submit"
+//               className="w-full"
+//               disabled={isPending || fields.length === 0}
+//             >
+//               {isPending ? "Loading..." : "Buat Transaksi"}
+//             </Button>
+//           </form>
+//         </Form>
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
 function CreateTransactionForm({
   items,
   supplier,
 }: Readonly<ICreateTransactionForm>) {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // PERF REFACTOR SUMMARY
+  // 1. schema → useMemo (dibuat ulang hanya saat `items` berubah)
+  // 2. watchDetails diganti watchDetailItemIds: hanya watch field `itemId` saja
+  //    untuk keperluan grouping & availableItems, bukan seluruh detail object
+  // 3. getAvailableItemsSet → useMemo global (Set of added IDs), O(1) lookup
+  // 4. groupedBySupplier → useMemo dengan dep minimal
+  // 5. CHECK auto-fill effect: gunakan form.getValues() + update hanya jika
+  //    ada perubahan nyata, bukan watch seluruh array
+  // 6. handleAddItem, handleAddAllItems, handleAddItemToSupplier → deps lebih ketat
+  // ─────────────────────────────────────────────────────────────────────────────
+
   const [isPending, startTransition] = React.useTransition();
   const [selectedSupplier, setSelectedSupplier] = React.useState<string>("");
 
   const { fetchNotifications } = useNotiSideStore();
 
-  const schema = CreateTransactionTestSchema(items);
+  // ✅ FIX 1: Memoize schema — hanya dibuat ulang saat `items` berubah
+  const schema = React.useMemo(
+    () => CreateTransactionTestSchema(items),
+    [items],
+  );
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -763,7 +1749,15 @@ function CreateTransactionForm({
     name: "typeTransaction",
   });
 
-  const watchDetails = useWatch({
+  const watchCondition = useWatch({
+    control: form.control,
+    name: "condition",
+  });
+
+  // ✅ FIX 2: Hanya watch itemId array, bukan seluruh detail object.
+  // Ini drastis mengurangi re-render: dari "setiap keystroke qty" menjadi
+  // "hanya saat item dipilih/dihapus".
+  const watchDetailItemIds = useWatch({
     control: form.control,
     name: "detail",
   });
@@ -772,20 +1766,56 @@ function CreateTransactionForm({
     (co) => co.type === watchType,
   );
 
+  const isOutManual =
+    watchType === "OUT" && watchCondition === "Diluar Operasional";
+  const isOutAuto =
+    watchType === "OUT" && watchCondition === "Kebutuhan Operasional";
+
+  // ✅ FIX 3: Set of added item IDs — O(1) lookup, recompute hanya saat
+  // array itemId berubah (bukan saat qty/note berubah)
+  const addedItemIdSet = React.useMemo(() => {
+    return new Set(
+      (watchDetailItemIds ?? []).map((d) => d?.itemId).filter(Boolean),
+    );
+  }, [watchDetailItemIds]);
+
+  // ✅ FIX 4: availableItems global — recompute hanya saat addedItemIdSet berubah
+  const availableItemsGlobal = React.useMemo(() => {
+    return items.filter((item) => !addedItemIdSet.has(item.idItem));
+  }, [items, addedItemIdSet]);
+
+  // ✅ FIX 5: getAvailableItems per-row menggunakan addedItemIdSet
+  // Mengembalikan items yang belum dipilih + item yang sedang di-row ini
+  const getAvailableItemsForRow = useCallback(
+    (currentItemId: string) => {
+      return items.filter(
+        (item) =>
+          !addedItemIdSet.has(item.idItem) || item.idItem === currentItemId,
+      );
+    },
+    [items, addedItemIdSet],
+  );
+
   const prevTypeRef = useRef<string | undefined>(undefined);
+  const prevConditionRef = useRef<string | undefined>(undefined);
   const hasInitializedRef = useRef(false);
 
-  // Auto-populate logic
+  // Reset condition setiap kali typeTransaction berubah
+  React.useEffect(() => {
+    if (!hasInitializedRef.current) return;
+    form.setValue("condition", "", { shouldValidate: false });
+  }, [watchType, form]);
+
+  // Auto-populate logic berdasarkan type dan condition
   React.useEffect(() => {
     if (!watchType || items.length === 0) return;
 
-    // Pertama kali render
     if (!hasInitializedRef.current) {
       hasInitializedRef.current = true;
       prevTypeRef.current = watchType;
+      prevConditionRef.current = watchCondition;
 
-      // Untuk type IN, mulai dengan array kosong
-      if (watchType === "IN") {
+      if (watchType === "IN" || (watchType === "OUT" && !watchCondition)) {
         form.setValue("detail", [], {
           shouldValidate: true,
           shouldDirty: false,
@@ -793,45 +1823,43 @@ function CreateTransactionForm({
         return;
       }
 
-      // Untuk OUT dan CHECK, auto-populate
-      const newDetails = items.map((item) => ({
-        itemId: item.idItem,
-        supplierId: "",
-        quantityDetailTransaction: watchType === "CHECK" ? item.qty : 0,
-        quantityCheck: 0,
-        quantityDifference: 0,
-        note: "",
-      }));
-
-      form.setValue("detail", newDetails, {
-        shouldValidate: true,
-        shouldDirty: false,
-      });
+      if (isOutAuto || watchType === "CHECK") {
+        const newDetails = items.map((item) => ({
+          itemId: item.idItem,
+          supplierId: "",
+          quantityDetailTransaction: watchType === "CHECK" ? item.qty : 0,
+          quantityCheck: 0,
+          quantityDifference: 0,
+          note: "",
+        }));
+        form.setValue("detail", newDetails, {
+          shouldValidate: true,
+          shouldDirty: false,
+        });
+      }
       return;
     }
 
-    // Jika tipe tidak berubah, skip
-    if (watchType === prevTypeRef.current) {
+    if (
+      watchType === prevTypeRef.current &&
+      watchCondition === prevConditionRef.current
+    ) {
       return;
     }
 
-    // Cek apakah ada data yang sudah diisi
     const currentDetails = form.getValues("detail") || [];
-
-    const hasFilledData = currentDetails.some((item) => {
-      return (
+    const hasFilledData = currentDetails.some(
+      (item) =>
         item?.supplierId ||
         (item?.quantityDetailTransaction ?? 0) > 0 ||
         (item?.quantityCheck ?? 0) > 0 ||
-        (item?.note?.trim() ?? "") !== ""
-      );
-    });
+        (item?.note?.trim() ?? "") !== "",
+    );
 
-    // Jika belum ada data penting, langsung ganti
-    if (!hasFilledData) {
+    const doReset = () => {
       prevTypeRef.current = watchType;
+      prevConditionRef.current = watchCondition;
 
-      // Reset untuk type IN
       if (watchType === "IN") {
         form.setValue("detail", [], {
           shouldValidate: true,
@@ -841,7 +1869,17 @@ function CreateTransactionForm({
         return;
       }
 
-      // Auto-populate untuk OUT dan CHECK
+      if (
+        watchType === "OUT" &&
+        (!watchCondition || watchCondition === "Diluar Operasional")
+      ) {
+        form.setValue("detail", [], {
+          shouldValidate: true,
+          shouldDirty: false,
+        });
+        return;
+      }
+
       const newDetails = items.map((item) => ({
         itemId: item.idItem,
         supplierId: "",
@@ -850,29 +1888,37 @@ function CreateTransactionForm({
         quantityDifference: 0,
         note: "",
       }));
-
       form.setValue("detail", newDetails, {
         shouldValidate: true,
         shouldDirty: false,
       });
+    };
+
+    if (!hasFilledData) {
+      doReset();
       return;
     }
 
-    // Ada data penting, konfirmasi dulu
     const oldType = prevTypeRef.current as typeTransactionType;
+    const oldCondition = prevConditionRef.current;
     const oldDetails = structuredClone(currentDetails);
 
     form.setValue("typeTransaction", oldType, { shouldValidate: false });
+    if (oldCondition !== undefined) {
+      form.setValue("condition", oldCondition, { shouldValidate: false });
+    }
 
-    toast("Jenis Transaksi Diubah", {
+    toast("Perubahan Terdeteksi", {
       description: "Semua data detail akan direset jika Anda melanjutkan.",
       duration: 15000,
       action: {
         label: "Undo",
         onClick: () => {
           form.setValue("typeTransaction", oldType);
+          form.setValue("condition", oldCondition ?? "");
           form.setValue("detail", oldDetails);
           prevTypeRef.current = oldType;
+          prevConditionRef.current = oldCondition;
           toast.success("Perubahan telah dibatalkan.");
         },
       },
@@ -880,14 +1926,20 @@ function CreateTransactionForm({
         label: "Ok",
         onClick: () => {
           prevTypeRef.current = watchType;
+          prevConditionRef.current = watchCondition;
           form.setValue("typeTransaction", watchType);
+          form.setValue("condition", watchCondition ?? "");
 
-          if (watchType === "IN") {
+          if (
+            watchType === "IN" ||
+            (watchType === "OUT" &&
+              (!watchCondition || watchCondition === "Diluar Operasional"))
+          ) {
             form.setValue("detail", [], {
               shouldValidate: true,
               shouldDirty: true,
             });
-            setSelectedSupplier("");
+            if (watchType === "IN") setSelectedSupplier("");
           } else {
             const newDetails = items.map((item) => ({
               itemId: item.idItem,
@@ -897,7 +1949,6 @@ function CreateTransactionForm({
               quantityDifference: 0,
               note: "",
             }));
-
             form.setValue("detail", newDetails, {
               shouldValidate: true,
               shouldDirty: true,
@@ -908,20 +1959,23 @@ function CreateTransactionForm({
         },
       },
     });
-  }, [watchType, form, items]);
+  }, [watchType, watchCondition, form, items, isOutAuto]);
 
-  // Effect untuk auto-fill saat type = "CHECK"
+  // ✅ FIX 6: CHECK auto-fill — gunakan form.getValues() bukan watchDetails
+  // sehingga effect ini TIDAK re-run setiap ketik angka.
+  // Effect hanya jalan saat watchType berubah ke CHECK (saat initial populate).
+  // Kalkulasi diff per-baris tetap ditangani di onChange input quantityCheck.
   React.useEffect(() => {
-    if (watchType !== "CHECK" || !watchDetails) return;
+    if (watchType !== "CHECK") return;
 
-    watchDetails.forEach((detail, index) => {
+    const details = form.getValues("detail");
+    if (!details?.length) return;
+
+    details.forEach((detail, index) => {
       if (detail === undefined) return;
 
-      const itemId = detail.itemId;
-      const qtyCheck = detail.quantityCheck ?? 0;
-
-      const selectedItem = itemId
-        ? items.find((i) => i.idItem === itemId)
+      const selectedItem = detail.itemId
+        ? items.find((i) => i.idItem === detail.itemId)
         : null;
       const qtySystem = selectedItem?.qty ?? 0;
 
@@ -929,6 +1983,7 @@ function CreateTransactionForm({
         `detail.${index}.quantityDetailTransaction`,
       );
       const currentDiff = form.getValues(`detail.${index}.quantityDifference`);
+      const qtyCheck = detail.quantityCheck ?? 0;
 
       if (currentQtySystem !== qtySystem) {
         form.setValue(`detail.${index}.quantityDetailTransaction`, qtySystem, {
@@ -945,7 +2000,9 @@ function CreateTransactionForm({
         });
       }
     });
-  }, [watchType, watchDetails, items, form]);
+    // ⚠️ Sengaja tidak include watchDetailItemIds di deps — effect ini hanya
+    // perlu jalan saat type berubah ke CHECK.
+  }, [watchType, form, items]);
 
   const handleRemove = useCallback(
     (index: number) => {
@@ -954,62 +2011,55 @@ function CreateTransactionForm({
     [remove],
   );
 
-  // Handler untuk add item di type IN (1 item kosong)
+  // ✅ FIX 7: handleAddItem — gunakan availableItemsGlobal yang sudah memoized
   const handleAddItem = useCallback(() => {
-    if (!selectedSupplier) {
-      toast.error("Pilih toko terlebih dahulu");
-      return;
-    }
-
-    const currentDetails = form.getValues("detail") || [];
-    const addedItemIds = new Set(currentDetails.map((d) => d.itemId));
-    const availableItems = items.filter(
-      (item) => !addedItemIds.has(item.idItem),
-    );
-
-    if (availableItems.length === 0) {
+    if (availableItemsGlobal.length === 0) {
       toast.error("Semua item sudah ditambahkan");
       return;
     }
 
-    // Tambahkan item kosong untuk dipilih manual
-    append({
-      itemId: "",
-      supplierId: selectedSupplier,
-      quantityDetailTransaction: 0,
-      quantityCheck: 0,
-      quantityDifference: 0,
-      note: "",
-    });
+    if (watchType === "IN") {
+      if (!selectedSupplier) {
+        toast.error("Pilih toko terlebih dahulu");
+        return;
+      }
+      append({
+        itemId: "",
+        supplierId: selectedSupplier,
+        quantityDetailTransaction: 0,
+        quantityCheck: 0,
+        quantityDifference: 0,
+        note: "",
+      });
+      setSelectedSupplier("");
+      toast.success(
+        "Item baru ditambahkan. Silakan pilih toko lagi untuk menambahkan item dari toko lain.",
+      );
+    } else if (isOutManual) {
+      append({
+        itemId: "",
+        supplierId: "",
+        quantityDetailTransaction: 0,
+        quantityCheck: 0,
+        quantityDifference: 0,
+        note: "",
+      });
+      toast.success("Item baru ditambahkan. Silakan pilih bahan baku.");
+    }
+  }, [availableItemsGlobal, selectedSupplier, append, watchType, isOutManual]);
 
-    // Reset selected supplier setelah menambahkan item
-    // Sehingga user bisa pilih toko lain untuk item berikutnya
-    setSelectedSupplier("");
-
-    toast.success(
-      "Item baru ditambahkan. Silakan pilih toko lagi untuk menambahkan item dari toko lain.",
-    );
-  }, [selectedSupplier, append, form, items]);
-
-  // Handler untuk add semua item available dari toko yang dipilih
   const handleAddAllItems = useCallback(() => {
     if (!selectedSupplier) {
       toast.error("Pilih toko terlebih dahulu");
       return;
     }
-
-    const currentDetails = form.getValues("detail") || [];
-    const addedItemIds = new Set(currentDetails.map((d) => d.itemId));
-    const availableItems = items.filter(
-      (item) => !addedItemIds.has(item.idItem),
-    );
-
-    if (availableItems.length === 0) {
+    if (availableItemsGlobal.length === 0) {
       toast.error("Semua item sudah ditambahkan");
       return;
     }
 
-    const newItems = availableItems.map((item) => ({
+    const currentDetails = form.getValues("detail") || [];
+    const newItems = availableItemsGlobal.map((item) => ({
       itemId: item.idItem,
       supplierId: selectedSupplier,
       quantityDetailTransaction: 0,
@@ -1027,15 +2077,15 @@ function CreateTransactionForm({
       (s) => s.idSupplier === selectedSupplier,
     )?.store_name;
     toast.success(
-      `${availableItems.length} item ditambahkan dari ${storeName}`,
+      `${availableItemsGlobal.length} item ditambahkan dari ${storeName}`,
     );
-
-    // Reset selected supplier setelah menambahkan semua item
     setSelectedSupplier("");
-  }, [selectedSupplier, form, items, supplier]);
+  }, [availableItemsGlobal, selectedSupplier, form, supplier]);
 
   const onSubmit = (values: z.infer<typeof schema>) => {
     startTransition(() => {
+      console.log(values);
+
       createTransaction(values).then((data) => {
         if (data.ok) {
           form.reset();
@@ -1050,17 +2100,19 @@ function CreateTransactionForm({
     });
   };
 
-  // Group items by supplier untuk tampilan yang lebih jelas (untuk type IN)
-  // FIX: Include field.id to enable stable indexing when items are deleted
+  // ✅ FIX 8: groupedBySupplier — hanya simpan data minimal (index & supplierId),
+  // bukan clone seluruh detail object
   const groupedBySupplier = React.useMemo(() => {
-    if (watchType !== "IN" || !watchDetails || !fields) return {};
+    if (watchType !== "IN" || !watchDetailItemIds || !fields) return {};
 
-    type GroupedItem = (typeof watchDetails)[number] & {
+    type GroupedItem = {
+      supplierId: string;
+      itemId: string;
       originalIndex: number;
       fieldId: string;
     };
 
-    return watchDetails.reduce(
+    return watchDetailItemIds.reduce(
       (acc, detail, index) => {
         if (!detail?.supplierId) return acc;
 
@@ -1068,7 +2120,8 @@ function CreateTransactionForm({
           acc[detail.supplierId] = [];
         }
         acc[detail.supplierId].push({
-          ...detail,
+          supplierId: detail.supplierId,
+          itemId: detail.itemId,
           originalIndex: index,
           fieldId: fields[index]?.id || "",
         });
@@ -1076,23 +2129,15 @@ function CreateTransactionForm({
       },
       {} as Record<string, GroupedItem[]>,
     );
-  }, [watchType, watchDetails, fields]);
+  }, [watchType, watchDetailItemIds, fields]);
 
-  // Handler untuk add item ke supplier tertentu
   const handleAddItemToSupplier = useCallback(
     (supplierId: string) => {
-      const currentDetails = form.getValues("detail") || [];
-      const addedItemIds = new Set(currentDetails.map((d) => d.itemId));
-      const availableItems = items.filter(
-        (item) => !addedItemIds.has(item.idItem),
-      );
-
-      if (availableItems.length === 0) {
+      if (availableItemsGlobal.length === 0) {
         toast.error("Semua item sudah ditambahkan");
         return;
       }
 
-      // Tambahkan item kosong untuk dipilih manual
       append({
         itemId: "",
         supplierId: supplierId,
@@ -1107,7 +2152,7 @@ function CreateTransactionForm({
       )?.store_name;
       toast.success(`Item baru ditambahkan ke ${storeName}`);
     },
-    [append, form, items, supplier],
+    [availableItemsGlobal, append, supplier],
   );
 
   return (
@@ -1117,7 +2162,9 @@ function CreateTransactionForm({
         <CardDescription className="text-base">
           {watchType === "IN"
             ? "Pilih toko → tambahkan item → ulangi untuk toko lain. Anda bisa membeli dari beberapa toko sekaligus dalam satu transaksi."
-            : "Pilih jenis transaksi (Cek atau bahan baku keluar). Semua item akan ditambahkan otomatis, hapus yang tidak diperlukan."}
+            : isOutManual
+              ? "Tambahkan item satu per satu sesuai kebutuhan diluar operasional."
+              : "Pilih jenis transaksi (Cek atau bahan baku keluar). Semua item akan ditambahkan otomatis, hapus yang tidak diperlukan."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -1181,7 +2228,7 @@ function CreateTransactionForm({
               <ItemListIN
                 items={items}
                 selectedItemIds={
-                  watchDetails?.map((d) => d.itemId).filter(Boolean) ?? []
+                  watchDetailItemIds?.map((d) => d.itemId).filter(Boolean) ?? []
                 }
               />
             )}
@@ -1224,6 +2271,24 @@ function CreateTransactionForm({
                     Tambah Detail Transaksi
                   </Button>
                 )}
+              </div>
+            )}
+
+            {/* ─── OUT Diluar Operasional: tombol tambah item manual ─── */}
+            {isOutManual && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  💡 Tip: Tambahkan bahan baku satu per satu sesuai kebutuhan.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddItem}
+                  className="w-full"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Tambah Bahan baku
+                </Button>
               </div>
             )}
 
@@ -1283,28 +2348,23 @@ function CreateTransactionForm({
                             </thead>
                             <tbody className="divide-y">
                               {supplierItems.map((supplierItem, idx) => {
-                                // FIX: Find current index using stable field.id instead of stale originalIndex
                                 const index = fields.findIndex(
                                   (f) => f.id === supplierItem.fieldId,
                                 );
 
-                                // Safety check: skip if field not found
                                 if (index === -1) return null;
 
                                 const field = fields[index];
                                 const currentDetail =
-                                  watchDetails?.[index] || {};
+                                  watchDetailItemIds?.[index] || {};
                                 const selectedItem = currentDetail.itemId
                                   ? items.find(
                                       (i) => i.idItem === currentDetail.itemId,
                                     )
                                   : null;
 
-                                // Use helper function to reduce nesting
-                                const availableItems = getAvailableItems(
-                                  items,
-                                  watchDetails,
-                                  index,
+                                const availableItems = getAvailableItemsForRow(
+                                  currentDetail.itemId ?? "",
                                 );
 
                                 return (
@@ -1312,12 +2372,10 @@ function CreateTransactionForm({
                                     key={field.id}
                                     className="hover:bg-muted/30 transition-colors"
                                   >
-                                    {/* No */}
                                     <td className="px-4 py-3 text-sm text-muted-foreground">
                                       {idx + 1}
                                     </td>
 
-                                    {/* Bahan Baku */}
                                     <td className="px-4 py-3">
                                       <CustomSelect
                                         name={`detail.${index}.itemId`}
@@ -1327,7 +2385,6 @@ function CreateTransactionForm({
                                         valueKey="idItem"
                                         labelKey="nameItem"
                                       />
-                                      {/* Hidden supplier field - moved inside td */}
                                       <FormField
                                         control={form.control}
                                         name={`detail.${index}.supplierId`}
@@ -1337,7 +2394,6 @@ function CreateTransactionForm({
                                       />
                                     </td>
 
-                                    {/* Quantity */}
                                     <td className="px-4 py-3">
                                       <FormField
                                         control={form.control}
@@ -1377,7 +2433,6 @@ function CreateTransactionForm({
                                       />
                                     </td>
 
-                                    {/* Action */}
                                     <td className="px-4 py-3 text-center sticky right-0 bg-background">
                                       <Button
                                         type="button"
@@ -1400,7 +2455,6 @@ function CreateTransactionForm({
                   },
                 )}
 
-                {/* Global Error */}
                 {form.formState.errors.detail?.message && (
                   <p className="text-sm text-destructive">
                     {form.formState.errors.detail.message}
@@ -1453,13 +2507,25 @@ function CreateTransactionForm({
                       </thead>
                       <tbody className="divide-y">
                         {fields.map((field, index) => {
-                          const currentDetail = watchDetails?.[index] || {};
+                          const currentDetail =
+                            watchDetailItemIds?.[index] || {};
                           const selectedItem = currentDetail.itemId
                             ? items.find(
                                 (i) => i.idItem === currentDetail.itemId,
                               )
                             : null;
                           const isDisable = watchType === "CHECK";
+
+                          // Untuk OUT manual: tampilkan CustomSelect agar bisa pilih item
+                          // Untuk OUT auto / CHECK: tampilkan nama item saja (readonly)
+                          const showItemSelect = isOutManual;
+
+                          // Daftar item yang tersedia untuk dipilih (exclude yang sudah dipilih di baris lain)
+                          const availableItems = showItemSelect
+                            ? getAvailableItemsForRow(
+                                currentDetail.itemId ?? "",
+                              )
+                            : [];
 
                           return (
                             <tr
@@ -1473,23 +2539,29 @@ function CreateTransactionForm({
 
                               {/* Bahan Baku */}
                               <td className="px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-sm">
-                                    {selectedItem?.nameItem || "-"}
-                                  </span>
-                                  {watchType === "OUT" && selectedItem && (
-                                    <span className="text-xs text-muted-foreground">
-                                      (Stok: {selectedItem.qty})
+                                {showItemSelect ? (
+                                  // OUT Diluar Operasional: bisa pilih item
+                                  <CustomSelect
+                                    name={`detail.${index}.itemId`}
+                                    label=""
+                                    control={form.control}
+                                    data={availableItems}
+                                    valueKey="idItem"
+                                    labelKey="nameItem"
+                                  />
+                                ) : (
+                                  // OUT Kebutuhan Operasional / CHECK: tampilkan nama saja
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-sm">
+                                      {selectedItem?.nameItem || "-"}
                                     </span>
-                                  )}
-                                </div>
-                                <FormField
-                                  control={form.control}
-                                  name={`detail.${index}.itemId`}
-                                  render={({ field }) => (
-                                    <input type="hidden" {...field} />
-                                  )}
-                                />
+                                    {watchType === "OUT" && selectedItem && (
+                                      <span className="text-xs text-muted-foreground">
+                                        (Stok: {selectedItem.qty})
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
                               </td>
 
                               {/* Quantity Detail */}

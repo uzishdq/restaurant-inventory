@@ -247,6 +247,7 @@ const validateOUT = (
   item: TItemTrx,
   i: number,
   ctx: z.RefinementCtx,
+  condition?: string,
 ) => {
   if (d.quantityDetailTransaction > item.qty) {
     ctx.addIssue({
@@ -256,7 +257,7 @@ const validateOUT = (
     });
   }
 
-  if (!d.note?.trim()) {
+  if (condition === "Diluar Operasional" && !d.note?.trim()) {
     ctx.addIssue({
       code: "custom",
       path: ["detail", i, "note"],
@@ -306,10 +307,7 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
         .min(1, "Setidaknya satu detail transaksi diperlukan."),
     })
     .superRefine((data, ctx) => {
-      if (
-        (data.typeTransaction === "OUT" || data.typeTransaction === "CHECK") &&
-        !data.condition?.trim()
-      ) {
+      if (data.typeTransaction === "CHECK" && !data.condition?.trim()) {
         ctx.addIssue({
           code: "custom",
           path: ["condition"],
@@ -335,7 +333,7 @@ export const CreateTransactionTestSchema = (items: TItemTrx[]) =>
             break;
 
           case "OUT":
-            validateOUT(d, item, i, ctx);
+            validateOUT(d, item, i, ctx, data.condition);
             break;
 
           case "CHECK":

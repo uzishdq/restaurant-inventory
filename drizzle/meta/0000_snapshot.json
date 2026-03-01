@@ -1,5 +1,5 @@
 {
-  "id": "bd81294d-2b11-4ef4-a01a-2bf984920637",
+  "id": "a8deadff-15e2-4831-a2db-4506dc72fcaf",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -502,15 +502,7 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "transaction_condition_unique": {
-          "name": "transaction_condition_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "condition"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
