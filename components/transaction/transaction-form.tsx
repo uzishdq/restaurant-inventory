@@ -2696,9 +2696,9 @@ function CreateTransactionForm({
                                             )}
                                           >
                                             {diffField.value > 0
-                                              ? `+${diffField.value} lebih`
+                                              ? "lebih"
                                               : diffField.value < 0
-                                                ? `${diffField.value} kurang`
+                                                ? "kurang"
                                                 : "cocok"}
                                           </p>
                                         </div>

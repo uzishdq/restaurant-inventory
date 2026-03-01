@@ -208,8 +208,8 @@ const transactionDetailSchema = z.object({
   itemId: itemIdSchema,
   supplierId: z.string().optional(),
   quantityDetailTransaction: validatedStock(0, 5000),
-  quantityCheck: validatedStock(-500, 500),
-  quantityDifference: validatedStock(-500, 500),
+  quantityCheck: validatedStock(-5000, 5000),
+  quantityDifference: validatedStock(-5000, 5000),
   note: z
     .string()
     .max(100, "Tidak boleh melebihi 100 karakter.")

@@ -179,7 +179,8 @@ export const columnItemMovement: ColumnDef<TItemMovement>[] = [
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize">
-        {row.original.quantityMovement} / {row.original.nameUnit}
+        {Math.abs(Number(row.original.quantityMovement ?? 0))} /{" "}
+        {row.original.nameUnit}
       </div>
     ),
   },
