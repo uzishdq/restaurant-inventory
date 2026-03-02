@@ -1806,10 +1806,47 @@ function CreateTransactionForm({
     form.setValue("condition", "", { shouldValidate: false });
   }, [watchType, form]);
 
-  // Auto-populate logic berdasarkan type dan condition
+  // ─────────────────────────────────────────────────────────────────────────────
+  // MAIN AUTO-POPULATE & CONFIRMATION LOGIC — FIXED: ignore condition changes when in CHECK
+  // ─────────────────────────────────────────────────────────────────────────────
   React.useEffect(() => {
     if (!watchType || items.length === 0) return;
 
+    // ──────────────────────────────────────────────
+    // CASE KHUSUS: Masuk ke CHECK (atau tetap di CHECK)
+    // ──────────────────────────────────────────────
+    if (watchType === "CHECK") {
+      // Hanya lakukan auto-fill SEKALI saat baru masuk ke CHECK
+      // Tidak bereaksi lagi terhadap perubahan condition selama masih CHECK
+      if (prevTypeRef.current !== "CHECK") {
+        // Baru saja berubah MENJADI CHECK → isi otomatis
+        const newDetails = items.map((item) => ({
+          itemId: item.idItem,
+          supplierId: "",
+          quantityDetailTransaction: item.qty ?? 0,
+          quantityCheck: 0,
+          quantityDifference: 0,
+          note: "",
+        }));
+
+        form.setValue("detail", newDetails, {
+          shouldValidate: true,
+          shouldDirty: false,
+        });
+      }
+
+      // Selalu update ref (penting agar tahu status sebelumnya)
+      prevTypeRef.current = watchType;
+      // Kita sengaja TIDAK update prevConditionRef saat di CHECK,
+      // supaya perubahan condition tidak dianggap "perubahan signifikan"
+      // prevConditionRef.current = watchCondition ?? null;  ← dikomentari / di-skip
+
+      return; // ← KELUAR lebih awal → skip toast & logic reset lain
+    }
+
+    // ──────────────────────────────────────────────
+    // CASE LAIN (bukan CHECK)
+    // ──────────────────────────────────────────────
     if (!hasInitializedRef.current) {
       hasInitializedRef.current = true;
       prevTypeRef.current = watchType;
@@ -1823,11 +1860,11 @@ function CreateTransactionForm({
         return;
       }
 
-      if (isOutAuto || watchType === "CHECK") {
+      if (isOutAuto) {
         const newDetails = items.map((item) => ({
           itemId: item.idItem,
           supplierId: "",
-          quantityDetailTransaction: watchType === "CHECK" ? item.qty : 0,
+          quantityDetailTransaction: 0,
           quantityCheck: 0,
           quantityDifference: 0,
           note: "",
@@ -1840,13 +1877,18 @@ function CreateTransactionForm({
       return;
     }
 
-    if (
-      watchType === prevTypeRef.current &&
-      watchCondition === prevConditionRef.current
-    ) {
+    // Cek apakah ada perubahan yang signifikan
+    // Saat ini bukan CHECK, jadi kita peduli condition
+    const typeChanged = watchType !== prevTypeRef.current;
+    const conditionChanged =
+      watchCondition !== prevConditionRef.current &&
+      prevConditionRef.current !== undefined;
+
+    if (!typeChanged && !conditionChanged) {
       return;
     }
 
+    // ── Ada perubahan tipe ATAU kondisi (hanya untuk non-CHECK) ──
     const currentDetails = form.getValues("detail") || [];
     const hasFilledData = currentDetails.some(
       (item) =>
@@ -1883,7 +1925,7 @@ function CreateTransactionForm({
       const newDetails = items.map((item) => ({
         itemId: item.idItem,
         supplierId: "",
-        quantityDetailTransaction: watchType === "CHECK" ? item.qty : 0,
+        quantityDetailTransaction: isOutAuto ? 0 : (item.qty ?? 0),
         quantityCheck: 0,
         quantityDifference: 0,
         note: "",
@@ -1899,6 +1941,8 @@ function CreateTransactionForm({
       return;
     }
 
+    // ── Ada data → tampilkan konfirmasi toast ──
+    // (kode toast + undo + ok sama seperti sebelumnya)
     const oldType = prevTypeRef.current as typeTransactionType;
     const oldCondition = prevConditionRef.current;
     const oldDetails = structuredClone(currentDetails);
@@ -1944,7 +1988,7 @@ function CreateTransactionForm({
             const newDetails = items.map((item) => ({
               itemId: item.idItem,
               supplierId: "",
-              quantityDetailTransaction: watchType === "CHECK" ? item.qty : 0,
+              quantityDetailTransaction: isOutAuto ? 0 : (item.qty ?? 0),
               quantityCheck: 0,
               quantityDifference: 0,
               note: "",
