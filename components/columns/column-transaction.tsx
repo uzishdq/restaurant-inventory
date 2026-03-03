@@ -117,6 +117,8 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
       const detailHref = transactionDetailRouteMap[dataRows.typeTransaction]?.(
         dataRows.idTransaction,
       );
+      const status = dataRows.statusTransaction;
+      const type = dataRows.typeTransaction;
 
       return (
         <DropdownMenu>
@@ -136,20 +138,31 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
                 </DropdownMenuItem>
               </>
             )}
-            {isPending && !isDeleted && (
-              <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
-                <DialogDelete value={dataRows} />
-              </DropdownMenuItem>
+            {isPending &&
+              !isDeleted &&
+              !(type === "IN" && status === "PENDING") && (
+                <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+                  <DialogDelete value={dataRows} />
+                </DropdownMenuItem>
+              )}
+            {!(type === "IN" && status === "ORDERED") && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Button
+                    asChild
+                    size="icon"
+                    variant="ghost"
+                    className="w-full"
+                  >
+                    <Link href={detailHref}>
+                      <List className="mr-2 h-4 w-4" />
+                      Detail Transaksi
+                    </Link>
+                  </Button>
+                </DropdownMenuItem>
+              </>
             )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Button asChild size="icon" variant="ghost" className="w-full">
-                <Link href={detailHref}>
-                  <List className="mr-2 h-4 w-4" />
-                  Detail Transaksi
-                </Link>
-              </Button>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -443,11 +456,11 @@ export const columnDetailTransactionCheck = ({
                 suppliers={suppliers}
               />
             </DropdownMenuItem>
-            {dataRows.statusDetailTransaction === "PENDING" && (
+            {/* {dataRows.statusDetailTransaction === "PENDING" && (
               <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
                 <DetailDialogDelete value={dataRows} />
               </DropdownMenuItem>
-            )}
+            )} */}
           </DropdownMenuContent>
         </DropdownMenu>
       );
