@@ -2544,9 +2544,11 @@ function CreateTransactionForm({
                           <th className="px-4 py-3 text-left text-sm font-medium min-w-[200px]">
                             Note
                           </th>
-                          <th className="px-4 py-3 text-center text-sm font-medium w-20 sticky right-0 bg-muted">
-                            Aksi
-                          </th>
+                          {watchType !== "CHECK" && (
+                            <th className="px-4 py-3 text-center text-sm font-medium w-20 sticky right-0 bg-muted">
+                              Aksi
+                            </th>
+                          )}
                         </tr>
                       </thead>
                       <tbody className="divide-y">
@@ -2775,17 +2777,19 @@ function CreateTransactionForm({
                               </td>
 
                               {/* Action */}
-                              <td className="px-4 py-3 text-center sticky right-0 bg-background">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleRemove(index)}
-                                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </td>
+                              {watchType !== "CHECK" && (
+                                <td className="px-4 py-3 text-center sticky right-0 bg-background">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemove(index)}
+                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </td>
+                              )}
                             </tr>
                           );
                         })}
