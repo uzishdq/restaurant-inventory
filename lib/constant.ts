@@ -26,6 +26,9 @@ export const ROUTES = {
         INDEX: "/dashboard/inventory-check",
         DETAIL: (id: string) => `/dashboard/inventory-check/detail/${id}`,
       },
+      UNSUITABLE_ITEMS: {
+        INDEX: "/dashboard/unsuitable-items",
+      },
     },
     REPORT: {
       TRANSACTION: "/dashboard/report-transaction",
@@ -96,6 +99,12 @@ export const ROUTE_TITLES: { pattern: RegExp; title: string }[] = [
   {
     pattern: /^\/dashboard\/inventory-check\/detail\/.+$/,
     title: "Detail Pemeriksaan Bahan Baku",
+  },
+
+  // tidak sesuai
+  {
+    pattern: /^\/dashboard\/unsuitable-items$/,
+    title: "Tidak Sesuai",
   },
 
   // Report
@@ -173,6 +182,7 @@ export const tagsSupplierRevalidate = [
 ];
 export const tagsTransactionRevalidate = [
   "get-transactions",
+  "get-transactions-by-id",
   "get-detail-transactions",
   "get-old-detail-transaction",
   "get-notification",

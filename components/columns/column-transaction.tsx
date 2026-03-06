@@ -145,24 +145,15 @@ export const columnTransaction: ColumnDef<TTransaction>[] = [
                   <DialogDelete value={dataRows} />
                 </DropdownMenuItem>
               )}
-            {!(type === "IN" && status === "ORDERED") && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Button
-                    asChild
-                    size="icon"
-                    variant="ghost"
-                    className="w-full"
-                  >
-                    <Link href={detailHref}>
-                      <List className="mr-2 h-4 w-4" />
-                      Detail Transaksi
-                    </Link>
-                  </Button>
-                </DropdownMenuItem>
-              </>
-            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Button asChild size="icon" variant="ghost" className="w-full">
+                <Link href={detailHref}>
+                  <List className="mr-2 h-4 w-4" />
+                  Detail Transaksi
+                </Link>
+              </Button>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

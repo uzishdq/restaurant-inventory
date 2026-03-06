@@ -5,15 +5,30 @@ import {
   columnDetailTransactionIn,
   columnDetailTransactionOut,
 } from "../columns/column-transaction";
-import { TDetailTransaction, TItemTrx, TSupplierTrx } from "@/lib/type-data";
+import {
+  TDetailTransaction,
+  TItemTrx,
+  TSupplierTrx,
+  TTransaction,
+} from "@/lib/type-data";
 import TableDateWrapper from "../table/table-wrapper";
 import FormDialog from "../ui/form-dialog";
-import { AddDetailTransactionForm } from "./transaction-form";
+import {
+  AddDetailTransactionForm,
+  UpdateTransactionForm,
+} from "./transaction-form";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
 
 interface ITransactionTableWrapper {
   data: TDetailTransaction[];
   items: TItemTrx[];
   suppliers: TSupplierTrx[];
+  transaction?: TTransaction;
 }
 
 function TransactionCheckTableWrapper({
@@ -53,6 +68,7 @@ function TransactionInTableWrapper({
   data,
   items,
   suppliers,
+  transaction,
 }: Readonly<ITransactionTableWrapper>) {
   const columns = useMemo(
     () => columnDetailTransactionIn({ items: items, suppliers: suppliers }),
@@ -69,15 +85,31 @@ function TransactionInTableWrapper({
       data={data}
       columns={columns}
     >
-      {data[0].statusDetailTransaction === "PENDING" && (
-        <FormDialog type="create" title="Add Product">
-          <AddDetailTransactionForm
-            data={data[0]}
-            items={items}
-            supplier={suppliers}
-          />
-        </FormDialog>
-      )}
+      <div className="flex items-center justify-end gap-2">
+        {transaction && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">Ubah Status</Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="w-48">
+              <div className="flex flex-col gap-2 p-2">
+                <UpdateTransactionForm data={transaction} />
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+        {data[0].statusDetailTransaction === "PENDING" &&
+          transaction?.condition !== "Tidak sesuai" && (
+            <FormDialog type="create" title="Add Product">
+              <AddDetailTransactionForm
+                data={data[0]}
+                items={items}
+                supplier={suppliers}
+              />
+            </FormDialog>
+          )}
+      </div>
     </TableDateWrapper>
   );
 }

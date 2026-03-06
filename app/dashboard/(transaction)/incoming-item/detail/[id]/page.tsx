@@ -5,7 +5,10 @@ import { LABEL } from "@/lib/constant";
 import { isTransactionId } from "@/lib/helper";
 import { getItemsTrx } from "@/lib/server/data/data-item";
 import { getSuppliersTrx } from "@/lib/server/data/data-supplier";
-import { getDetailTransactions } from "@/lib/server/data/data-transaction";
+import {
+  getDetailTransactions,
+  getTransactionById,
+} from "@/lib/server/data/data-transaction";
 
 export default async function DetailIncomingPage({
   params,
@@ -26,8 +29,9 @@ export default async function DetailIncomingPage({
     return RenderError(LABEL.ERROR.NOT_LOGIN);
   }
 
-  const [details, supplier, items] = await Promise.all([
+  const [details, transaction, supplier, items] = await Promise.all([
     getDetailTransactions(id),
+    getTransactionById(id, "IN"),
     getSuppliersTrx(),
     getItemsTrx(),
   ]);
@@ -35,6 +39,8 @@ export default async function DetailIncomingPage({
   if (
     !details.ok ||
     !details.data ||
+    !transaction.ok ||
+    !transaction.data ||
     !supplier.ok ||
     !supplier.data ||
     !items.ok ||
@@ -49,6 +55,7 @@ export default async function DetailIncomingPage({
         data={details.data}
         items={items.data}
         suppliers={supplier.data}
+        transaction={transaction.data}
       />
     </div>
   );

@@ -31,6 +31,7 @@ import {
   desc,
   eq,
   gte,
+  ilike,
   like,
   lt,
   lte,
@@ -68,7 +69,7 @@ export async function generateTransactionID(type: typeTransactionType) {
 }
 
 export const getTransactions = unstable_cache(
-  async (type: typeTransactionType) => {
+  async (type?: typeTransactionType, condition?: string) => {
     try {
       const result = await db
         .select({
@@ -90,7 +91,14 @@ export const getTransactions = unstable_cache(
             transactionTable.idTransaction,
           ),
         )
-        .where(eq(transactionTable.typeTransaction, type))
+        .where(
+          and(
+            type ? eq(transactionTable.typeTransaction, type) : undefined,
+            condition
+              ? ilike(transactionTable.condition, `%${condition}%`)
+              : undefined,
+          ),
+        )
         .groupBy(
           transactionTable.idTransaction,
           transactionTable.typeTransaction,
@@ -114,6 +122,59 @@ export const getTransactions = unstable_cache(
   ["get-transactions"],
   {
     tags: ["get-transactions"],
+  },
+);
+
+export const getTransactionById = unstable_cache(
+  async (id: string, type: typeTransactionType) => {
+    try {
+      const result = await db
+        .select({
+          idTransaction: transactionTable.idTransaction,
+          condition: transactionTable.condition,
+          typeTransaction: transactionTable.typeTransaction,
+          dateTransaction: transactionTable.dateTransaction,
+          userId: transactionTable.userId,
+          nameUser: userTable.nameUser,
+          statusTransaction: transactionTable.statusTransaction,
+          totalItems: count(detailTransactionTable.itemId),
+        })
+        .from(transactionTable)
+        .leftJoin(userTable, eq(userTable.idUser, transactionTable.userId))
+        .leftJoin(
+          detailTransactionTable,
+          eq(
+            detailTransactionTable.transactionId,
+            transactionTable.idTransaction,
+          ),
+        )
+        .where(
+          and(
+            eq(transactionTable.idTransaction, id),
+            eq(transactionTable.typeTransaction, type),
+          ),
+        )
+        .groupBy(
+          transactionTable.idTransaction,
+          transactionTable.typeTransaction,
+          transactionTable.dateTransaction,
+          transactionTable.userId,
+          userTable.nameUser,
+          transactionTable.statusTransaction,
+        )
+        .orderBy(desc(transactionTable.dateTransaction));
+
+      const data = (result[0] ?? null) as TTransaction | null;
+
+      return { ok: true, data };
+    } catch (error) {
+      console.error("error transaction data : ", error);
+      return { ok: false, data: null };
+    }
+  },
+  ["get-transactions-by-id"],
+  {
+    tags: ["get-transactions-by-id"],
   },
 );
 

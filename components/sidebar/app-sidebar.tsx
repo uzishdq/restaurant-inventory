@@ -77,6 +77,10 @@ export function AppSidebar({
             title: "Pergerakan Bahan Baku",
             url: ROUTES.AUTH.TRANSACTION.MOVEMENT,
           },
+          {
+            title: "Tidak Sesuai",
+            url: ROUTES.AUTH.TRANSACTION.UNSUITABLE_ITEMS.INDEX,
+          },
         ],
       },
       {

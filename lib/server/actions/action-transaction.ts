@@ -36,7 +36,11 @@ import {
   updateSupplierNotification,
 } from "./action-notifikasi";
 import { hasChanges } from "@/lib/helper";
-import { TInputItemMovement } from "@/lib/type-data";
+import {
+  statusDetailTransactionType,
+  TInputItemMovement,
+  TNewDataDetailTransaction,
+} from "@/lib/type-data";
 
 export const createTransaction = async (values: unknown) => {
   try {
@@ -318,6 +322,42 @@ export const updateTransaction = async (
             quantityDetailTransaction: Math.abs(item.quantityDifference ?? 0),
             quantityCheck: 0,
             quantityDifference: 0,
+            note: item.note ?? null,
+          }));
+
+          for (const chunk of chunkArray(detailPayload, 50)) {
+            await tx
+              .insert(detailTransactionTable)
+              .values(chunk)
+              .onConflictDoNothing();
+          }
+        }
+      }
+
+      if (type === "CHECK") {
+        const negativeDiffItems = updateDetailTransaction.filter(
+          (item) => (item.quantityDifference ?? 0) < 0,
+        );
+
+        if (negativeDiffItems.length > 0) {
+          const customId = await generateTransactionID("CHECK");
+
+          await tx.insert(transactionTable).values({
+            idTransaction: customId,
+            typeTransaction: "CHECK",
+            condition: "Tidak sesuai",
+            userId: session.user.id,
+          });
+
+          const detailPayload = negativeDiffItems.map((item) => ({
+            itemId: item.itemId,
+            supplierId: item.supplierId ?? null,
+            transactionId: customId,
+            quantityDetailTransaction: Math.abs(
+              item.quantityDetailTransaction ?? 0,
+            ),
+            quantityCheck: Math.abs(item.quantityCheck ?? 0),
+            quantityDifference: Math.abs(item.quantityDifference ?? 0),
             note: item.note ?? null,
           }));
 
@@ -680,7 +720,7 @@ export const updateDetailTransaction = async (values: unknown) => {
       ) {
         const newData = {
           itemId: validateValues.data.itemId,
-          supplierId: validateValues.data.supplierId,
+          supplierId: validateValues.data.supplierId!,
           quantityDetailTransaction:
             validateValues.data.quantityDetailTransaction,
         };
@@ -730,6 +770,7 @@ export const updateDetailTransaction = async (values: unknown) => {
           quantityCheck: validateValues.data.quantityCheck,
           quantityDifference: validateValues.data.quantityDifference,
           note: validateValues.data.note,
+          statusDetailTransaction: "COMPLETED" as statusDetailTransactionType,
         };
 
         const isSame = hasChanges(oldData.data, newData, [

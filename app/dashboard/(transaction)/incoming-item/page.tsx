@@ -18,6 +18,7 @@ export default async function StockInPage() {
     pendingTransaction,
     orderedTransaction,
     receiveTransaction,
+    cancelledTransaction,
     completedTransaction,
   } =
     transactions.data?.reduce(
@@ -28,6 +29,8 @@ export default async function StockInPage() {
           acc.orderedTransaction.push(item);
         } else if (item.statusTransaction === "RECEIVED") {
           acc.receiveTransaction.push(item);
+        } else if (item.statusTransaction === "CANCELLED") {
+          acc.cancelledTransaction.push(item);
         } else if (item.statusTransaction === "COMPLETED") {
           acc.completedTransaction.push(item);
         }
@@ -37,6 +40,7 @@ export default async function StockInPage() {
         pendingTransaction: [] as TTransaction[],
         orderedTransaction: [] as TTransaction[],
         receiveTransaction: [] as TTransaction[],
+        cancelledTransaction: [] as TTransaction[],
         completedTransaction: [] as TTransaction[],
       },
     ) || {};
@@ -106,6 +110,17 @@ export default async function StockInPage() {
         isFilterDate
         filterDate="dateTransaction"
         data={completedTransaction}
+        columns={columnTransaction}
+      />
+
+      <TableDateWrapper
+        header="Pengadaan Bahan Baku (Cancelled)"
+        description="Riwayat pengadaan bahan baku yang dibatalkan"
+        searchBy="nameUser"
+        labelSearch="Nama"
+        isFilterDate
+        filterDate="dateTransaction"
+        data={cancelledTransaction}
         columns={columnTransaction}
       />
     </div>

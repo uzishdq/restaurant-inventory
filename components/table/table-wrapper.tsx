@@ -116,7 +116,7 @@ export default function TableDateWrapper<T>({
             {description}.
           </CardDescription>
         </div>
-        {children}
+        <div className="ml-auto">{children}</div>
       </CardHeader>
       <CardContent>
         <div className="w-full">

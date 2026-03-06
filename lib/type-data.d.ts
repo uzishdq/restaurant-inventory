@@ -160,6 +160,13 @@ export type TDetailTransaction = {
   statusDetailTransaction: statusDetailTransactionType;
 };
 
+export type TNewDataDetailTransaction = {
+  itemId: string;
+  supplierId: string;
+  quantityDetailTransaction: number;
+  statusDetailTransaction?: statusDetailTransactionType;
+};
+
 export type TLastTransaction = {
   details: {
     itemId: string;

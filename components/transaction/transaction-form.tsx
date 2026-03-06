@@ -2813,7 +2813,7 @@ function CreateTransactionForm({
               className="w-full"
               disabled={isPending || fields.length === 0}
             >
-              {isPending ? "Loading..." : "Buat Transaksi"}
+              {isPending ? "Loading..." : "Simpan Transaksi"}
             </Button>
           </form>
         </Form>
@@ -3617,7 +3617,11 @@ function UpdateDetailTransactionForm({
         )}
         {data.statusDetailTransaction !== "COMPLETED" && (
           <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Loading..." : "Update"}
+            {isPending
+              ? "Loading..."
+              : data.typeTransaction === "IN"
+                ? "Simpan"
+                : "Update"}
           </Button>
         )}
       </form>
